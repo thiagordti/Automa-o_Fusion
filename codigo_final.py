@@ -96,12 +96,13 @@ while True:
     try:
         escolha = int(escolha)
         if escolha == 1:
-
-            caminho = selecionar_arquivo()
-            planilha = pd.read_excel(caminho) # Carrega a Planilha
-            numero_de_linhas = len(planilha) # Conta a quantidade de linhas
             usuario = input('Insira o usuario do Fusion: ')
             senha = input('Insira a senha do Fusion: ')
+            caminho = selecionar_arquivo()
+            planilha = pd.read_excel(caminho,'Medição') # Carrega a Planilha
+            numero_de_linhas = len(planilha) # Conta a quantidade de linhas
+            destino = os.path.dirname(caminho)
+            planilha_destino = destino + r'/Historico.xlsx'
 
             # Start no Navegador Chrome
             servico = Service(ChromeDriverManager().install())
@@ -130,7 +131,8 @@ while True:
                 aba_orignal = navegador.window_handles[0] # Identifica Aba Primaria
                 clicar_elemento_rustico(navegador, 'header', By.CLASS_NAME) # Clica no COB pesquisado
 
-                nova_aba = navegador.window_handles[1]# Identifica nova aba apos clicar no COB
+                WebDriverWait(navegador, 10).until(lambda d: len(d.window_handles) > 1)
+                nova_aba = navegador.window_handles[1]# Identifica nova aba apos iniciar Cobrança
                 navegador.switch_to.window(nova_aba) # Troca para nova Aba
 
                 # ---------------------- Esta Parte se refere ao COB sem Rateio ------------------------
@@ -259,15 +261,47 @@ while True:
                 while len(navegador.find_elements(By.CLASS_NAME, 'alert')) == 0: # Loop para aguardar o alerta carregar!
                     time.sleep(1)
                 time.sleep(1)
-                navegador.close() # Fecha o navegador apos Alerta Carregar!!
-
+                copiar_linha_ativa(planilha, planilha_destino, 'Novo', linha)
+                navegador.close() # Fecha a aba apos Alerta Carregar!!
                 navegador.switch_to.window(aba_orignal)
                 time.sleep(1)
                 acessar_iframe_default(navegador)
                 clicar_elemento_rustico(navegador,'clear-input-filter',By.CLASS_NAME)#Limpa o campo de Pesquisa
 
         elif escolha == 2:
-            print("Ação 2 executada.")
+            usuario = input('Insira o usuario do Fusion: ')
+            senha = input('Insira a senha do Fusion: ')
+            caminho = selecionar_arquivo()
+            planilha = pd.read_excel(caminho,'Novo') # Carrega a Planilha
+            numero_de_linhas = len(planilha) # Conta a quantidade de linhas
+
+            # Start no Navegador Chrome
+            servico = Service(ChromeDriverManager().install())
+            options = webdriver.ChromeOptions() # Para o mesmo não fechar apos execução
+            options.add_experimental_option("detach", True) # Para o mesmo não fechar apos execução
+            navegador = webdriver.Chrome(options=options,service=servico) # Executa o navegador
+            navegador.get('https://fusion.fiemg.com.br/fusion/portal')
+            navegador.maximize_window() # Maximiza a janela do navegador
+
+            enviarkey_elemento(navegador,'user',By.ID,usuario)# Login
+            enviarkey_elemento(navegador,'pass',By.ID,senha)# Senha
+            clicar_elemento(navegador,'btnLogin',By.ID) # Clica no botão de Login
+            acessar_iframe_default(navegador)# Acessa o Iframe
+            clicar_elemento(navegador,'btnStartProcess',By.ID) # Iniciar novo processo
+            clicar_elemento(navegador,'//*[@id="page-content-wrapper"]/div/div/div[1]/div[1]/nav/div/div/div/ul/li[3]/ul/li[5]/a/div/span[1]',By.XPATH) # Iniciar nova Cobrança
+
+            WebDriverWait(navegador, 10).until(lambda d: len(d.window_handles) > 1)
+            nova_aba = navegador.window_handles[1]# Identifica nova aba apos iniciar nova Cobrança
+            navegador.switch_to.window(nova_aba) # Troca para nova Aba
+            enviarkey_elemento(navegador,'id_informeNucleo__',By.ID,'Núcleo de Faturamento')# Envia nucleo - Padrão
+            enviarkey_elemento(navegador,'id_tipoSolicitacao__',By.ID,'Solicitação de cobrança (FG-176)')# Solicitação de cobrança - Padrão
+            enviarkey_elemento(navegador,'id_plataformaGestaoDaVenda__',By.ID,'Protheus')# Plataforma - Padrão
+
+            cod_filial = '01MG0014' # Codigo Filial - Padrão
+            cod_uo = '10310' # Codigo UO - Padrão
+            for linha in range(len(planilha)):
+                print('oi')
+
         elif escolha == 0:
             print("Saindo...")
             break
