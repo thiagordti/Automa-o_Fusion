@@ -196,6 +196,9 @@ while True:
                     clicar_elemento(navegador,'createitem',By.ID)# Clica para criar novo Item
                     acessar_iframe(navegador)# Acessa o Iframe
                     enviarkey_elemento(navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoCliente__',By.ID,str(int(planilha.iloc[linha]['CNPJ'].replace('.','').replace('/','').replace('-','')))) # Envia CNPJ
+                    data_venc = planilha.iloc[linha]['DATA_DE_VENCIMENTO']
+                    data = planilha.iloc[linha]['DATA_DESCRIÇÃO']
+                    date = datetime.strptime(data.strftime('%d/%m/%Y'), '%d/%m/%Y') # Transforma data em string
                     clicar_elemento(navegador,'ui-id-11',By.ID) # Clica no CNPJ informado
                     primeiro_dia, ultimo_dia = primeiro_e_ultimo_dia_do_mes(date.year, date.month) # Pega o mês e dia
                     enviarkey_elemento(navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA CONSULTAS E EXAMES COMPLEMENTARES. \nPERÍODO: {primeiro_dia} a {ultimo_dia}.') # Envia Descrição
