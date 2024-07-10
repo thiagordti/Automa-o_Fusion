@@ -10,6 +10,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from openpyxl import load_workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
+from getpass import getpass
 import tkinter as tk
 import calendar
 import time
@@ -102,7 +103,7 @@ while True:
         escolha = int(escolha)
         if escolha == 1:
             usuario = input('Insira o usuario do Fusion: ')
-            senha = input('Insira a senha do Fusion: ')
+            senha = getpass('Insira a senha do Fusion: ')
             caminho = selecionar_arquivo()
             planilha = pd.read_excel(caminho,'Medição') # Carrega a Planilha
             numero_de_linhas = len(planilha) # Conta a quantidade de linhas
@@ -277,7 +278,7 @@ while True:
 
         elif escolha == 2:
             usuario = input('Insira o usuario do Fusion: ')
-            senha = input('Insira a senha do Fusion: ')
+            senha = getpass('Insira a senha do Fusion: ')
             caminho = selecionar_arquivo()
             planilha = pd.read_excel(caminho,'Novo') # Carrega a Planilha
             numero_de_linhas = len(planilha) # Conta a quantidade de linhas
