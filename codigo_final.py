@@ -139,6 +139,14 @@ while True:
                 WebDriverWait(navegador, 10).until(lambda d: len(d.window_handles) > 1)
                 nova_aba = navegador.window_handles[1]# Identifica nova aba apos iniciar Cobrança
                 navegador.switch_to.window(nova_aba) # Troca para nova Aba
+                data = planilha.iloc[linha]['DATA_DESCRIÇÃO'] # Pega data de Descrição
+                date = datetime.strptime(data.strftime('%d/%m/%Y'), '%d/%m/%Y') # Transforma data em string
+                primeiro_dia, ultimo_dia = primeiro_e_ultimo_dia_do_mes(date.year, date.month) # Pega o mês e dia
+                if pd.isna(planilha.iloc[linha]['DATA_DE_VENCIMENTO']):
+                    data_venc = date
+                else:
+                    data_venc = planilha.iloc[linha]['DATA_DE_VENCIMENTO'] # Pega data de Vencimento
+
 
                 # ---------------------- Esta Parte se refere ao COB sem Rateio ------------------------
                 for sem_rateio in range(2):
@@ -149,10 +157,7 @@ while True:
                         acessar_iframe(navegador)# Acessa o Iframe
                         enviarkey_elemento(navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoCliente__',By.ID,str(int(planilha.iloc[linha]['CNPJ'].replace('.','').replace('/','').replace('-','')))) # Envia CNPJ
                         clicar_elemento(navegador,'ui-id-11',By.ID) # Clica no CNPJ informado
-                        data_venc = planilha.iloc[linha]['DATA_DE_VENCIMENTO']
-                        data = planilha.iloc[linha]['DATA_DESCRIÇÃO']
-                        date = datetime.strptime(data.strftime('%d/%m/%Y'), '%d/%m/%Y') # Transforma data em string
-                        primeiro_dia, ultimo_dia = primeiro_e_ultimo_dia_do_mes(date.year, date.month) # Pega o mês e dia
+
                         if sem_rateio == 0:
                             enviarkey_elemento(navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA SESI VIVA+: AEP,PGR,PCMSO,LTCAT \nPERÍODO: {primeiro_dia} a {ultimo_dia}.') # Envia Descrição
                         else:
@@ -196,11 +201,7 @@ while True:
                     clicar_elemento(navegador,'createitem',By.ID)# Clica para criar novo Item
                     acessar_iframe(navegador)# Acessa o Iframe
                     enviarkey_elemento(navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoCliente__',By.ID,str(int(planilha.iloc[linha]['CNPJ'].replace('.','').replace('/','').replace('-','')))) # Envia CNPJ
-                    data_venc = planilha.iloc[linha]['DATA_DE_VENCIMENTO']
-                    data = planilha.iloc[linha]['DATA_DESCRIÇÃO']
-                    date = datetime.strptime(data.strftime('%d/%m/%Y'), '%d/%m/%Y') # Transforma data em string
                     clicar_elemento(navegador,'ui-id-11',By.ID) # Clica no CNPJ informado
-                    primeiro_dia, ultimo_dia = primeiro_e_ultimo_dia_do_mes(date.year, date.month) # Pega o mês e dia
                     enviarkey_elemento(navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA CONSULTAS E EXAMES COMPLEMENTARES. \nPERÍODO: {primeiro_dia} a {ultimo_dia}.') # Envia Descrição
                     enviarkey_elemento(navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__rateio__', By.NAME,'Sim')# Envia sim ao campo de rateio
                     #Loop para a quantidade de Itens
