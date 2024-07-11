@@ -73,6 +73,32 @@ def copiar_linha_ativa(df, destino, sheet_name, linha):
     except Exception as e:
         print(f"Erro ao carregar o arquivo de destino: {e}")
 
+def copiar_linha_novo(df, destino, sheet_name, linha, texto_adicional):
+    linha_ativa = df.iloc[[linha]].dropna(how='all')  # Seleciona a linha ativa específica (não vazia)
+    try:
+        book = load_workbook(destino)  # Tenta carregar a planilha de destino existente
+        if sheet_name in book.sheetnames:
+            sheet = book[sheet_name]
+        else:
+            sheet = book.create_sheet(sheet_name)
+        
+        # Encontra a próxima linha vazia na planilha de destino
+        next_row = sheet.max_row + 1
+        print(f"Adicionando a partir da linha {next_row}")
+
+        # Adiciona a linha ativa à planilha de destino
+        for r_idx, row in enumerate(dataframe_to_rows(linha_ativa, index=False, header=False), start=next_row):
+            for c_idx, value in enumerate(row, 1):
+                sheet.cell(row=r_idx, column=c_idx, value=value)
+        
+        # Adiciona o texto na última coluna da nova linha
+        sheet.cell(row=next_row, column=sheet.max_column + 1, value=texto_adicional)
+
+        # Salva o arquivo de destino
+        book.save(destino)
+    except Exception as e:
+        print(f"Erro ao carregar o arquivo de destino: {e}")
+
 def enviarkey_element(driver, element_name, value):
 
     # Simula a entrada de dados via JavaScript para evitar interferência da máscara de entrada
@@ -90,6 +116,11 @@ def enviarkey_element(driver, element_name, value):
 def selecionar_arquivo():
     caminho_arquivo = askopenfilename(title="Selecione a Planilha COB!") # Solciita o usuario selecionar a planilha!
     return caminho_arquivo
+
+def texto_elemento(nav,elemento,tipo):
+    obj = WebDriverWait(nav, 180).until(EC.presence_of_element_located((tipo, elemento))) # Aguarda 180 segundos até o elemento carregar
+    texto = obj.text
+    return texto.split('-')[0]
 
 while True:
     print('-----------Automação COB-----------/n')
@@ -318,6 +349,7 @@ while True:
                     primeiro_dia, ultimo_dia = primeiro_e_ultimo_dia_do_mes(date.year, date.month) # Pega o mês e dia
                     data_str = planilha.iloc[linha]['DATA']
                     data_obj = datetime.strptime(data_str.strftime('%d/%m/%Y'), '%d/%m/%Y')
+                    nome_cob = texto_elemento(navegador,'headerTitle',By.ID)
                     enviarkey_elemento(navegador,'id_tipoDeMedicao__',By.ID,'Variavel')# Tipo de medição
                     enviarkey_elemento(navegador,'var_dadosDaCobranca__APeriodicidadeDoFaturamentoEMensal__',By.ID,'Sim')# Periodicidade
                     enviarkey_elemento(navegador,'var_dadosDaCobranca__dadosParaHistorico__HouvePrestacaoDeServicos__',By.ID,'Sim')# Prestação de serviço
@@ -347,7 +379,6 @@ while True:
                         enviarkey_elemento(navegador,'var_codfilialprotheus__',By.NAME,'01MG0014') # Envia COD FILIAL - PADRÃO
                         enviarkey_elemento(navegador,'var_coduo__',By.NAME,'10310') # Envia COD UO - PADRÃO
                         enviarkey_elemento(navegador,'var_codccusto__',By.NAME,int(planilha.iloc[linha]['CR1'])) # Envia COD PRODUTO
-                        input('enter')
                         clicar_elemento(navegador,'searchbutton',By.ID) # Clica na Pesquisa
                         acessar_iframe_default(navegador) # Acessa Iframe da Pesquisa
                         clicar_elemento(navegador,'tooltip0',By.ID)
@@ -360,7 +391,6 @@ while True:
                             navegador.find_element(By.ID, 'move_this_right_mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__formaDeEntradaDosRecursos').click()        
                         enviarkey_elemento(navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__data__',By.ID,data_obj.strftime('%d/%m/%Y')) # Envia data da cobrança
                         enviarkey_element(navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__valor__',planilha.iloc[linha]['VALOR1'])
-                        input('enter')
                         clicar_elemento(navegador,'action.save',By.NAME) # Clica para salvar.
                         acessar_iframe_default(navegador) # Acessa Iframe primario
                     enviarkey_elemento(navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__numeroContratoProtheus__',By.ID,int(planilha.iloc[linha]['NUMERO DO CONTRATO'])) # Envia o numero de contrato
@@ -403,7 +433,6 @@ while True:
                             elemento2 = WebDriverWait(navegador, 10).until(EC.presence_of_element_located((By.NAME, 'var_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoRateio__valor__')))
                             script_valor_cr = f"document.getElementsByName('var_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoRateio__valor__')[0].value='{planilha.iloc[linha][f'VALOR{com_rateio+1}']}';"
                             navegador.execute_script(script_valor_cr)
-                            input('enter')
                             clicar_elemento(navegador,'action.save',By.NAME) # Clica para salvar.
                             acessar_iframe_default(navegador) # Acessa Iframe primario
                             contador += 1 # Soma 1 a quantidade de contador, será utiizado para clicar no loop Contador!
@@ -411,13 +440,11 @@ while True:
                     for i in range(contador): # Baseado na soma do Contador clica nos itens
                         clicar_elemento_rustico(navegador,f'//*[@id="{i}"]/td[2]',By.XPATH) # Clica no Item baseado nos indices (No fusion o indice 0 conta!)!!
                         acessar_iframe_default(navegador) # Acessa Iframe primario
-                        input('enter')
                         clicar_elemento(navegador,'action.save',By.NAME) # Clica para salvar.
                         acessar_iframe_default(navegador) # Acessa Iframe primario
 
                     enviarkey_elemento(navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__numeroContratoProtheus__',By.ID,str(int(planilha.iloc[linha]['NUMERO DO CONTRATO']))) # Envia o numero de contrato
                     clicar_elemento(navegador,'//*[@id="ui-id-10"]/li',By.XPATH) # Clica no numero de contrato
-                    input('enter')
                     clicar_elemento(navegador,'action.save',By.NAME) # Clica para salvar.
                     navegador.switch_to.default_content()#Volta para o inicio
 
@@ -443,17 +470,17 @@ while True:
                             acessar_iframe_default(navegador) # Acessa Iframe dos itens novos
                             enviarkey_elemento(navegador,'var_emailClienteFP__Email__',By.ID,lst_email[i]) # Envia Valor
                             clicar_elemento_rustico(navegador,'form_container',By.ID)
-                            input('enter')
                             clicar_elemento(navegador,'//*[@id="dibButtons"]/input[1]',By.XPATH) # Botão Ok
 
                     acessar_iframe_default(navegador) # Acessa Iframe dos itens novos
                     clicar_elemento(navegador,'cancelButtonModal',By.ID) # Botão Cancelar
                     input('Confirma o lançamento!!!')
+                    navegador.switch_to.default_content()
                     clicar_elemento(navegador,'action.send',By.NAME)
                     while len(navegador.find_elements(By.CLASS_NAME, 'alert')) == 0: # Loop para aguardar o alerta carregar!
                         time.sleep(1)
                     time.sleep(1)
-                    copiar_linha_ativa(planilha, planilha_destino, 'Novo', linha)
+                    copiar_linha_novo(planilha, planilha_destino, 'Novo', linha,nome_cob)
                     navegador.close() # Fecha a aba apos Alerta Carregar!!
                     navegador.switch_to.window(aba_orignal)
                     time.sleep(1)
@@ -466,6 +493,7 @@ while True:
                     primeiro_dia, ultimo_dia = primeiro_e_ultimo_dia_do_mes(date.year, date.month) # Pega o mês e dia
                     data_str = planilha.iloc[linha]['DATA']
                     data_obj = datetime.strptime(data_str.strftime('%d/%m/%Y'), '%d/%m/%Y')
+                    nome_cob = texto_elemento(navegador,'headerTitle',By.ID)
                     enviarkey_elemento(navegador,'id_tipoDeMedicao__',By.ID,'Variavel')# Tipo de medição
                     enviarkey_elemento(navegador,'var_dadosDaCobranca__APeriodicidadeDoFaturamentoEMensal__',By.ID,'Sim')# Periodicidade
                     enviarkey_elemento(navegador,'var_dadosDaCobranca__dadosParaHistorico__HouvePrestacaoDeServicos__',By.ID,'Sim')# Prestação de serviço
@@ -497,7 +525,6 @@ while True:
                             enviarkey_elemento(navegador,'var_codfilialprotheus__',By.NAME,'01MG0014') # Envia COD FILIAL - PADRÃO
                             enviarkey_elemento(navegador,'var_coduo__',By.NAME,'10310') # Envia COD UO - PADRÃO
                             enviarkey_elemento(navegador,'var_codccusto__',By.NAME,int(planilha.iloc[linha][f'CR{sem_rateio+1}'])) # Envia COD PRODUTO
-                            input('enter')
                             clicar_elemento(navegador,'searchbutton',By.ID) # Clica na Pesquisa
                             acessar_iframe_default(navegador) # Acessa Iframe da Pesquisa
                             clicar_elemento(navegador,'tooltip0',By.ID)
@@ -510,7 +537,6 @@ while True:
                                 navegador.find_element(By.ID, 'move_this_right_mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__formaDeEntradaDosRecursos').click()        
                             enviarkey_elemento(navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__data__',By.ID,data_obj.strftime('%d/%m/%Y')) # Envia data da cobrança
                             enviarkey_element(navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__valor__',planilha.iloc[linha][f'VALOR{sem_rateio+1}'])
-                            input('enter')
                             clicar_elemento(navegador,'action.save',By.NAME) # Clica para salvar.
                             acessar_iframe_default(navegador) # Acessa Iframe primario
                     enviarkey_elemento(navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__numeroContratoProtheus__',By.ID,int(planilha.iloc[linha]['NUMERO DO CONTRATO'])) # Envia o numero de contrato
@@ -541,17 +567,17 @@ while True:
                             acessar_iframe_default(navegador) # Acessa Iframe dos itens novos
                             enviarkey_elemento(navegador,'var_emailClienteFP__Email__',By.ID,lst_email[i]) # Envia Valor
                             clicar_elemento_rustico(navegador,'form_container',By.ID)
-                            input('enter')
                             clicar_elemento(navegador,'//*[@id="dibButtons"]/input[1]',By.XPATH) # Botão Ok
 
                     acessar_iframe_default(navegador) # Acessa Iframe dos itens novos
                     clicar_elemento(navegador,'cancelButtonModal',By.ID) # Botão Cancelar
                     input('Confirma o lançamento!!!')
+                    navegador.switch_to.default_content()
                     clicar_elemento(navegador,'action.send',By.NAME)
                     while len(navegador.find_elements(By.CLASS_NAME, 'alert')) == 0: # Loop para aguardar o alerta carregar!
                         time.sleep(1)
                     time.sleep(1)
-                    copiar_linha_ativa(planilha, planilha_destino, 'Novo', linha)
+                    copiar_linha_novo(planilha, planilha_destino, 'Novo', linha,nome_cob)
                     navegador.close() # Fecha a aba apos Alerta Carregar!!
                     navegador.switch_to.window(aba_orignal)
                     time.sleep(1)
@@ -560,7 +586,7 @@ while True:
                 elif planilha.iloc[linha]['TIPO'].lower() == "fixo" and planilha.iloc[linha]['RATEIO'].lower() == "não":
                     enviarkey_elemento(navegador,'id_tipoDeMedicao__',By.ID,'Fixa')# Tipo de medição
                     clicar_elemento(navegador,'//*[@id="tab_bar_"]/li[2]/a',By.XPATH) # Clica na guia Dados de cobrança
-
+                    nome_cob = texto_elemento(navegador,'headerTitle',By.ID)
                     enviarkey_elemento(navegador,'id_txt_dadosCobranca__DadosDoCliente__',By.ID,str(int(planilha.iloc[linha]['CNPJ'].replace('.','').replace('/','').replace('-',''))))# Envia CNPJ
                     clicar_elemento(navegador,'ui-menu-item',By.CLASS_NAME) # Clica no CNPJ informado
                     enviarkey_elemento(navegador,'var_dadosCobranca__descricaoServico__',By.ID,planilha.iloc[linha]['DESCRICAO'])# Envia Descrição
@@ -619,11 +645,12 @@ while True:
                     acessar_iframe_default(navegador) # Acessa Iframe dos itens novos
                     clicar_elemento(navegador,'cancelButtonModal',By.ID) # Botão Cancelar
                     input('Confirma o lançamento!!!')
+                    navegador.switch_to.default_content()
                     clicar_elemento(navegador,'action.send',By.NAME)
                     while len(navegador.find_elements(By.CLASS_NAME, 'alert')) == 0: # Loop para aguardar o alerta carregar!
                         time.sleep(1)
                     time.sleep(1)
-                    copiar_linha_ativa(planilha, planilha_destino, 'Novo', linha)
+                    copiar_linha_novo(planilha, planilha_destino, 'Novo', linha,nome_cob)
                     navegador.close() # Fecha a aba apos Alerta Carregar!!
                     navegador.switch_to.window(aba_orignal)
                     time.sleep(1)
@@ -632,6 +659,7 @@ while True:
                 elif planilha.iloc[linha]['TIPO'].lower() == "fixo" and planilha.iloc[linha]['RATEIO'].lower() == "sim":
                     enviarkey_elemento(navegador,'id_tipoDeMedicao__',By.ID,'Fixa')# Tipo de medição
                     clicar_elemento(navegador,'//*[@id="tab_bar_"]/li[2]/a',By.XPATH) # Clica na guia Dados de cobrança
+                    nome_cob = texto_elemento(navegador,'headerTitle',By.ID)
                     enviarkey_elemento(navegador,'id_txt_dadosCobranca__DadosDoCliente__',By.ID,str(int(planilha.iloc[linha]['CNPJ'].replace('.','').replace('/','').replace('-',''))))# Envia CNPJ
                     clicar_elemento(navegador,'ui-menu-item',By.CLASS_NAME) # Clica no CNPJ informado
                     enviarkey_elemento(navegador,'var_dadosCobranca__descricaoServico__',By.ID,planilha.iloc[linha]['DESCRICAO'])# Envia Descrição
@@ -704,11 +732,12 @@ while True:
                     acessar_iframe_default(navegador) # Acessa Iframe dos itens novos
                     clicar_elemento(navegador,'cancelButtonModal',By.ID) # Botão Cancelar
                     input('Confirma o lançamento!!!')
+                    navegador.switch_to.default_content()
                     clicar_elemento(navegador,'action.send',By.NAME)
                     while len(navegador.find_elements(By.CLASS_NAME, 'alert')) == 0: # Loop para aguardar o alerta carregar!
                         time.sleep(1)
                     time.sleep(1)
-                    copiar_linha_ativa(planilha, planilha_destino, 'Novo', linha)
+                    copiar_linha_novo(planilha, planilha_destino, 'Novo', linha,nome_cob)
                     navegador.close() # Fecha a aba apos Alerta Carregar!!
                     navegador.switch_to.window(aba_orignal)
                     time.sleep(1)
