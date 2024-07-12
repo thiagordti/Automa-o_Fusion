@@ -58,46 +58,31 @@ def primeiro_e_ultimo_dia_do_mes(ano, mes):
 
 def copiar_linha_ativa(df, destino, sheet_name, linha):
     linha_ativa = df.iloc[[linha]].dropna(how='all')# Seleciona a linha ativa específica (não vazia)
-    try:
-        book = load_workbook(destino)# Tenta carregar a planilha de destino existente
-        if sheet_name in book.sheetnames:
-            sheet = book[sheet_name]
-        else:
-            sheet = book.create_sheet(sheet_name)
-        next_row = sheet.max_row + 1# Encontra a próxima linha vazia na planilha de destino
-        print(f"Adicionando a partir da linha {next_row}")
-        for r_idx, row in enumerate(dataframe_to_rows(linha_ativa, index=False, header=False), start=next_row): # Adiciona a linha ativa à planilha de destino
-            for c_idx, value in enumerate(row, 1):
-                sheet.cell(row=r_idx, column=c_idx, value=value)
-        book.save(destino)# Salva o arquivo de destino
-    except Exception as e:
-        print(f"Erro ao carregar o arquivo de destino: {e}")
+    book = load_workbook(destino)# Tenta carregar a planilha de destino existente
+    if sheet_name in book.sheetnames:
+        sheet = book[sheet_name]
+    else:
+        sheet = book.create_sheet(sheet_name)
+    next_row = sheet.max_row + 1# Encontra a próxima linha vazia na planilha de destino
+    print(f"Adicionando a partir da linha {next_row}")
+    for r_idx, row in enumerate(dataframe_to_rows(linha_ativa, index=False, header=False), start=next_row): # Adiciona a linha ativa à planilha de destino
+        for c_idx, value in enumerate(row, 1):
+            sheet.cell(row=r_idx, column=c_idx, value=value)
+    book.save(destino)# Salva o arquivo de destino
 
 def copiar_linha_novo(df, destino, sheet_name, linha, texto_adicional):
     linha_ativa = df.iloc[[linha]].dropna(how='all')  # Seleciona a linha ativa específica (não vazia)
-    try:
-        book = load_workbook(destino)  # Tenta carregar a planilha de destino existente
-        if sheet_name in book.sheetnames:
-            sheet = book[sheet_name]
-        else:
-            sheet = book.create_sheet(sheet_name)
-        
-        # Encontra a próxima linha vazia na planilha de destino
-        next_row = sheet.max_row + 1
-        print(f"Adicionando a partir da linha {next_row}")
-
-        # Adiciona a linha ativa à planilha de destino
-        for r_idx, row in enumerate(dataframe_to_rows(linha_ativa, index=False, header=False), start=next_row):
-            for c_idx, value in enumerate(row, 1):
-                sheet.cell(row=r_idx, column=c_idx, value=value)
-        
-        # Adiciona o texto na última coluna da nova linha
-        sheet.cell(row=next_row, column=sheet.max_column + 1, value=texto_adicional)
-
-        # Salva o arquivo de destino
-        book.save(destino)
-    except Exception as e:
-        print(f"Erro ao carregar o arquivo de destino: {e}")
+    book = load_workbook(destino)  # Tenta carregar a planilha de destino existente
+    if sheet_name in book.sheetnames:
+        sheet = book[sheet_name]
+    else:
+        sheet = book.create_sheet(sheet_name)
+    next_row = sheet.max_row + 1# Encontra a próxima linha vazia na planilha de destino
+    for r_idx, row in enumerate(dataframe_to_rows(linha_ativa, index=False, header=False), start=next_row):# Adiciona a linha ativa à planilha de destino
+        for c_idx, value in enumerate(row, 1):
+            sheet.cell(row=r_idx, column=c_idx, value=value)
+    sheet.cell(row=next_row, column=sheet.max_column + 1, value=texto_adicional)# Adiciona o texto na última coluna da nova linha
+    book.save(destino)# Salva o arquivo de destino
 
 def enviarkey_element(driver, element_name, value):
 
@@ -122,6 +107,19 @@ def texto_elemento(nav,elemento,tipo):
     texto = obj.text
     return texto.split('-')[0]
 
+def esperar_elementos_carregar(navegador, timeout=60):
+    try:
+        WebDriverWait(navegador, timeout).until(
+            lambda driver: len(driver.find_elements(By.CLASS_NAME, "item")) > 0 or 
+                           len(driver.find_elements(By.XPATH, '//div[contains(@class, "no-results-default-boxes") and contains(@class, "ng-scope") and contains(., "Sua Caixa de Entrada está vazia")]')) > 0
+        )
+        print("Pelo menos um dos elementos foi carregado.")
+    except Exception as e:
+        print(f"Erro ao esperar elementos carregarem: {e}")
+
+cod_filial = '01MG0014' # Codigo Filial - Padrão
+cod_uo = '10310' # Codigo UO - Padrão
+
 while True:
     print('-----------Automação COB-----------/n')
     print("\nMenu de Escolhas:")
@@ -129,7 +127,6 @@ while True:
     print("2 - Criar Novos COB's")
     print("0 - Sair")
     escolha = input("Escolha uma opção: ")
-
     try:
         escolha = int(escolha)
         if escolha == 1:
@@ -140,7 +137,6 @@ while True:
             numero_de_linhas = len(planilha) # Conta a quantidade de linhas
             destino = os.path.dirname(caminho)
             planilha_destino = destino + r'/Historico.xlsx'
-
             # Start no Navegador Chrome
             servico = Service(ChromeDriverManager().install())
             options = webdriver.ChromeOptions() # Para o mesmo não fechar apos execução
@@ -148,26 +144,16 @@ while True:
             navegador = webdriver.Chrome(options=options,service=servico) # Executa o navegador
             navegador.get('https://fusion.fiemg.com.br/fusion/portal')
             navegador.maximize_window() # Maximiza a janela do navegador
-
             enviarkey_elemento(navegador,'user',By.ID,usuario)# Login
             enviarkey_elemento(navegador,'pass',By.ID,senha)# Senha
             clicar_elemento(navegador,'btnLogin',By.ID) # Clica no botão de Login
             acessar_iframe_default(navegador)# Acessa o Iframe
-
-            cod_filial = '01MG0014' # Codigo Filial - Padrão
-            cod_uo = '10310' # Codigo UO - Padrão
-
             for linha in range(len(planilha)):
-
                 enviarkey_elemento(navegador,'searchBarProcessQuery',By.ID,planilha.iloc[linha]['COB'])#Envio do COB
-                while len(navegador.find_elements(By.CLASS_NAME, "item")) == 0: # Loop para aguardar a lista de itens carregar, se a lista não carregar a pesquisa não funciona!
-                    time.sleep(1)
-                time.sleep(1)
-
+                esperar_elementos_carregar(navegador)
                 clicar_elemento_rustico(navegador,'//*[@id="page-content-wrapper"]/div/div/div[1]/div[1]/nav/div/form/div/div/span/button',By.XPATH) # Clica no botão de pesquisa inicial
                 aba_orignal = navegador.window_handles[0] # Identifica Aba Primaria
                 clicar_elemento_rustico(navegador, 'header', By.CLASS_NAME) # Clica no COB pesquisado
-
                 WebDriverWait(navegador, 10).until(lambda d: len(d.window_handles) > 1)
                 nova_aba = navegador.window_handles[1]# Identifica nova aba apos iniciar Cobrança
                 navegador.switch_to.window(nova_aba) # Troca para nova Aba
@@ -178,8 +164,6 @@ while True:
                     data_venc = date
                 else:
                     data_venc = planilha.iloc[linha]['DATA_DE_VENCIMENTO'] # Pega data de Vencimento
-
-
                 # ---------------------- Esta Parte se refere ao COB sem Rateio ------------------------
                 for sem_rateio in range(2):
                     if pd.isna(planilha.iloc[linha][f'CR-SR{sem_rateio+1}']):
@@ -189,7 +173,6 @@ while True:
                         acessar_iframe(navegador)# Acessa o Iframe
                         enviarkey_elemento(navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoCliente__',By.ID,str(int(planilha.iloc[linha]['CNPJ'].replace('.','').replace('/','').replace('-','')))) # Envia CNPJ
                         clicar_elemento(navegador,'ui-id-11',By.ID) # Clica no CNPJ informado
-
                         if sem_rateio == 0:
                             enviarkey_elemento(navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA SESI VIVA+: AEP,PGR,PCMSO,LTCAT \nPERÍODO: {primeiro_dia} a {ultimo_dia}.') # Envia Descrição
                         else:
@@ -209,12 +192,10 @@ while True:
                         acessar_iframe_default(navegador) # Acessa Iframe primario
                         clicar_elemento(navegador,'createitem',By.ID) # Clica para adicionar Valor
                         acessar_iframe_default(navegador) # Acessa Iframe de valor
-
                         #Loop para selecionar as opções de pagamento
                         for i in range(2):
                             navegador.find_element(By.XPATH, '//*[@id="mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__formaDeEntradaDosRecursos_ori"]/option[1]').click()
-                            navegador.find_element(By.ID, 'move_this_right_mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__formaDeEntradaDosRecursos').click()
-                            
+                            navegador.find_element(By.ID, 'move_this_right_mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__formaDeEntradaDosRecursos').click()  
                         enviarkey_elemento(navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__data__',By.NAME,data_venc.strftime('%d/%m/%Y')) # Envia data da cobrança
                         script_valor_sr = f"document.getElementsByName('var_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__valor__')[0].value='{planilha.iloc[linha][f'VALORSR{sem_rateio+1}']}';"
                         navegador.execute_script(script_valor_sr)
@@ -224,7 +205,6 @@ while True:
                         clicar_elemento(navegador,'//*[@id="ui-id-10"]/li',By.XPATH) # Clica no numero de contrato
                         clicar_elemento(navegador,'action.save',By.NAME) # Clica para salvar.
                         navegador.switch_to.default_content()#Volta para o inicio
-
                 # ---------------------- Esta Parte se refere ao COB com Rateio ------------------------
                 contador = 0 # Contador utilizado para clicar nos rateios no processo Final!
                 if pd.isna(planilha.iloc[linha]['CRR1']): # Verifica se o primeiro item está vazio, se o mesmo estiver vazio, todo o loop é pulado!
@@ -237,19 +217,16 @@ while True:
                     enviarkey_elemento(navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA CONSULTAS E EXAMES COMPLEMENTARES. \nPERÍODO: {primeiro_dia} a {ultimo_dia}.') # Envia Descrição
                     enviarkey_elemento(navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__rateio__', By.NAME,'Sim')# Envia sim ao campo de rateio
                     #Loop para a quantidade de Itens
-
                     for com_rateio in range(4): # Loop para verificar todos os itens (Total 4) com rateio na planilha!!
                         if pd.isna(planilha.iloc[linha][f'CRR{com_rateio+1}']): # Loop para verificar se o Item está vazio!!
                             pass # Pula o item vazio
                         else:
                             clicar_elemento(navegador,'//*[@id="menu_bar_FINFFCobFaturamentoVariavelCentroDeResultadosXFilialXValor"]/li[1]',By.XPATH) # Clica para abrir campo de produtos
                             acessar_iframe_default(navegador) # Acessa Iframe da Pesquisa de produtos
-
                             #Loop para selecionar as opções de pagamento
                             for i in range(2):
                                 navegador.find_element(By.XPATH, '//*[@id="mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoRateio__formaDeEntradaDosRecursos_ori"]/option[1]').click()
                                 navegador.find_element(By.ID, 'move_this_right_mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoRateio__formaDeEntradaDosRecursos').click()
-
                             clicar_elemento(navegador,'id_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoRateio__UOCRProtheus___anchor',By.ID) # Clica para abrir campo de pesquisa
                             acessar_iframe_default(navegador) # Acessa Iframe da Pesquisa
                             clicar_elemento(navegador,'//*[@id="menu_bar_EXTERNOProtheusAmarracaoContabil"]/li',By.XPATH) # Clica para abrir filtro
@@ -268,18 +245,15 @@ while True:
                             clicar_elemento(navegador,'action.save',By.NAME) # Clica para salvar.
                             acessar_iframe_default(navegador) # Acessa Iframe primario
                             contador += 1 # Soma 1 a quantidade de contador, será utiizado para clicar no loop Contador!
-
                     for i in range(contador): # Baseado na soma do Contador clica nos itens
                         clicar_elemento_rustico(navegador,f'//*[@id="{i}"]/td[2]',By.XPATH) # Clica no Item baseado nos indices (No fusion o indice 0 conta!)!!
                         acessar_iframe_default(navegador) # Acessa Iframe primario
                         clicar_elemento(navegador,'action.save',By.NAME) # Clica para salvar.
                         acessar_iframe_default(navegador) # Acessa Iframe primario
-
                     enviarkey_elemento(navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__numeroContratoProtheus__',By.ID,str(int(planilha.iloc[linha]['NUMERO DO CONTRATO']))) # Envia o numero de contrato
                     clicar_elemento(navegador,'//*[@id="ui-id-10"]/li',By.XPATH) # Clica no numero de contrato
                     clicar_elemento(navegador,'action.save',By.NAME) # Clica para salvar.
                     navegador.switch_to.default_content()#Volta para o inicio  
-                    
                 # ---------------------- Esta Parte se refere aos Anexos ------------------------
                 for anexo in range(2): 
                     if pd.isna(planilha.iloc[linha][f'ARQUIVO{anexo+1}']):
@@ -294,7 +268,6 @@ while True:
                         enviarkey_elemento(navegador,'var_dadosDaCobranca__historico__registro__',By.ID,planilha.iloc[linha][f'DESCRICAO{anexo+1}']) # Envia a descrição
                         clicar_elemento(navegador,'//*[@id="dibButtons"]/input[1]',By.XPATH) 
                         navegador.switch_to.default_content()#Volta para o inicio
-
                 input('Confirma o lançamento!!!')
                 clicar_elemento(navegador,'action.send',By.NAME)
                 while len(navegador.find_elements(By.CLASS_NAME, 'alert')) == 0: # Loop para aguardar o alerta carregar!
@@ -315,34 +288,27 @@ while True:
             numero_de_linhas = len(planilha) # Conta a quantidade de linhas
             destino = os.path.dirname(caminho)
             planilha_destino = destino + r'/Historico.xlsx'
-
-            # Start no Navegador Chrome
-            servico = Service(ChromeDriverManager().install())
+            servico = Service(ChromeDriverManager().install())# Start no Navegador Chrome
             options = webdriver.ChromeOptions() # Para o mesmo não fechar apos execução
             options.add_experimental_option("detach", True) # Para o mesmo não fechar apos execução
             navegador = webdriver.Chrome(options=options,service=servico) # Executa o navegador
             navegador.get('https://fusion.fiemg.com.br/fusion/portal')
             navegador.maximize_window() # Maximiza a janela do navegador
-
             enviarkey_elemento(navegador,'user',By.ID,usuario)# Login
             enviarkey_elemento(navegador,'pass',By.ID,senha)# Senha
             clicar_elemento(navegador,'btnLogin',By.ID) # Clica no botão de Login
             acessar_iframe_default(navegador)# Acessa o Iframe
+            aba_orignal = navegador.window_handles[0] # Identifica Aba Primaria
 
-            cod_filial = '01MG0014' # Codigo Filial - Padrão
-            cod_uo = '10310' # Codigo UO - Padrão
             for linha in range(len(planilha)):
-
                 clicar_elemento(navegador,'btnStartProcess',By.ID) # Iniciar novo processo
                 clicar_elemento(navegador,'//*[@id="page-content-wrapper"]/div/div/div[1]/div[1]/nav/div/div/div/ul/li[3]/ul/li[5]/a/div/span[1]',By.XPATH) # Iniciar nova Cobrança
-
                 WebDriverWait(navegador, 10).until(lambda d: len(d.window_handles) > 1)
                 nova_aba = navegador.window_handles[1]# Identifica nova aba apos iniciar nova Cobrança
                 navegador.switch_to.window(nova_aba) # Troca para nova Aba
                 enviarkey_elemento(navegador,'id_informeNucleo__',By.ID,'Núcleo de Faturamento')# Envia nucleo - Padrão
                 enviarkey_elemento(navegador,'id_tipoSolicitacao__',By.ID,'Solicitação de cobrança (FG-176)')# Solicitação de cobrança - Padrão
                 enviarkey_elemento(navegador,'id_plataformaGestaoDaVenda__',By.ID,'Protheus')# Plataforma - Padrão
-
                 if planilha.iloc[linha]['TIPO'].lower() == "variavel" and planilha.iloc[linha]['RATEIO'].lower() == "sim":
                     data = planilha.iloc[linha]['DESCRICAO']
                     date = datetime.strptime(data.strftime('%d/%m/%Y'), '%d/%m/%Y') # Transforma data em string
@@ -359,9 +325,8 @@ while True:
                     enviarkey_elemento(navegador,'var_dadosDaCobranca__dadosParaHistorico__parcelaContrato__',By.ID,'0')# Informa Parcela
                     enviarkey_elemento(navegador,'var_dadosDaCobranca__dadosParaHistorico__inicioPrestacao__',By.ID,primeiro_dia)# Data Inicio
                     enviarkey_elemento(navegador,'var_dadosDaCobranca__dadosParaHistorico__finPrestacao__',By.ID,ultimo_dia)# Data Fim
-                    enviarkey_elemento(navegador,'id_dadosDaCobranca__dadosParaHistorico__diaLimiteNFCliente__',By.ID,'30')# Dia Limite
+                    enviarkey_elemento(navegador,'id_dadosDaCobranca__dadosParaHistorico__diaLimiteNFCliente__',By.ID,str(int(planilha.iloc[linha]['DIA LIMITE'])))# Dia Limite
                     enviarkey_elemento(navegador,'var_dadosDaCobranca__cobrancaRelacionadaComConvenio__',By.ID,'Não')# Convenio
-
                     if pd.isna(planilha.iloc[linha][f'CR1']): # Loop para verificar se o Item está vazio!!
                         pass
                     else:
@@ -376,8 +341,8 @@ while True:
                         clicar_elemento(navegador,'vfilter',By.ID) # Clica no Filtro
                         acessar_iframe_default(navegador) # Acessa Iframe do Filtro
                         enviarkey_elemento(navegador,'var_codclvlr__',By.NAME,int(planilha.iloc[linha]['CLASSE DE VALOR'])) # Envia Classa de valor Cliente
-                        enviarkey_elemento(navegador,'var_codfilialprotheus__',By.NAME,'01MG0014') # Envia COD FILIAL - PADRÃO
-                        enviarkey_elemento(navegador,'var_coduo__',By.NAME,'10310') # Envia COD UO - PADRÃO
+                        enviarkey_elemento(navegador,'var_codfilialprotheus__',By.NAME,cod_filial) # Envia COD FILIAL - PADRÃO
+                        enviarkey_elemento(navegador,'var_coduo__',By.NAME,cod_uo) # Envia COD UO - PADRÃO
                         enviarkey_elemento(navegador,'var_codccusto__',By.NAME,int(planilha.iloc[linha]['CR1'])) # Envia COD PRODUTO
                         clicar_elemento(navegador,'searchbutton',By.ID) # Clica na Pesquisa
                         acessar_iframe_default(navegador) # Acessa Iframe da Pesquisa
@@ -503,7 +468,7 @@ while True:
                     enviarkey_elemento(navegador,'var_dadosDaCobranca__dadosParaHistorico__parcelaContrato__',By.ID,'0')# Informa Parcela
                     enviarkey_elemento(navegador,'var_dadosDaCobranca__dadosParaHistorico__inicioPrestacao__',By.ID,primeiro_dia)# Data Inicio
                     enviarkey_elemento(navegador,'var_dadosDaCobranca__dadosParaHistorico__finPrestacao__',By.ID,ultimo_dia)# Data Fim
-                    enviarkey_elemento(navegador,'id_dadosDaCobranca__dadosParaHistorico__diaLimiteNFCliente__',By.ID,'30')# Dia Limite
+                    enviarkey_elemento(navegador,'id_dadosDaCobranca__dadosParaHistorico__diaLimiteNFCliente__',By.ID,str(int(planilha.iloc[linha]['DIA LIMITE'])))# Dia Limite
                     enviarkey_elemento(navegador,'var_dadosDaCobranca__cobrancaRelacionadaComConvenio__',By.ID,'Não')# Convenio
 
                     clicar_elemento(navegador,'//*[@id="createitem"]',By.XPATH) # Clica no Numero do contrato
@@ -522,8 +487,8 @@ while True:
                             clicar_elemento(navegador,'vfilter',By.ID) # Clica no Filtro
                             acessar_iframe_default(navegador) # Acessa Iframe do Filtro
                             enviarkey_elemento(navegador,'var_codclvlr__',By.NAME,int(planilha.iloc[linha]['CLASSE DE VALOR'])) # Envia Classa de valor Cliente
-                            enviarkey_elemento(navegador,'var_codfilialprotheus__',By.NAME,'01MG0014') # Envia COD FILIAL - PADRÃO
-                            enviarkey_elemento(navegador,'var_coduo__',By.NAME,'10310') # Envia COD UO - PADRÃO
+                            enviarkey_elemento(navegador,'var_codfilialprotheus__',By.NAME,cod_filial) # Envia COD FILIAL - PADRÃO
+                            enviarkey_elemento(navegador,'var_coduo__',By.NAME,cod_uo) # Envia COD UO - PADRÃO
                             enviarkey_elemento(navegador,'var_codccusto__',By.NAME,int(planilha.iloc[linha][f'CR{sem_rateio+1}'])) # Envia COD PRODUTO
                             clicar_elemento(navegador,'searchbutton',By.ID) # Clica na Pesquisa
                             acessar_iframe_default(navegador) # Acessa Iframe da Pesquisa
@@ -605,8 +570,8 @@ while True:
                     clicar_elemento(navegador,'vfilter',By.ID) # Clica no Filtro
                     acessar_iframe_default(navegador) # Acessa Iframe do Filtro
                     enviarkey_elemento(navegador,'var_codclvlr__',By.NAME,int(planilha.iloc[linha]['CLASSE DE VALOR'])) # Envia Classa de valor Cliente
-                    enviarkey_elemento(navegador,'var_codfilialprotheus__',By.NAME,'01MG0014') # Envia COD FILIAL - PADRÃO
-                    enviarkey_elemento(navegador,'var_coduo__',By.NAME,'10310') # Envia COD UO - PADRÃO
+                    enviarkey_elemento(navegador,'var_codfilialprotheus__',By.NAME,cod_filial) # Envia COD FILIAL - PADRÃO
+                    enviarkey_elemento(navegador,'var_coduo__',By.NAME,cod_uo) # Envia COD UO - PADRÃO
                     enviarkey_elemento(navegador,'var_codccusto__',By.NAME,str(int(planilha.iloc[linha]['CR1']))) # Envia COD PRODUTO
                     clicar_elemento(navegador,'searchbutton',By.ID) # Clica na Pesquisa
                     acessar_iframe_default(navegador) # Acessa Iframe da Pesquisa
@@ -686,9 +651,9 @@ while True:
                         for i in range(parcemlamento):
                             clicar_elemento(navegador,'//*[@id="menu_bar_finCobFFCentroValor"]/li[1]',By.XPATH) # Pequisa
                             acessar_iframe_default(navegador)# Acessa o Iframe
-                            enviarkey_elemento(navegador,'id_txt_dadosCobranca__cobRateio__filialCustos__FilialProtheus__',By.ID,'01MG0014') # Envia COD FILIAL - PADRÃO
+                            enviarkey_elemento(navegador,'id_txt_dadosCobranca__cobRateio__filialCustos__FilialProtheus__',By.ID,cod_filial) # Envia COD FILIAL - PADRÃO
                             clicar_elemento(navegador,'ui-menu-item',By.CLASS_NAME)
-                            enviarkey_elemento(navegador,'id_txt_dadosCobranca__cobRateio__filialCustos__UO__',By.ID,'10310') # Envia COD FILIAL - PADRÃO
+                            enviarkey_elemento(navegador,'id_txt_dadosCobranca__cobRateio__filialCustos__UO__',By.ID,cod_uo) # Envia COD FILIAL - PADRÃO
                             clicar_elemento(navegador,'//*[@id="ui-id-4"]/li',By.XPATH)
                             clicar_elemento(navegador,'id_dadosCobranca__cobRateio__filialCustos__UOXCRProtheus___anchor',By.ID)
 
@@ -696,8 +661,8 @@ while True:
                             clicar_elemento(navegador,'vfilter',By.ID) # Clica no Filtro
                             acessar_iframe_default(navegador) # Acessa Iframe do Filtro
                             enviarkey_elemento(navegador,'var_codclvlr__',By.NAME,str(planilha.iloc[linha]['CLASSE DE VALOR'])) # Envia Classa de valor Cliente
-                            enviarkey_elemento(navegador,'var_codfilialprotheus__',By.NAME,'01MG0014') # Envia COD FILIAL - PADRÃO
-                            enviarkey_elemento(navegador,'var_coduo__',By.NAME,'10310') # Envia COD UO - PADRÃO
+                            enviarkey_elemento(navegador,'var_codfilialprotheus__',By.NAME,cod_filial) # Envia COD FILIAL - PADRÃO
+                            enviarkey_elemento(navegador,'var_coduo__',By.NAME,cod_uo) # Envia COD UO - PADRÃO
                             enviarkey_elemento(navegador,'var_codccusto__',By.NAME,str(int(planilha.iloc[linha][f'CR{i+1}']))) # Envia COD PRODUTO
                             clicar_elemento(navegador,'searchbutton',By.ID) # Clica na Pesquisa
                             acessar_iframe_default(navegador) # Acessa Iframe da Pesquisa
