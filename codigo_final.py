@@ -64,15 +64,15 @@ def copiar_linha_ativa(df, destino, sheet_name, linha, texto_adicional=None):
     sheet.cell(row=next_row, column=sheet.max_column + 1, value=texto_adicional)# Adiciona o texto na última coluna da nova linha
     book.save(destino)# Salva o arquivo de destino
 
-def enviarkey_element(driver, element_name, value):
+def enviarkey_element(nav, element_name, value):
     script = f"document.getElementsByName('{element_name}')[0].value='{value}';" # Simula a entrada de dados via JavaScript para evitar interferência da máscara de entrada
-    driver.execute_script(script)
+    nav.execute_script(script)
     script = f"""
     var input = document.getElementsByName('{element_name}')[0];
     var event = new Event('input', {{ bubbles: true }});
     input.dispatchEvent(event);
     """
-    driver.execute_script(script) # Dispara eventos para que o script de máscara possa processar o novo valor
+    nav.execute_script(script) # Dispara eventos para que o script de máscara possa processar o novo valor
 
 def selecionar_arquivo():
     caminho_arquivo = askopenfilename(title="Selecione a Planilha COB!") # Solciita o usuario selecionar a planilha!
@@ -83,15 +83,12 @@ def texto_elemento(nav,elemento,tipo):
     texto = obj.text
     return texto.split('-')[0]
 
-def esperar_elementos_carregar(navegador, timeout=60):
-    try:
-        WebDriverWait(navegador, timeout).until(
+def esperar_elementos_carregar(nav, timeout=60):
+        WebDriverWait(nav, timeout).until(
             lambda driver: len(driver.find_elements(By.CLASS_NAME, "item")) > 0 or 
                            len(driver.find_elements(By.XPATH, '//div[contains(@class, "no-results-default-boxes") and contains(@class, "ng-scope") and contains(., "Sua Caixa de Entrada está vazia")]')) > 0
         )
         print("Pelo menos um dos elementos foi carregado.")
-    except Exception as e:
-        print(f"Erro ao esperar elementos carregarem: {e}")
 
 def enviar_emails(nav, linha,click,campo):
     email = planilha.iloc[linha]['EMAILS'] # recebe e-mails da planilha (Os mesmo devem ser separados por uma '/')
@@ -113,6 +110,21 @@ def tratar_cnpj(cnpj):
     cnpj_formatado = str(int(cnpj_limpo))# Converte para inteiro para remover zeros à esquerda, depois para string novamente
     return cnpj_formatado
 
+def enviar_anexo(nav,linha,click,element,status,descr):
+    for anexo in range(2): 
+        if pd.isna(planilha.iloc[linha][f'ARQUIVO{anexo+1}']):
+            pass
+        else:
+            clicar_elemento(nav,click,By.XPATH) # Clica no anexo para enviar arquivo
+            acessar_iframe(nav)#Acesso Iframe
+            enviarkey_elemento(nav,element,By.ID,fr"{caminho[:-16]}Arquivos\{planilha.iloc[linha][f'ARQUIVO{anexo+1}']}") # Envia o anexo
+            while len(nav.find_elements(By.XPATH, status)) == 0: # Loop para aguardar a lista de itens carregar, se a lista não carregar a pesquisa não funciona!
+                time.sleep(1)
+            time.sleep(1)
+            enviarkey_elemento(nav,descr,By.ID,planilha.iloc[linha][f'DESCRICAO{anexo+1}']) # Envia a descrição
+            clicar_elemento(nav,'//*[@id="dibButtons"]/input[1]',By.XPATH) 
+            nav.switch_to.default_content()#Volta para o inicio
+
 cod_filial = '01MG0014' # Codigo Filial - Padrão
 cod_uo = '10310' # Codigo UO - Padrão
 
@@ -131,10 +143,9 @@ while True:
             caminho = selecionar_arquivo()
             planilha = pd.read_excel(caminho,'Medição') # Carrega a Planilha
             numero_de_linhas = len(planilha) # Conta a quantidade de linhas
-            destino = os.path.dirname(caminho)
-            planilha_destino = destino + r'/Historico.xlsx'
-            # Start no Navegador Chrome
-            servico = Service(ChromeDriverManager().install())
+            destino = os.path.dirname(caminho)# Pega o caminho da pasta
+            planilha_destino = destino + r'/Historico.xlsx' # Caminho do Historico
+            servico = Service(ChromeDriverManager().install())# Start no Navegador Chrome
             options = webdriver.ChromeOptions() # Para o mesmo não fechar apos execução
             options.add_experimental_option("detach", True) # Para o mesmo não fechar apos execução
             navegador = webdriver.Chrome(options=options,service=servico) # Executa o navegador
@@ -201,6 +212,7 @@ while True:
                         clicar_elemento(navegador,'//*[@id="ui-id-10"]/li',By.XPATH) # Clica no numero de contrato
                         clicar_elemento(navegador,'action.save',By.NAME) # Clica para salvar.
                         navegador.switch_to.default_content()#Volta para o inicio
+                        
                 # ---------------------- Esta Parte se refere ao COB com Rateio ------------------------
                 contador = 0 # Contador utilizado para clicar nos rateios no processo Final!
                 if pd.isna(planilha.iloc[linha]['CRR1']): # Verifica se o primeiro item está vazio, se o mesmo estiver vazio, todo o loop é pulado!
@@ -251,19 +263,7 @@ while True:
                     clicar_elemento(navegador,'action.save',By.NAME) # Clica para salvar.
                     navegador.switch_to.default_content()#Volta para o inicio  
                 # ---------------------- Esta Parte se refere aos Anexos ------------------------
-                for anexo in range(2): 
-                    if pd.isna(planilha.iloc[linha][f'ARQUIVO{anexo+1}']):
-                        pass
-                    else:
-                        clicar_elemento(navegador,'//*[@id="menu_bar_genericoHistoricoAtendimento"]/li[1]',By.XPATH) # Clica no anexo para enviar arquivo
-                        acessar_iframe(navegador)#Acesso Iframe
-                        enviarkey_elemento(navegador,'var_dadosDaCobranca__historico__anexo__',By.ID,fr"{caminho[:-16]}Arquivos\{planilha.iloc[linha][f'ARQUIVO{anexo+1}']}") # Envia o anexo
-                        while len(navegador.find_elements(By.XPATH, '//*[@id="progress-complete-var_dadosDaCobranca__historico__anexo__"]/span')) == 0: # Loop para aguardar a lista de itens carregar, se a lista não carregar a pesquisa não funciona!
-                            time.sleep(1)
-                        time.sleep(1)
-                        enviarkey_elemento(navegador,'var_dadosDaCobranca__historico__registro__',By.ID,planilha.iloc[linha][f'DESCRICAO{anexo+1}']) # Envia a descrição
-                        clicar_elemento(navegador,'//*[@id="dibButtons"]/input[1]',By.XPATH) 
-                        navegador.switch_to.default_content()#Volta para o inicio
+                enviar_anexo(navegador,linha,'//*[@id="menu_bar_genericoHistoricoAtendimento"]/li[1]','var_dadosDaCobranca__historico__anexo__','//*[@id="progress-complete-var_dadosDaCobranca__historico__anexo__"]/span','var_dadosDaCobranca__historico__registro__') # Envia Anexos
                 input('Confirma o lançamento!!!')
                 clicar_elemento(navegador,'action.send',By.NAME)
                 while len(navegador.find_elements(By.CLASS_NAME, 'alert')) == 0: # Loop para aguardar o alerta carregar!
@@ -410,21 +410,8 @@ while True:
                     clicar_elemento(navegador,'//*[@id="ui-id-10"]/li',By.XPATH) # Clica no numero de contrato
                     clicar_elemento(navegador,'action.save',By.NAME) # Clica para salvar.
                     navegador.switch_to.default_content()#Volta para o inicio
-
-                    for anexo in range(2): 
-                        if pd.isna(planilha.iloc[linha][f'ARQUIVO{anexo+1}']):
-                            pass
-                        else:
-                            clicar_elemento(navegador,'//*[@id="menu_bar_genericoHistoricoAtendimento"]/li[1]',By.XPATH) # Clica no anexo para enviar arquivo
-                            acessar_iframe(navegador)#Acesso Iframe
-                            enviarkey_elemento(navegador,'var_dadosDaCobranca__historico__anexo__',By.ID,fr"{caminho[:-16]}Arquivos\{planilha.iloc[linha][f'ARQUIVO{anexo+1}']}") # Envia o anexo
-                            while len(navegador.find_elements(By.XPATH, '//*[@id="progress-complete-var_dadosDaCobranca__historico__anexo__"]/span')) == 0: # Loop para aguardar a lista de itens carregar, se a lista não carregar a pesquisa não funciona!
-                                time.sleep(1)
-                            time.sleep(1)
-                            enviarkey_elemento(navegador,'var_dadosDaCobranca__historico__registro__',By.ID,planilha.iloc[linha][f'DESCRICAO{anexo+1}']) # Envia a descrição
-                            clicar_elemento(navegador,'//*[@id="dibButtons"]/input[1]',By.XPATH) 
-                            navegador.switch_to.default_content()#Volta para o inicio
-
+                    
+                    enviar_anexo(navegador,linha,'//*[@id="menu_bar_genericoHistoricoAtendimento"]/li[1]','var_dadosDaCobranca__historico__anexo__','//*[@id="progress-complete-var_dadosDaCobranca__historico__anexo__"]/span','var_dadosDaCobranca__historico__registro__')#Envia Anexos
                     enviar_emails(navegador,linha,"//li[@onclick=\"activeDeactiveObjMenu2(this);javascript: ellist_emailClienteFP__.addNewItem('CreateItens', true);\"]//a[@id='createitens']",'var_emailClienteFP__Email__') # Envia e-mails
                     input('Confirma o lançamento!!!')
                     navegador.switch_to.default_content()
@@ -497,20 +484,7 @@ while True:
                     navegador.switch_to.default_content()#Volta para o inicio
 
                     # ---------------------- Esta Parte se refere aos Anexos ------------------------
-                    for anexo in range(2): 
-                        if pd.isna(planilha.iloc[linha][f'ARQUIVO{anexo+1}']):
-                            pass
-                        else:
-                            clicar_elemento(navegador,'//*[@id="menu_bar_genericoHistoricoAtendimento"]/li[1]',By.XPATH) # Clica no anexo para enviar arquivo
-                            acessar_iframe(navegador)#Acesso Iframe
-                            enviarkey_elemento(navegador,'var_dadosDaCobranca__historico__anexo__',By.ID,fr"{caminho[:-16]}Arquivos\{planilha.iloc[linha][f'ARQUIVO{anexo+1}']}") # Envia o anexo
-                            while len(navegador.find_elements(By.XPATH, '//*[@id="progress-complete-var_dadosDaCobranca__historico__anexo__"]/span')) == 0: # Loop para aguardar a lista de itens carregar, se a lista não carregar a pesquisa não funciona!
-                                time.sleep(1)
-                            time.sleep(1)
-                            enviarkey_elemento(navegador,'var_dadosDaCobranca__historico__registro__',By.ID,planilha.iloc[linha][f'DESCRICAO{anexo+1}']) # Envia a descrição
-                            clicar_elemento(navegador,'//*[@id="dibButtons"]/input[1]',By.XPATH) 
-                            navegador.switch_to.default_content()#Volta para o inicio
-
+                    enviar_anexo(navegador,linha,'//*[@id="menu_bar_genericoHistoricoAtendimento"]/li[1]','var_dadosDaCobranca__historico__anexo__','//*[@id="progress-complete-var_dadosDaCobranca__historico__anexo__"]/span','var_dadosDaCobranca__historico__registro__')#Envia Anexos
                     enviar_emails(navegador,linha,"//li[@onclick=\"activeDeactiveObjMenu2(this);javascript: ellist_emailClienteFP__.addNewItem('CreateItens', true);\"]//a[@id='createitens']",'var_emailClienteFP__Email__')
                     input('Confirma o lançamento!!!')
                     navegador.switch_to.default_content()
@@ -572,7 +546,6 @@ while True:
                     clicar_elemento(navegador,'cancelButtonModal',By.ID) # Botão Cancelar
                     navegador.switch_to.default_content()
                     enviarkey_element(navegador,'var_dadosCobranca__Observacao__',planilha.iloc[linha]['OBSERVACAO']) # Envia Valor
-
                     enviar_emails(navegador,linha,"//li[@onclick=\"activeDeactiveObjMenu2(this);javascript: ellist_EmailDeContatoDosClientes__.addNewItem('CreateItens', true);\"]/a[@id='createitens']",'var_EmailDeContatoDosClientes__Email__')
                     input('Confirma o lançamento!!!')
                     navegador.switch_to.default_content()
