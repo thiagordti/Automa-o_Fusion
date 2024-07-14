@@ -105,6 +105,14 @@ def enviar_emails(nav, linha,click,campo):
     acessar_iframe_default(nav) # Acessa Iframe dos e-mails
     clicar_elemento(nav,'cancelButtonModal',By.ID) # Botão Cancelar, para fechar janelas!
 
+def tratar_cnpj(cnpj):
+    if '.' in cnpj or '-' in cnpj or '/' in cnpj:# Verifica se o CNPJ contém '.', '-', '/'
+        cnpj_limpo = cnpj.replace('.', '').replace('/', '').replace('-', '')# Remove pontuações se existirem
+    else:
+        cnpj_limpo = cnpj  # Se não tiver pontuações, já está limpo
+    cnpj_formatado = str(int(cnpj_limpo))# Converte para inteiro para remover zeros à esquerda, depois para string novamente
+    return cnpj_formatado
+
 cod_filial = '01MG0014' # Codigo Filial - Padrão
 cod_uo = '10310' # Codigo UO - Padrão
 
@@ -159,7 +167,7 @@ while True:
                     else:
                         clicar_elemento(navegador,'createitem',By.ID)# Clica para criar novo Item
                         acessar_iframe(navegador)# Acessa o Iframe
-                        enviarkey_elemento(navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoCliente__',By.ID,str(int(planilha.iloc[linha]['CNPJ'].replace('.','').replace('/','').replace('-','')))) # Envia CNPJ
+                        enviarkey_elemento(navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoCliente__',tratar_cnpj(planilha.iloc[linha]['CNPJ'])) # Envia CNPJ
                         clicar_elemento(navegador,'ui-id-11',By.ID) # Clica no CNPJ informado
                         if sem_rateio == 0:
                             enviarkey_elemento(navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA SESI VIVA+: AEP,PGR,PCMSO,LTCAT \nPERÍODO: {primeiro_dia} a {ultimo_dia}.') # Envia Descrição
@@ -200,7 +208,7 @@ while True:
                 else: # Caso não esteja vazio é iniciado o processo de Rateio
                     clicar_elemento(navegador,'createitem',By.ID)# Clica para criar novo Item
                     acessar_iframe(navegador)# Acessa o Iframe
-                    enviarkey_elemento(navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoCliente__',By.ID,str(int(planilha.iloc[linha]['CNPJ'].replace('.','').replace('/','').replace('-','')))) # Envia CNPJ
+                    enviarkey_elemento(navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoCliente__',By.ID,tratar_cnpj(planilha.iloc[linha]['CNPJ'])) # Envia CNPJ
                     clicar_elemento(navegador,'ui-id-11',By.ID) # Clica no CNPJ informado
                     enviarkey_elemento(navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA CONSULTAS E EXAMES COMPLEMENTARES. \nPERÍODO: {primeiro_dia} a {ultimo_dia}.') # Envia Descrição
                     enviarkey_elemento(navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__rateio__', By.NAME,'Sim')# Envia sim ao campo de rateio
@@ -322,7 +330,7 @@ while True:
                     else:
                         clicar_elemento(navegador,'//*[@id="createitem"]',By.XPATH) # Clica no Novo
                         acessar_iframe(navegador)# Acessa o Iframe
-                        enviarkey_elemento(navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoCliente__',By.ID,str(int(planilha.iloc[linha]['CNPJ'].replace('.','').replace('/','').replace('-','')))) # Envia CNPJ
+                        enviarkey_elemento(navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoCliente__',By.ID,tratar_cnpj(planilha.iloc[linha]['CNPJ'])) # Envia CNPJ
                         clicar_elemento(navegador,'ui-id-11',By.ID) # Clica no CNPJ informado
                         enviarkey_elemento(navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA SESI VIVA+: AEP,PGR,PCMSO,LTCAT \nPERÍODO: {primeiro_dia} a {ultimo_dia}.') # Envia Descrição
                         enviarkey_elemento(navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__rateio__', By.NAME,'Não')# Envia não ao campo de rateio
@@ -355,7 +363,7 @@ while True:
 
                     clicar_elemento(navegador,'//*[@id="createitem"]',By.XPATH) # Clica no Novo
                     acessar_iframe(navegador)# Acessa o Iframe
-                    enviarkey_elemento(navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoCliente__',By.ID,str(int(planilha.iloc[linha]['CNPJ'].replace('.','').replace('/','').replace('-','')))) # Envia CNPJ
+                    enviarkey_elemento(navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoCliente__',By.ID,tratar_cnpj(planilha.iloc[linha]['CNPJ'])) # Envia CNPJ
                     clicar_elemento(navegador,'ui-id-11',By.ID) # Clica no CNPJ informado
                     enviarkey_elemento(navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA SESI VIVA+: AEP,PGR,PCMSO,LTCAT \nPERÍODO: {primeiro_dia} a {ultimo_dia}.') # Envia Descrição
                     enviarkey_elemento(navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__rateio__', By.NAME,'SIM')# Envia Sim ao campo de rateio
@@ -453,7 +461,7 @@ while True:
                     clicar_elemento(navegador,'//*[@id="createitem"]',By.XPATH) # Clica no Numero do contrato
 
                     acessar_iframe(navegador)# Acessa o Iframe
-                    enviarkey_elemento(navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoCliente__',By.ID,planilha.iloc[linha]['CNPJ'].replace('.','').replace('/','').replace('-','')) # Envia CNPJ
+                    enviarkey_elemento(navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoCliente__',By.ID,tratar_cnpj(planilha.iloc[linha]['CNPJ'])) # Envia CNPJ
                     clicar_elemento(navegador,'ui-id-11',By.ID) # Clica no CNPJ informado
                     enviarkey_elemento(navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA SESI VIVA+: AEP,PGR,PCMSO,LTCAT \nPERÍODO: {primeiro_dia} a {ultimo_dia}.') # Envia Descrição
                     enviarkey_elemento(navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__rateio__', By.NAME,'Não')# Envia não ao campo de rateio
@@ -520,7 +528,7 @@ while True:
                     enviarkey_elemento(navegador,'id_tipoDeMedicao__',By.ID,'Fixa')# Tipo de medição
                     clicar_elemento(navegador,'//*[@id="tab_bar_"]/li[2]/a',By.XPATH) # Clica na guia Dados de cobrança
                     nome_cob = texto_elemento(navegador,'headerTitle',By.ID)
-                    enviarkey_elemento(navegador,'id_txt_dadosCobranca__DadosDoCliente__',By.ID,str(int(planilha.iloc[linha]['CNPJ'].replace('.','').replace('/','').replace('-',''))))# Envia CNPJ
+                    enviarkey_elemento(navegador,'id_txt_dadosCobranca__DadosDoCliente__',By.ID,tratar_cnpj(planilha.iloc[linha]['CNPJ']))# Envia CNPJ
                     clicar_elemento(navegador,'ui-menu-item',By.CLASS_NAME) # Clica no CNPJ informado
                     enviarkey_elemento(navegador,'var_dadosCobranca__descricaoServico__',By.ID,planilha.iloc[linha]['DESCRICAO'])# Envia Descrição
                     enviarkey_elemento(navegador,'var_dadosCobranca__dadosParaHistorico2__HouvePrestacaoDeServicos__',By.ID,'Sim')# Prestação de Serviço - Padrão
@@ -582,7 +590,7 @@ while True:
                     enviarkey_elemento(navegador,'id_tipoDeMedicao__',By.ID,'Fixa')# Tipo de medição
                     clicar_elemento(navegador,'//*[@id="tab_bar_"]/li[2]/a',By.XPATH) # Clica na guia Dados de cobrança
                     nome_cob = texto_elemento(navegador,'headerTitle',By.ID)
-                    enviarkey_elemento(navegador,'id_txt_dadosCobranca__DadosDoCliente__',By.ID,str(int(planilha.iloc[linha]['CNPJ'].replace('.','').replace('/','').replace('-',''))))# Envia CNPJ
+                    enviarkey_elemento(navegador,'id_txt_dadosCobranca__DadosDoCliente__',By.ID,tratar_cnpj(planilha.iloc[linha]['CNPJ']))# Envia CNPJ
                     clicar_elemento(navegador,'ui-menu-item',By.CLASS_NAME) # Clica no CNPJ informado
                     enviarkey_elemento(navegador,'var_dadosCobranca__descricaoServico__',By.ID,planilha.iloc[linha]['DESCRICAO'])# Envia Descrição
                     enviarkey_elemento(navegador,'var_dadosCobranca__dadosParaHistorico2__HouvePrestacaoDeServicos__',By.ID,'Sim')# Prestação de Serviço - Padrão
