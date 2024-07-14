@@ -26,15 +26,9 @@ def acessar_iframe(nav):
 def acessar_iframe_default(nav, timeout=10, wait_before_switch=2, max_attempts=10):
     time.sleep(wait_before_switch)# Espera antes de mudar para o conteúdo padrão
     nav.switch_to.default_content()
-    attempts = 0
-    while attempts < max_attempts:
-        try:
-            iframe = WebDriverWait(nav, timeout).until(EC.presence_of_element_located((By.TAG_NAME, 'iframe')))# Espera até que o iframe esteja presente
-            nav.switch_to.frame(iframe)# Troca para o iframe
-            return  # Sai da função se for bem-sucedido
-        except StaleElementReferenceException as e:
-            attempts += 1
-            time.sleep(1)
+    iframe = WebDriverWait(nav, timeout).until(EC.presence_of_element_located((By.TAG_NAME, 'iframe')))# Espera até que o iframe esteja presente
+    nav.switch_to.frame(iframe)# Troca para o iframe
+    return 
 
 def clicar_elemento(nav,elemento,tipo):
     obj = WebDriverWait(nav, 180).until(EC.presence_of_element_located((tipo, elemento))) # Aguarda 180 segundos até o elemento carregar
@@ -56,21 +50,7 @@ def primeiro_e_ultimo_dia_do_mes(ano, mes):
     ultimo_dia_formatado = ultimo_dia.strftime('%d/%m/%Y')
     return primeiro_dia_formatado, ultimo_dia_formatado
 
-def copiar_linha_ativa(df, destino, sheet_name, linha):
-    linha_ativa = df.iloc[[linha]].dropna(how='all')# Seleciona a linha ativa específica (não vazia)
-    book = load_workbook(destino)# Tenta carregar a planilha de destino existente
-    if sheet_name in book.sheetnames:
-        sheet = book[sheet_name]
-    else:
-        sheet = book.create_sheet(sheet_name)
-    next_row = sheet.max_row + 1# Encontra a próxima linha vazia na planilha de destino
-    print(f"Adicionando a partir da linha {next_row}")
-    for r_idx, row in enumerate(dataframe_to_rows(linha_ativa, index=False, header=False), start=next_row): # Adiciona a linha ativa à planilha de destino
-        for c_idx, value in enumerate(row, 1):
-            sheet.cell(row=r_idx, column=c_idx, value=value)
-    book.save(destino)# Salva o arquivo de destino
-
-def copiar_linha_novo(df, destino, sheet_name, linha, texto_adicional):
+def copiar_linha_ativa(df, destino, sheet_name, linha, texto_adicional=None):
     linha_ativa = df.iloc[[linha]].dropna(how='all')  # Seleciona a linha ativa específica (não vazia)
     book = load_workbook(destino)  # Tenta carregar a planilha de destino existente
     if sheet_name in book.sheetnames:
@@ -85,18 +65,14 @@ def copiar_linha_novo(df, destino, sheet_name, linha, texto_adicional):
     book.save(destino)# Salva o arquivo de destino
 
 def enviarkey_element(driver, element_name, value):
-
-    # Simula a entrada de dados via JavaScript para evitar interferência da máscara de entrada
-    script = f"document.getElementsByName('{element_name}')[0].value='{value}';"
+    script = f"document.getElementsByName('{element_name}')[0].value='{value}';" # Simula a entrada de dados via JavaScript para evitar interferência da máscara de entrada
     driver.execute_script(script)
-    
-    # Dispara eventos para que o script de máscara possa processar o novo valor
     script = f"""
     var input = document.getElementsByName('{element_name}')[0];
     var event = new Event('input', {{ bubbles: true }});
     input.dispatchEvent(event);
     """
-    driver.execute_script(script)
+    driver.execute_script(script) # Dispara eventos para que o script de máscara possa processar o novo valor
 
 def selecionar_arquivo():
     caminho_arquivo = askopenfilename(title="Selecione a Planilha COB!") # Solciita o usuario selecionar a planilha!
@@ -116,6 +92,16 @@ def esperar_elementos_carregar(navegador, timeout=60):
         print("Pelo menos um dos elementos foi carregado.")
     except Exception as e:
         print(f"Erro ao esperar elementos carregarem: {e}")
+
+def enviar_emails(nav, linha,click,campo):
+    email = planilha.iloc[linha]['EMAILS'] # recebe e-mails da planilha (Os mesmo devem ser separados por uma '/')
+    lst_email = email.split('/') # Transforma os e-mails recebidos em lista, separador '/'
+    clicar_elemento(nav,click,By.XPATH) # Itens novos e-mails
+    for i in range(len(lst_email)):
+            acessar_iframe_default(nav) # Acessa Iframe dos itens novos
+            enviarkey_elemento(nav,campo,By.ID,lst_email[i]) # Envia Valor
+            clicar_elemento_rustico(nav,'form_container',By.ID)
+            clicar_elemento(nav,'//*[@id="dibButtons"]/input[1]',By.XPATH) # Botão Ok
 
 cod_filial = '01MG0014' # Codigo Filial - Padrão
 cod_uo = '10310' # Codigo UO - Padrão
@@ -445,7 +431,7 @@ while True:
                     while len(navegador.find_elements(By.CLASS_NAME, 'alert')) == 0: # Loop para aguardar o alerta carregar!
                         time.sleep(1)
                     time.sleep(1)
-                    copiar_linha_novo(planilha, planilha_destino, 'Novo', linha,nome_cob)
+                    copiar_linha_ativa(planilha, planilha_destino, 'Novo', linha,nome_cob)
                     navegador.close() # Fecha a aba apos Alerta Carregar!!
                     navegador.switch_to.window(aba_orignal)
                     time.sleep(1)
@@ -542,7 +528,7 @@ while True:
                     while len(navegador.find_elements(By.CLASS_NAME, 'alert')) == 0: # Loop para aguardar o alerta carregar!
                         time.sleep(1)
                     time.sleep(1)
-                    copiar_linha_novo(planilha, planilha_destino, 'Novo', linha,nome_cob)
+                    copiar_linha_ativa(planilha, planilha_destino, 'Novo', linha,nome_cob)
                     navegador.close() # Fecha a aba apos Alerta Carregar!!
                     navegador.switch_to.window(aba_orignal)
                     time.sleep(1)
@@ -615,7 +601,7 @@ while True:
                     while len(navegador.find_elements(By.CLASS_NAME, 'alert')) == 0: # Loop para aguardar o alerta carregar!
                         time.sleep(1)
                     time.sleep(1)
-                    copiar_linha_novo(planilha, planilha_destino, 'Novo', linha,nome_cob)
+                    copiar_linha_ativa(planilha, planilha_destino, 'Novo', linha,nome_cob)
                     navegador.close() # Fecha a aba apos Alerta Carregar!!
                     navegador.switch_to.window(aba_orignal)
                     time.sleep(1)
@@ -702,7 +688,7 @@ while True:
                     while len(navegador.find_elements(By.CLASS_NAME, 'alert')) == 0: # Loop para aguardar o alerta carregar!
                         time.sleep(1)
                     time.sleep(1)
-                    copiar_linha_novo(planilha, planilha_destino, 'Novo', linha,nome_cob)
+                    copiar_linha_ativa(planilha, planilha_destino, 'Novo', linha,nome_cob)
                     navegador.close() # Fecha a aba apos Alerta Carregar!!
                     navegador.switch_to.window(aba_orignal)
                     time.sleep(1)
