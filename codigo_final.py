@@ -98,10 +98,12 @@ def enviar_emails(nav, linha,click,campo):
     lst_email = email.split('/') # Transforma os e-mails recebidos em lista, separador '/'
     clicar_elemento(nav,click,By.XPATH) # Itens novos e-mails
     for i in range(len(lst_email)):
-            acessar_iframe_default(nav) # Acessa Iframe dos itens novos
-            enviarkey_elemento(nav,campo,By.ID,lst_email[i]) # Envia Valor
-            clicar_elemento_rustico(nav,'form_container',By.ID)
+            acessar_iframe_default(nav) # Acessa Iframe dos e-mails
+            enviarkey_elemento(nav,campo,By.ID,lst_email[i]) # Envia e-mail
+            clicar_elemento_rustico(nav,'form_container',By.ID) # Clica no container para o e-mail carregar
             clicar_elemento(nav,'//*[@id="dibButtons"]/input[1]',By.XPATH) # Botão Ok
+    acessar_iframe_default(nav) # Acessa Iframe dos e-mails
+    clicar_elemento(nav,'cancelButtonModal',By.ID) # Botão Cancelar, para fechar janelas!
 
 cod_filial = '01MG0014' # Codigo Filial - Padrão
 cod_uo = '10310' # Codigo UO - Padrão
@@ -295,7 +297,9 @@ while True:
                 enviarkey_elemento(navegador,'id_informeNucleo__',By.ID,'Núcleo de Faturamento')# Envia nucleo - Padrão
                 enviarkey_elemento(navegador,'id_tipoSolicitacao__',By.ID,'Solicitação de cobrança (FG-176)')# Solicitação de cobrança - Padrão
                 enviarkey_elemento(navegador,'id_plataformaGestaoDaVenda__',By.ID,'Protheus')# Plataforma - Padrão
+
                 if planilha.iloc[linha]['TIPO'].lower() == "variavel" and planilha.iloc[linha]['RATEIO'].lower() == "sim":
+
                     data = planilha.iloc[linha]['DESCRICAO']
                     date = datetime.strptime(data.strftime('%d/%m/%Y'), '%d/%m/%Y') # Transforma data em string
                     primeiro_dia, ultimo_dia = primeiro_e_ultimo_dia_do_mes(date.year, date.month) # Pega o mês e dia
@@ -413,18 +417,7 @@ while True:
                             clicar_elemento(navegador,'//*[@id="dibButtons"]/input[1]',By.XPATH) 
                             navegador.switch_to.default_content()#Volta para o inicio
 
-                    email = planilha.iloc[linha]['EMAILS']
-                    lst_email = email.split('/')
-                    clicar_elemento(navegador,"//li[@onclick=\"activeDeactiveObjMenu2(this);javascript: ellist_emailClienteFP__.addNewItem('CreateItens', true);\"]//a[@id='createitens']",By.XPATH) # Itens novos e-mails
-
-                    for i in range(len(lst_email)):
-                            acessar_iframe_default(navegador) # Acessa Iframe dos itens novos
-                            enviarkey_elemento(navegador,'var_emailClienteFP__Email__',By.ID,lst_email[i]) # Envia Valor
-                            clicar_elemento_rustico(navegador,'form_container',By.ID)
-                            clicar_elemento(navegador,'//*[@id="dibButtons"]/input[1]',By.XPATH) # Botão Ok
-
-                    acessar_iframe_default(navegador) # Acessa Iframe dos itens novos
-                    clicar_elemento(navegador,'cancelButtonModal',By.ID) # Botão Cancelar
+                    enviar_emails(navegador,linha,"//li[@onclick=\"activeDeactiveObjMenu2(this);javascript: ellist_emailClienteFP__.addNewItem('CreateItens', true);\"]//a[@id='createitens']",'var_emailClienteFP__Email__') # Envia e-mails
                     input('Confirma o lançamento!!!')
                     navegador.switch_to.default_content()
                     clicar_elemento(navegador,'action.send',By.NAME)
@@ -510,18 +503,7 @@ while True:
                             clicar_elemento(navegador,'//*[@id="dibButtons"]/input[1]',By.XPATH) 
                             navegador.switch_to.default_content()#Volta para o inicio
 
-                    email = planilha.iloc[linha]['EMAILS']
-                    lst_email = email.split('/')
-                    clicar_elemento(navegador,"//li[@onclick=\"activeDeactiveObjMenu2(this);javascript: ellist_emailClienteFP__.addNewItem('CreateItens', true);\"]//a[@id='createitens']",By.XPATH) # Itens novos e-mails
-
-                    for i in range(len(lst_email)):
-                            acessar_iframe_default(navegador) # Acessa Iframe dos itens novos
-                            enviarkey_elemento(navegador,'var_emailClienteFP__Email__',By.ID,lst_email[i]) # Envia Valor
-                            clicar_elemento_rustico(navegador,'form_container',By.ID)
-                            clicar_elemento(navegador,'//*[@id="dibButtons"]/input[1]',By.XPATH) # Botão Ok
-
-                    acessar_iframe_default(navegador) # Acessa Iframe dos itens novos
-                    clicar_elemento(navegador,'cancelButtonModal',By.ID) # Botão Cancelar
+                    enviar_emails(navegador,linha,"//li[@onclick=\"activeDeactiveObjMenu2(this);javascript: ellist_emailClienteFP__.addNewItem('CreateItens', true);\"]//a[@id='createitens']",'var_emailClienteFP__Email__')
                     input('Confirma o lançamento!!!')
                     navegador.switch_to.default_content()
                     clicar_elemento(navegador,'action.send',By.NAME)
@@ -580,21 +562,10 @@ while True:
                             clicar_elemento(navegador,'//*[@id="dibButtons"]/input[1]',By.XPATH) # Botão Ok
                     acessar_iframe_default(navegador) # Acessa Iframe dos itens novos
                     clicar_elemento(navegador,'cancelButtonModal',By.ID) # Botão Cancelar
-
                     navegador.switch_to.default_content()
                     enviarkey_element(navegador,'var_dadosCobranca__Observacao__',planilha.iloc[linha]['OBSERVACAO']) # Envia Valor
 
-                    email = planilha.iloc[linha]['EMAILS']
-                    lst_email = email.split('/')
-                    clicar_elemento(navegador,"//li[@onclick=\"activeDeactiveObjMenu2(this);javascript: ellist_EmailDeContatoDosClientes__.addNewItem('CreateItens', true);\"]/a[@id='createitens']",By.XPATH) # Itens novos e-mails
-                    for i in range(len(lst_email)):
-                            acessar_iframe_default(navegador) # Acessa Iframe dos itens novos
-                            enviarkey_elemento(navegador,'var_EmailDeContatoDosClientes__Email__',By.ID,lst_email[i]) # Envia Valor
-                            clicar_elemento_rustico(navegador,'form_container',By.ID)
-                            clicar_elemento(navegador,'//*[@id="dibButtons"]/input[1]',By.XPATH) # Botão Ok
-
-                    acessar_iframe_default(navegador) # Acessa Iframe dos itens novos
-                    clicar_elemento(navegador,'cancelButtonModal',By.ID) # Botão Cancelar
+                    enviar_emails(navegador,linha,"//li[@onclick=\"activeDeactiveObjMenu2(this);javascript: ellist_EmailDeContatoDosClientes__.addNewItem('CreateItens', true);\"]/a[@id='createitens']",'var_EmailDeContatoDosClientes__Email__')
                     input('Confirma o lançamento!!!')
                     navegador.switch_to.default_content()
                     clicar_elemento(navegador,'action.send',By.NAME)
@@ -668,20 +639,7 @@ while True:
                         navegador.switch_to.default_content()
 
                     enviarkey_element(navegador,'var_dadosCobranca__Observacao__',planilha.iloc[linha]['OBSERVACAO']) # Envia Valor
-
-                    email = planilha.iloc[linha]['EMAILS']
-                    lst_email = email.split('/')
-                    clicar_elemento(navegador,"//li[@onclick=\"activeDeactiveObjMenu2(this);javascript: ellist_EmailDeContatoDosClientes__.addNewItem('CreateItens', true);\"]/a[@id='createitens']",By.XPATH) # Itens novos e-mails
-
-                    for i in range(len(lst_email)):
-                            acessar_iframe_default(navegador) # Acessa Iframe dos itens novos
-                            enviarkey_elemento(navegador,'var_EmailDeContatoDosClientes__Email__',By.ID,lst_email[i]) # Envia Valor
-                            clicar_elemento_rustico(navegador,'form_container',By.ID)
-                            input('enter')
-                            clicar_elemento(navegador,'//*[@id="dibButtons"]/input[1]',By.XPATH) # Botão Ok
-
-                    acessar_iframe_default(navegador) # Acessa Iframe dos itens novos
-                    clicar_elemento(navegador,'cancelButtonModal',By.ID) # Botão Cancelar
+                    enviar_emails(navegador,linha,"//li[@onclick=\"activeDeactiveObjMenu2(this);javascript: ellist_EmailDeContatoDosClientes__.addNewItem('CreateItens', true);\"]/a[@id='createitens']",'var_EmailDeContatoDosClientes__Email__')
                     input('Confirma o lançamento!!!')
                     navegador.switch_to.default_content()
                     clicar_elemento(navegador,'action.send',By.NAME)
