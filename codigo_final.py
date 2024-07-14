@@ -16,6 +16,7 @@ import calendar
 import time
 import locale
 import pandas as pd
+import shutil
 import os
 locale.setlocale(locale.LC_TIME, 'pt_BR.UTF-8')
 
@@ -63,6 +64,10 @@ def copiar_linha_ativa(df, destino, sheet_name, linha, texto_adicional=None):
             sheet.cell(row=r_idx, column=c_idx, value=value)
     sheet.cell(row=next_row, column=sheet.max_column + 1, value=texto_adicional)# Adiciona o texto na última coluna da nova linha
     book.save(destino)# Salva o arquivo de destino
+
+def copiar_para_planilha(local_destino, local_origem):
+        os.makedirs(os.path.dirname(local_destino), exist_ok=True)
+        shutil.copy2(local_origem, local_destino)
 
 def enviarkey_element(nav, element_name, value):
     script = f"document.getElementsByName('{element_name}')[0].value='{value}';" # Simula a entrada de dados via JavaScript para evitar interferência da máscara de entrada
@@ -173,6 +178,8 @@ while True:
             numero_de_linhas = len(planilha) # Conta a quantidade de linhas
             destino = os.path.dirname(caminho)# Pega o caminho da pasta
             planilha_destino = destino + r'/Historico.xlsx' # Caminho do Historico
+            local_destino = r'C:\Temp\Historico.xlsx'
+            copiar_para_planilha(local_destino, planilha_destino)
             servico = Service(ChromeDriverManager().install())# Start no Navegador Chrome
             options = webdriver.ChromeOptions() # Para o mesmo não fechar apos execução
             options.add_experimental_option("detach", True) # Para o mesmo não fechar apos execução
@@ -239,7 +246,7 @@ while True:
                         navegador.switch_to.default_content()#Volta para o inicio
 
                 # ---------------------- Esta Parte se refere ao COB com Rateio ------------------------
-                
+
                 contador = 0 # Contador utilizado para clicar nos rateios no processo Final!
                 contador_1 = 0 # Contador utilizado para clicar nos rateios no processo Final!
                 contador_2 = 0 # Contador utilizado para clicar nos rateios no processo Final!
@@ -332,12 +339,13 @@ while True:
                 while len(navegador.find_elements(By.CLASS_NAME, 'alert')) == 0: # Loop para aguardar o alerta carregar!
                     time.sleep(1)
                 time.sleep(1)
-                copiar_linha_ativa(planilha, planilha_destino, 'Medição', linha)
+                copiar_linha_ativa(planilha, local_destino, 'Medição', linha)
                 navegador.close() # Fecha a aba apos Alerta Carregar!!
                 navegador.switch_to.window(aba_orignal)
                 time.sleep(1)
                 acessar_iframe_default(navegador)
                 clicar_elemento_rustico(navegador,'clear-input-filter',By.CLASS_NAME)#Limpa o campo de Pesquisa
+            copiar_para_planilha(planilha_destino,local_destino)
 
         elif escolha == 2:
             usuario = input('Insira o usuario do Fusion: ')
@@ -347,6 +355,8 @@ while True:
             numero_de_linhas = len(planilha) # Conta a quantidade de linhas
             destino = os.path.dirname(caminho)
             planilha_destino = destino + r'/Historico.xlsx'
+            local_destino = r'C:\Temp\Historico.xlsx'
+            copiar_para_planilha(local_destino, planilha_destino)
             servico = Service(ChromeDriverManager().install())# Start no Navegador Chrome
             options = webdriver.ChromeOptions() # Para o mesmo não fechar apos execução
             options.add_experimental_option("detach", True) # Para o mesmo não fechar apos execução
@@ -475,7 +485,7 @@ while True:
                     while len(navegador.find_elements(By.CLASS_NAME, 'alert')) == 0: # Loop para aguardar o alerta carregar!
                         time.sleep(1)
                     time.sleep(1)
-                    copiar_linha_ativa(planilha, planilha_destino, 'Novo', linha,nome_cob)
+                    copiar_linha_ativa(planilha, local_destino, 'Novo', linha,nome_cob)
                     navegador.close() # Fecha a aba apos Alerta Carregar!!
                     navegador.switch_to.window(aba_orignal)
                     time.sleep(1)
@@ -545,7 +555,7 @@ while True:
                     while len(navegador.find_elements(By.CLASS_NAME, 'alert')) == 0: # Loop para aguardar o alerta carregar!
                         time.sleep(1)
                     time.sleep(1)
-                    copiar_linha_ativa(planilha, planilha_destino, 'Novo', linha,nome_cob)
+                    copiar_linha_ativa(planilha, local_destino, 'Novo', linha,nome_cob)
                     navegador.close() # Fecha a aba apos Alerta Carregar!!
                     navegador.switch_to.window(aba_orignal)
                     time.sleep(1)
@@ -604,7 +614,7 @@ while True:
                     while len(navegador.find_elements(By.CLASS_NAME, 'alert')) == 0: # Loop para aguardar o alerta carregar!
                         time.sleep(1)
                     time.sleep(1)
-                    copiar_linha_ativa(planilha, planilha_destino, 'Novo', linha,nome_cob)
+                    copiar_linha_ativa(planilha, local_destino, 'Novo', linha,nome_cob)
                     navegador.close() # Fecha a aba apos Alerta Carregar!!
                     navegador.switch_to.window(aba_orignal)
                     time.sleep(1)
@@ -676,12 +686,13 @@ while True:
                     while len(navegador.find_elements(By.CLASS_NAME, 'alert')) == 0: # Loop para aguardar o alerta carregar!
                         time.sleep(1)
                     time.sleep(1)
-                    copiar_linha_ativa(planilha, planilha_destino, 'Novo', linha,nome_cob)
+                    copiar_linha_ativa(planilha, local_destino, 'Novo', linha,nome_cob)
                     navegador.close() # Fecha a aba apos Alerta Carregar!!
                     navegador.switch_to.window(aba_orignal)
                     time.sleep(1)
                     acessar_iframe_default(navegador)
 
+            copiar_para_planilha(planilha_destino,local_destino)
         elif escolha == 0:
             print("Saindo...")
             break
