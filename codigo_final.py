@@ -108,6 +108,7 @@ def enviar_emails(nav, linha,click,campo):
     clicar_elemento(nav,'cancelButtonModal',By.ID) # Botão Cancelar, para fechar janelas!
 
 def tratar_cnpj(cnpj):
+    cnpj = str(cnpj)  # Converte o CNPJ para string, caso não seja
     if '.' in cnpj or '-' in cnpj or '/' in cnpj:# Verifica se o CNPJ contém '.', '-', '/'
         cnpj_limpo = cnpj.replace('.', '').replace('/', '').replace('-', '')# Remove pontuações se existirem
     else:
@@ -213,7 +214,7 @@ while True:
                     else:
                         clicar_elemento(navegador,'createitem',By.ID)# Clica para criar novo Item
                         acessar_iframe(navegador)# Acessa o Iframe
-                        enviarkey_elemento(navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoCliente__',tratar_cnpj(planilha.iloc[linha]['CNPJ'])) # Envia CNPJ
+                        enviarkey_elemento(navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoCliente__',By.ID,tratar_cnpj(planilha.iloc[linha]['CNPJ'])) # Envia CNPJ
                         clicar_elemento(navegador,'ui-id-11',By.ID) # Clica no CNPJ informado
                         if sem_rateio == 0: # Difere o primeiro produto do segundo
                             enviarkey_elemento(navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA SESI VIVA+: AEP,PGR,PCMSO,LTCAT \nPERÍODO: {primeiro_dia} a {ultimo_dia}.') # Envia Descrição
