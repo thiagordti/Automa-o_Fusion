@@ -312,7 +312,7 @@ while True:
                     acessar_iframe(navegador)# Acessa o Iframe
                     enviarkey_elemento(navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoCliente__',By.ID,tratar_cnpj(planilha.iloc[linha]['CNPJ'])) # Envia CNPJ
                     clicar_elemento(navegador,'ui-id-11',By.ID) # Clica no CNPJ informado
-                    enviarkey_elemento(navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA CONSULTAS E EXAMES COMPLEMENTARES. \nPERÍODO: {primeiro_dia} a {ultimo_dia}.') # Envia Descrição
+                    enviarkey_elemento(navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'IN LOCO COBRANÇA CONSULTAS E EXAMES COMPLEMENTARES. \nPERÍODO: {primeiro_dia} a {ultimo_dia}.') # Envia Descrição
                     enviarkey_elemento(navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__rateio__', By.NAME,'Sim')# Envia sim ao campo de rateio
                     #Loop para a quantidade de Itens
                     for com_rateio in range(2): # Loop para verificar todos os itens (Total 4) com rateio na planilha!!
@@ -408,7 +408,7 @@ while True:
                         clicar_elemento(navegador,'ui-id-11',By.ID) # Clica no CNPJ informado
                         enviarkey_elemento(navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA SESI VIVA+: AEP,PGR,PCMSO,LTCAT \nPERÍODO: {primeiro_dia} a {ultimo_dia}.') # Envia Descrição
                         enviarkey_elemento(navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__rateio__', By.NAME,'Não')# Envia não ao campo de rateio
-                        
+                        clicar_elemento(navegador,'id_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDeCobranca__UOCRProtheus___anchor',By.ID) # Clica na pesquisa
                         acessar_iframe_default(navegador) # Acessa Iframe da Pesquisa
                         clicar_elemento(navegador,'vfilter',By.ID) # Clica no Filtro
                         acessar_iframe_default(navegador) # Acessa Iframe do Filtro
@@ -431,12 +431,12 @@ while True:
                     clicar_elemento(navegador,'//*[@id="ui-id-10"]/li',By.XPATH) # Clica no numero de contrato
                     clicar_elemento(navegador,'//*[@id="dibButtons"]/input[1]',By.XPATH) # Clica no numero de contrato
                     navegador.switch_to.default_content()#Volta para o inicio
-
+                    #------------------------Rateio--------------------------------------------------
                     clicar_elemento(navegador,'//*[@id="createitem"]',By.XPATH) # Clica no Novo
                     acessar_iframe(navegador)# Acessa o Iframe
                     enviarkey_elemento(navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoCliente__',By.ID,tratar_cnpj(planilha.iloc[linha]['CNPJ'])) # Envia CNPJ
                     clicar_elemento(navegador,'ui-id-11',By.ID) # Clica no CNPJ informado
-                    enviarkey_elemento(navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA SESI VIVA+: AEP,PGR,PCMSO,LTCAT \nPERÍODO: {primeiro_dia} a {ultimo_dia}.') # Envia Descrição
+                    enviarkey_elemento(navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA CONSULTAS E EXAMES COMPLEMENTARES. \nPERÍODO: {primeiro_dia} a {ultimo_dia}.') # Envia Descrição
                     enviarkey_elemento(navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__rateio__', By.NAME,'SIM')# Envia Sim ao campo de rateio
 
                     contador = 0 # Contador utilizado para clicar nos rateios no processo Final!
@@ -455,13 +455,13 @@ while True:
                             enviarkey_elemento(navegador,'var_codclvlr__',By.NAME,str(planilha.iloc[linha]['CLASSE DE VALOR'])) # Envia Classa de valor Cliente
                             enviarkey_elemento(navegador,'var_codfilialprotheus__',By.NAME,cod_filial) # Envia COD FILIAL - PADRÃO
                             enviarkey_elemento(navegador,'var_coduo__',By.NAME,cod_uo) # Envia COD UO - PADRÃO
-                            enviarkey_elemento(navegador,'var_codccusto__',By.NAME,str(int(planilha.iloc[linha][f'CR{com_rateio+1}']))) # Envia COD PRODUTO
+                            enviarkey_elemento(navegador,'var_codccusto__',By.NAME,str(int(planilha.iloc[linha][f'CR{com_rateio+2}']))) # Envia COD PRODUTO
                             clicar_elemento(navegador,'searchbutton',By.ID) # Clica na Pesquisa
                             acessar_iframe_default(navegador) # Acessa Iframe da Pesquisa
                             clicar_elemento(navegador,'tooltip0',By.ID) # Clica no item filtrado
                             acessar_iframe_default(navegador) # Acessa Iframe primario3
                             elemento2 = WebDriverWait(navegador, 10).until(EC.presence_of_element_located((By.NAME, 'var_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoRateio__valor__')))
-                            script_valor_cr = f"document.getElementsByName('var_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoRateio__valor__')[0].value='{planilha.iloc[linha][f'VALOR{com_rateio+1}']}';"
+                            script_valor_cr = f"document.getElementsByName('var_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoRateio__valor__')[0].value='{planilha.iloc[linha][f'VALOR{com_rateio+2}']}';"
                             navegador.execute_script(script_valor_cr)
                             clicar_elemento(navegador,'action.save',By.NAME) # Clica para salvar.
                             acessar_iframe_default(navegador) # Acessa Iframe primario
