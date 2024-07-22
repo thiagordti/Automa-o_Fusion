@@ -94,7 +94,6 @@ def esperar_elementos_carregar(nav, timeout=60):
             lambda driver: len(driver.find_elements(By.CLASS_NAME, "item")) > 0 or 
                            len(driver.find_elements(By.XPATH, '//div[contains(@class, "no-results-default-boxes") and contains(@class, "ng-scope") and contains(., "Sua Caixa de Entrada está vazia")]')) > 0
         )
-        print("Pelo menos um dos elementos foi carregado.")
 
 def enviar_emails(nav, linha,click,campo):
     email = planilha.iloc[linha]['EMAILS'] # recebe e-mails da planilha (Os mesmo devem ser separados por uma '/')
@@ -336,7 +335,8 @@ while True:
 
                 # ---------------------- Esta Parte se refere aos Anexos ------------------------
                 enviar_anexo(navegador,linha,'//*[@id="menu_bar_genericoHistoricoAtendimento"]/li[1]','var_dadosDaCobranca__historico__anexo__','//*[@id="progress-complete-var_dadosDaCobranca__historico__anexo__"]/span','var_dadosDaCobranca__historico__registro__') # Envia Anexos
-                enviarkey_elemento(navegador,'id_dadosDaCobranca__acao__',By.ID,'Solicitar Nova Medição')
+                if len(navegador.find_elements(By.CLASS_NAME, 'alert')) >= 1: # Loop para aguardar o alerta carregar!
+                    enviarkey_elemento(navegador,'id_dadosDaCobranca__acao__',By.ID,'Solicitar Nova Medição')
                 input('Confirma o lançamento!!!')
                 clicar_elemento(navegador,'action.send',By.NAME)
                 while len(navegador.find_elements(By.CLASS_NAME, 'alert')) == 0: # Loop para aguardar o alerta carregar!
@@ -696,6 +696,7 @@ while True:
                     acessar_iframe_default(navegador)
 
             copiar_para_planilha(planilha_destino,local_destino)
+        
         elif escolha == 0:
             print("Saindo...")
             break
@@ -705,4 +706,5 @@ while True:
         print("Entrada inválida. Digite um número.")
     except Exception as e:
         print(f"Ocorreu um erro: {e}")
+        copiar_para_planilha(planilha_destino,local_destino)
         input('Chame a T.I')
