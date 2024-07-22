@@ -18,6 +18,7 @@ import locale
 import pandas as pd
 import shutil
 import os
+
 locale.setlocale(locale.LC_TIME, 'pt_BR.UTF-8')
 
 def acessar_iframe(nav):
@@ -225,7 +226,7 @@ while True:
                         acessar_iframe_default(navegador) # Acessa Iframe da Pesquisa
                         clicar_elemento(navegador,'vfilter',By.ID) # Clica no Filtro
                         acessar_iframe_default(navegador) # Acessa Iframe do Filtro
-                        enviarkey_elemento(navegador,'var_codclvlr__',By.NAME,str(int(planilha.iloc[linha]['CLASSE DE VALOR']))) # Envia Classa de valor Cliente
+                        enviarkey_elemento(navegador,'var_codclvlr__',By.NAME,str(int(planilha.iloc[linha]['CLASSE DE VALOR']))) # Envia Classe de valor Cliente
                         enviarkey_elemento(navegador,'var_codfilialprotheus__',By.NAME,cod_filial) # Envia COD FILIAL - PADRÃO
                         enviarkey_elemento(navegador,'var_coduo__',By.NAME,cod_uo) # Envia COD UO - PADRÃO
                         enviarkey_elemento(navegador,'var_codccusto__',By.NAME,str(int(planilha.iloc[linha][f'CR-SR{sem_rateio+1}']))) # Envia COD PRODUTO
@@ -335,6 +336,7 @@ while True:
 
                 # ---------------------- Esta Parte se refere aos Anexos ------------------------
                 enviar_anexo(navegador,linha,'//*[@id="menu_bar_genericoHistoricoAtendimento"]/li[1]','var_dadosDaCobranca__historico__anexo__','//*[@id="progress-complete-var_dadosDaCobranca__historico__anexo__"]/span','var_dadosDaCobranca__historico__registro__') # Envia Anexos
+                enviarkey_elemento(navegador,'id_dadosDaCobranca__acao__',By.ID,'Solicitar Nova Medição')
                 input('Confirma o lançamento!!!')
                 clicar_elemento(navegador,'action.send',By.NAME)
                 while len(navegador.find_elements(By.CLASS_NAME, 'alert')) == 0: # Loop para aguardar o alerta carregar!
