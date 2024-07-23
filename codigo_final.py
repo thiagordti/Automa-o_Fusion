@@ -147,7 +147,7 @@ def clicar_porcentagem(nav,contador,linha):
     clicar_elemento(nav,'action.save',By.NAME) # Clica para salvar.
     nav.switch_to.default_content()#Volta para o inicio
 
-def dados_semrateio(nav,linha,cod_filial,cod_uo):
+def dados_rateio(nav,linha,cod_filial,cod_uo):
     clicar_elemento(nav,'//*[@id="menu_bar_FINFFCobFaturamentoVariavelCentroDeResultadosXFilialXValor"]/li[1]',By.XPATH) # Clica para abrir campo de produtos
     acessar_iframe_default(nav) # Acessa Iframe da Pesquisa de produtos
     opcoes_pagamento(nav,'//*[@id="mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoRateio__formaDeEntradaDosRecursos_ori"]/option[1]','move_this_right_mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoRateio__formaDeEntradaDosRecursos')
@@ -158,6 +158,16 @@ def dados_semrateio(nav,linha,cod_filial,cod_uo):
     enviarkey_elemento(nav,'var_codclvlr__',By.NAME,str(planilha.iloc[linha]['CLASSE DE VALOR'])) # Envia Classa de valor Cliente
     enviarkey_elemento(nav,'var_codfilialprotheus__',By.NAME,cod_filial) # Envia COD FILIAL - PADRÃO
     enviarkey_elemento(nav,'var_coduo__',By.NAME,cod_uo) # Envia COD UO - PADRÃO
+
+def iniciar_navegador():
+    servico = Service(ChromeDriverManager().install())# Start no Navegador Chrome
+    options = webdriver.ChromeOptions()
+    options.add_experimental_option("detach", True)# Para o mesmo não fechar apos execução
+    navegador = webdriver.Chrome(options=options, service=servico)# Executa o navegador
+    navegador.get('https://fusion.fiemg.com.br/fusion/portal')
+    navegador.maximize_window()# Maximiza a janela do navegador
+    return navegador
+    
 
 cod_filial = '01MG0014' # Codigo Filial - Padrão
 cod_uo = '10310' # Codigo UO - Padrão
@@ -176,17 +186,11 @@ while True:
             senha = getpass('Insira a senha do Fusion: ')
             caminho = selecionar_arquivo()
             planilha = pd.read_excel(caminho,'Medição') # Carrega a Planilha
-            numero_de_linhas = len(planilha) # Conta a quantidade de linhas
             destino = os.path.dirname(caminho)# Pega o caminho da pasta
             planilha_destino = destino + r'/Historico.xlsx' # Caminho do Historico
             local_destino = r'C:\Temp\Historico.xlsx'
             copiar_para_planilha(local_destino, planilha_destino)
-            servico = Service(ChromeDriverManager().install())# Start no Navegador Chrome
-            options = webdriver.ChromeOptions() # Para o mesmo não fechar apos execução
-            options.add_experimental_option("detach", True) # Para o mesmo não fechar apos execução
-            navegador = webdriver.Chrome(options=options,service=servico) # Executa o navegador
-            navegador.get('https://fusion.fiemg.com.br/fusion/portal')
-            navegador.maximize_window() # Maximiza a janela do navegador
+            navegador = iniciar_navegador()
             enviarkey_elemento(navegador,'user',By.ID,usuario)# Login
             enviarkey_elemento(navegador,'pass',By.ID,senha)# Senha
             clicar_elemento(navegador,'btnLogin',By.ID) # Clica no botão de Login
@@ -266,7 +270,7 @@ while True:
                         if pd.isna(planilha.iloc[linha][f'CRR{com_rateio+1}']): # Loop para verificar se o Item está vazio!!
                             pass # Pula o item vazio
                         else:
-                            dados_semrateio(navegador,linha,cod_filial,cod_uo)
+                            dados_rateio(navegador,linha,cod_filial,cod_uo)
                             enviarkey_elemento(navegador,'var_codccusto__',By.NAME,str(int(planilha.iloc[linha][f'CRR{com_rateio+1}']))) # Envia COD PRODUTO
                             clicar_elemento(navegador,'searchbutton',By.ID) # Clica na Pesquisa
                             acessar_iframe_default(navegador) # Acessa Iframe da Pesquisa
@@ -293,7 +297,7 @@ while True:
                         if pd.isna(planilha.iloc[linha][f'CRR{com_rateio+1}']): # Loop para verificar se o Item está vazio!!
                             pass # Pula o item vazio
                         else:
-                            dados_semrateio(navegador,linha,cod_filial,cod_uo)
+                            dados_rateio(navegador,linha,cod_filial,cod_uo)
                             enviarkey_elemento(navegador,'var_codccusto__',By.NAME,str(int(planilha.iloc[linha][f'CRR{com_rateio+1}']))) # Envia COD PRODUTO
                             clicar_elemento(navegador,'searchbutton',By.ID) # Clica na Pesquisa
                             acessar_iframe_default(navegador) # Acessa Iframe da Pesquisa
@@ -319,7 +323,7 @@ while True:
                         if pd.isna(planilha.iloc[linha][f'CRR{com_rateio+3}']): # Loop para verificar se o Item está vazio!!
                             pass # Pula o item vazio
                         else:
-                            dados_semrateio(navegador,linha,cod_filial,cod_uo)
+                            dados_rateio(navegador,linha,cod_filial,cod_uo)
                             enviarkey_elemento(navegador,'var_codccusto__',By.NAME,str(int(planilha.iloc[linha][f'CRR{com_rateio+3}']))) # Envia COD PRODUTO
                             clicar_elemento(navegador,'searchbutton',By.ID) # Clica na Pesquisa
                             acessar_iframe_default(navegador) # Acessa Iframe da Pesquisa
@@ -335,7 +339,7 @@ while True:
 
                 # ---------------------- Esta Parte se refere aos Anexos ------------------------
                 enviar_anexo(navegador,linha,'//*[@id="menu_bar_genericoHistoricoAtendimento"]/li[1]','var_dadosDaCobranca__historico__anexo__','//*[@id="progress-complete-var_dadosDaCobranca__historico__anexo__"]/span','var_dadosDaCobranca__historico__registro__') # Envia Anexos
-                if len(navegador.find_elements(By.CLASS_NAME, 'alert')) >= 1: # Loop para aguardar o alerta carregar!
+                if len(navegador.find_elements(By.ID, 'id_dadosDaCobranca__acao__')) >= 1: # Verifica se o campo existe
                     enviarkey_elemento(navegador,'id_dadosDaCobranca__acao__',By.ID,'Solicitar Nova Medição')
                 input('Confirma o lançamento!!!')
                 clicar_elemento(navegador,'action.send',By.NAME)
@@ -355,17 +359,11 @@ while True:
             senha = getpass('Insira a senha do Fusion: ')
             caminho = selecionar_arquivo()
             planilha = pd.read_excel(caminho,'Novo') # Carrega a Planilha
-            numero_de_linhas = len(planilha) # Conta a quantidade de linhas
             destino = os.path.dirname(caminho)
             planilha_destino = destino + r'/Historico.xlsx'
             local_destino = r'C:\Temp\Historico.xlsx'
             copiar_para_planilha(local_destino, planilha_destino)
-            servico = Service(ChromeDriverManager().install())# Start no Navegador Chrome
-            options = webdriver.ChromeOptions() # Para o mesmo não fechar apos execução
-            options.add_experimental_option("detach", True) # Para o mesmo não fechar apos execução
-            navegador = webdriver.Chrome(options=options,service=servico) # Executa o navegador
-            navegador.get('https://fusion.fiemg.com.br/fusion/portal')
-            navegador.maximize_window() # Maximiza a janela do navegador
+            navegador = iniciar_navegador() #Inicia o Navegador
             enviarkey_elemento(navegador,'user',By.ID,usuario)# Login
             enviarkey_elemento(navegador,'pass',By.ID,senha)# Senha
             clicar_elemento(navegador,'btnLogin',By.ID) # Clica no botão de Login
@@ -700,6 +698,7 @@ while True:
         elif escolha == 0:
             print("Saindo...")
             break
+        
         else:
             print("Escolha inválida. Tente novamente.")
     except ValueError:
