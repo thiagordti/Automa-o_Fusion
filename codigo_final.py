@@ -5,11 +5,14 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
 from tkinter.filedialog import askopenfilename
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from openpyxl import load_workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
+from tkinter import messagebox
 from getpass import getpass
 import tkinter as tk
 import calendar
@@ -25,7 +28,7 @@ def acessar_iframe(nav):
     iframe = WebDriverWait(nav, 180).until(EC.presence_of_element_located((By.TAG_NAME, 'iframe'))) # Espera 180 segundos até o iframe aparecer!
     nav.switch_to.frame(iframe) #Troca para o iframe
 
-def acessar_iframe_default(nav, timeout=10, wait_before_switch=1, max_attempts=10):
+def acessar_iframe_default(nav, timeout=10, wait_before_switch=0.5, max_attempts=10):
     time.sleep(wait_before_switch)# Espera antes de mudar para o conteúdo padrão
     nav.switch_to.default_content()
     iframe = WebDriverWait(nav, timeout).until(EC.presence_of_element_located((By.TAG_NAME, 'iframe')))# Espera até que o iframe esteja presente
@@ -33,16 +36,34 @@ def acessar_iframe_default(nav, timeout=10, wait_before_switch=1, max_attempts=1
     return 
 
 def clicar_elemento(nav,elemento,tipo):
-    obj = WebDriverWait(nav, 180).until(EC.presence_of_element_located((tipo, elemento))) # Aguarda 180 segundos até o elemento carregar
-    navegador.execute_script("arguments[0].click();", obj) # Clica no objeto utilizando paramentros JavaScript.
+    try:
+        obj = WebDriverWait(nav, 30).until(EC.presence_of_element_located((tipo, elemento))) # Aguarda 180 segundos até o elemento carregar
+        navegador.execute_script("arguments[0].click();", obj) # Clica no objeto utilizando paramentros JavaScript.
+    except TimeoutException:
+        root = tk.Tk()
+        root.withdraw()  # Oculta a janela principal do Tkinter
+        messagebox.showwarning("Alerta", "Elemento não encontrado. O código continuará a executar ao apertar OK.")
+        root.destroy()
 
 def clicar_elemento_rustico(nav,elemento,tipo):
-    WebDriverWait(nav, 180).until(EC.presence_of_element_located((tipo, elemento))) # Aguarda 180 segundos até o elemento carregar
-    nav.find_element(tipo, elemento).click()# Clicar na Pesquisa da forma tradicional do Selenium!
+    try:
+        WebDriverWait(nav, 30).until(EC.presence_of_element_located((tipo, elemento))) # Aguarda 180 segundos até o elemento carregar
+        nav.find_element(tipo, elemento).click()# Clicar na Pesquisa da forma tradicional do Selenium!
+    except TimeoutException:
+        root = tk.Tk()
+        root.withdraw()  # Oculta a janela principal do Tkinter
+        messagebox.showwarning("Alerta", "Elemento não encontrado. O código continuará a executar ao apertar OK.")
+        root.destroy()
 
 def enviarkey_elemento(nav,elemento,tipo,texto):
-    WebDriverWait(nav, 180).until(EC.presence_of_element_located((tipo, elemento))) # Aguarda 180 segundos até o elemento carregar
-    navegador.find_element(tipo, elemento).send_keys(texto) # envia dados para o elemento
+    try:
+        WebDriverWait(nav, 30).until(EC.presence_of_element_located((tipo, elemento))) # Aguarda 180 segundos até o elemento carregar
+        navegador.find_element(tipo, elemento).send_keys(texto) # envia dados para o elemento
+    except TimeoutException:
+        root = tk.Tk()
+        root.withdraw()  # Oculta a janela principal do Tkinter
+        messagebox.showwarning("Alerta", "Elemento não encontrado. O código continuará a executar ao apertar OK.")
+        root.destroy()
 
 def primeiro_e_ultimo_dia_do_mes(ano, mes):
     primeiro_dia = datetime(ano, mes, 1)# Primeiro dia do mês
@@ -64,6 +85,9 @@ def copiar_linha_ativa(df, destino, sheet_name, linha, texto_adicional=None):
         for c_idx, value in enumerate(row, 1):
             sheet.cell(row=r_idx, column=c_idx, value=value)
     sheet.cell(row=next_row, column=sheet.max_column + 1, value=texto_adicional)# Adiciona o texto na última coluna da nova linha
+    hoje = datetime.today().strftime('%d/%m/%Y')# Pega a data de hoje
+    sheet.cell(row=next_row, column=sheet.max_column + 2, value=hoje)# Adiciona a data de hoje na coluna seguinte
+
     book.save(destino)# Salva o arquivo de destino
 
 def copiar_para_planilha(local_destino, local_origem):
@@ -71,15 +95,21 @@ def copiar_para_planilha(local_destino, local_origem):
         shutil.copy2(local_origem, local_destino)
 
 def enviarkey_java(nav, element_name, value):
-    WebDriverWait(nav, 10).until(EC.presence_of_element_located((By.NAME, element_name)))
-    script = f"document.getElementsByName('{element_name}')[0].value='{value}';" # Simula a entrada de dados via JavaScript para evitar interferência da máscara de entrada
-    nav.execute_script(script)
-    script = f"""
-    var input = document.getElementsByName('{element_name}')[0];
-    var event = new Event('input', {{ bubbles: true }});
-    input.dispatchEvent(event);
-    """
-    nav.execute_script(script) # Dispara eventos para que o script de máscara possa processar o novo valor
+    try:
+        WebDriverWait(nav, 30).until(EC.presence_of_element_located((By.NAME, element_name)))
+        script = f"document.getElementsByName('{element_name}')[0].value='{value}';" # Simula a entrada de dados via JavaScript para evitar interferência da máscara de entrada
+        nav.execute_script(script)
+        script = f"""
+        var input = document.getElementsByName('{element_name}')[0];
+        var event = new Event('input', {{ bubbles: true }});
+        input.dispatchEvent(event);
+        """
+        nav.execute_script(script) # Dispara eventos para que o script de máscara possa processar o novo valor
+    except TimeoutException:
+        root = tk.Tk()
+        root.withdraw()  # Oculta a janela principal do Tkinter
+        messagebox.showwarning("Alerta", "Elemento não encontrado. O código continuará a executar ao apertar OK.")
+        root.destroy()
 
 def selecionar_arquivo():
     caminho_arquivo = askopenfilename(title="Selecione a Planilha COB!") # Solciita o usuario selecionar a planilha!
@@ -437,7 +467,7 @@ while True:
 
                     contador = 0 # Contador utilizado para clicar nos rateios no processo Final!
                     #Loop para a quantidade de Itens
-                    for com_rateio in range(5): # Loop para verificar todos os itens (Total 6) com rateio na planilha!!
+                    for com_rateio in range(5): # Loop para verificar todos os itens (Total 5) com rateio na planilha!!
                         if pd.isna(planilha.iloc[linha][f'CR{com_rateio+2}']): # Loop para verificar se o Item está vazio!!
                             pass # Pula o item vazio
                         else:
