@@ -44,6 +44,8 @@ def clicar_elemento(nav,elemento,tipo):
         root.withdraw()  # Oculta a janela principal do Tkinter
         messagebox.showwarning("Alerta", "Elemento não encontrado. O código continuará a executar ao apertar OK.")
         root.destroy()
+    finally:
+        pass  # Garante que o código continue mesmo após o aviso
 
 def clicar_elemento_rustico(nav,elemento,tipo):
     try:
@@ -54,6 +56,8 @@ def clicar_elemento_rustico(nav,elemento,tipo):
         root.withdraw()  # Oculta a janela principal do Tkinter
         messagebox.showwarning("Alerta", "Elemento não encontrado. O código continuará a executar ao apertar OK.")
         root.destroy()
+    finally:
+        pass  # Garante que o código continue mesmo após o aviso
 
 def enviarkey_elemento(nav,elemento,tipo,texto):
     try:
@@ -64,6 +68,8 @@ def enviarkey_elemento(nav,elemento,tipo,texto):
         root.withdraw()  # Oculta a janela principal do Tkinter
         messagebox.showwarning("Alerta", "Elemento não encontrado. O código continuará a executar ao apertar OK.")
         root.destroy()
+    finally:
+        pass  # Garante que o código continue mesmo após o aviso
 
 def primeiro_e_ultimo_dia_do_mes(ano, mes):
     primeiro_dia = datetime(ano, mes, 1)# Primeiro dia do mês
@@ -75,19 +81,22 @@ def primeiro_e_ultimo_dia_do_mes(ano, mes):
 
 def copiar_linha_ativa(df, destino, sheet_name, linha, texto_adicional=None):
     linha_ativa = df.iloc[[linha]].dropna(how='all')  # Seleciona a linha ativa específica (não vazia)
-    book = load_workbook(destino)  # Tenta carregar a planilha de destino existente
-    if sheet_name in book.sheetnames:
-        sheet = book[sheet_name]
-    else:
-        sheet = book.create_sheet(sheet_name)
+    book = load_workbook(destino)  # Tenta carregar a planilha de destino existente:
+    sheet = book[sheet_name]
     next_row = sheet.max_row + 1# Encontra a próxima linha vazia na planilha de destino
     for r_idx, row in enumerate(dataframe_to_rows(linha_ativa, index=False, header=False), start=next_row):# Adiciona a linha ativa à planilha de destino
         for c_idx, value in enumerate(row, 1):
             sheet.cell(row=r_idx, column=c_idx, value=value)
-    sheet.cell(row=next_row, column=sheet.max_column + 1, value=texto_adicional)# Adiciona o texto na última coluna da nova linha
-    hoje = datetime.today().strftime('%d/%m/%Y')# Pega a data de hoje
-    sheet.cell(row=next_row, column=sheet.max_column + 2, value=hoje)# Adiciona a data de hoje na coluna seguinte
-
+    if sheet_name == 'Novo':
+        cob_column_index = 29  # Index da coluna COB, alterar manualmente caso planilha seja modificada!!
+        sheet.cell(row=next_row, column=cob_column_index, value=texto_adicional)# Adiciona o texto na última coluna da nova linha
+        hoje = datetime.today().strftime('%d/%m/%Y')# Pega a data de hoje
+        sheet.cell(row=next_row, column=cob_column_index + 1, value=hoje)# Adiciona a data de hoje na coluna seguinte
+    else:
+        dia_column_index = 24
+        hoje = datetime.today().strftime('%d/%m/%Y')# Pega a data de hoje
+        sheet.cell(row=next_row, column=dia_column_index, value=hoje)# Adiciona a data de hoje na coluna seguinte  
+    
     book.save(destino)# Salva o arquivo de destino
 
 def copiar_para_planilha(local_destino, local_origem):
@@ -110,6 +119,8 @@ def enviarkey_java(nav, element_name, value):
         root.withdraw()  # Oculta a janela principal do Tkinter
         messagebox.showwarning("Alerta", "Elemento não encontrado. O código continuará a executar ao apertar OK.")
         root.destroy()
+    finally:
+        pass  # Garante que o código continue mesmo após o aviso
 
 def selecionar_arquivo():
     caminho_arquivo = askopenfilename(title="Selecione a Planilha COB!") # Solciita o usuario selecionar a planilha!
@@ -191,10 +202,9 @@ def dados_rateio(nav,linha,cod_filial,cod_uo):
     enviarkey_elemento(nav,'var_coduo__',By.NAME,cod_uo) # Envia COD UO - PADRÃO
 
 def iniciar_navegador():
-    servico = Service(ChromeDriverManager().install())# Start no Navegador Chrome
     options = webdriver.ChromeOptions()
     options.add_experimental_option("detach", True)# Para o mesmo não fechar apos execução
-    navegador = webdriver.Chrome(options=options, service=servico)# Executa o navegador
+    navegador = webdriver.Chrome(options=options)# Executa o navegador
     navegador.get('https://fusion.fiemg.com.br/fusion/portal')
     navegador.maximize_window()# Maximiza a janela do navegador
     return navegador
@@ -214,6 +224,7 @@ def variavel_novo(nav,linha):
 
 cod_filial = '01MG0014' # Codigo Filial - Padrão
 cod_uo = '10310' # Codigo UO - Padrão
+
 
 while True:
     print('-----------Automação COB-----------/n')
@@ -612,7 +623,7 @@ while True:
                     acessar_iframe_default(navegador) # Acessa Iframe dos itens novos
                     clicar_elemento(navegador,'cancelButtonModal',By.ID) # Botão Cancelar
                     navegador.switch_to.default_content()
-                    enviarkey_elemento(navegador,'var_dadosCobranca__Observacao__',planilha.iloc[linha]['OBSERVACAO']) # Envia Observação
+                    enviarkey_elemento(navegador,'var_dadosCobranca__Observacao__',By.ID,planilha.iloc[linha]['OBSERVACAO']) # Envia Observação
                     enviar_emails(navegador,linha,"//li[@onclick=\"activeDeactiveObjMenu2(this);javascript: ellist_EmailDeContatoDosClientes__.addNewItem('CreateItens', true);\"]/a[@id='createitens']",'var_EmailDeContatoDosClientes__Email__')
                     input('Confirma o lançamento!!!')
                     navegador.switch_to.default_content()
@@ -684,7 +695,7 @@ while True:
                         clicar_elemento(navegador,'//*[@id="dibButtons"]/input[1]',By.XPATH) #botão ok
                         navegador.switch_to.default_content()
 
-                    enviarkey_elemento(navegador,'var_dadosCobranca__Observacao__',planilha.iloc[linha]['OBSERVACAO']) # Envia Observação
+                    enviarkey_elemento(navegador,'var_dadosCobranca__Observacao__',By.ID,planilha.iloc[linha]['OBSERVACAO']) # Envia Observação
                     enviar_emails(navegador,linha,"//li[@onclick=\"activeDeactiveObjMenu2(this);javascript: ellist_EmailDeContatoDosClientes__.addNewItem('CreateItens', true);\"]/a[@id='createitens']",'var_EmailDeContatoDosClientes__Email__')
                     input('Confirma o lançamento!!!')
                     navegador.switch_to.default_content()
