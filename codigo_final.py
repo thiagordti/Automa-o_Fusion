@@ -42,10 +42,8 @@ def clicar_elemento(nav,elemento,tipo):
     except TimeoutException:
         root = tk.Tk()
         root.withdraw()  # Oculta a janela principal do Tkinter
-        messagebox.showwarning("Alerta", "Elemento não encontrado. O código continuará a executar ao apertar OK.")
+        messagebox.showwarning("Alerta", "Botão ou campo não encontrado. Localize e preencha manualmente. O código continuará a executar ao apertar OK.")
         root.destroy()
-    finally:
-        pass  # Garante que o código continue mesmo após o aviso
 
 def clicar_elemento_rustico(nav,elemento,tipo):
     try:
@@ -54,10 +52,8 @@ def clicar_elemento_rustico(nav,elemento,tipo):
     except TimeoutException:
         root = tk.Tk()
         root.withdraw()  # Oculta a janela principal do Tkinter
-        messagebox.showwarning("Alerta", "Elemento não encontrado. O código continuará a executar ao apertar OK.")
+        messagebox.showwarning("Alerta", "Botão ou campo não encontrado. Localize e preencha manualmente. O código continuará a executar ao apertar OK.")
         root.destroy()
-    finally:
-        pass  # Garante que o código continue mesmo após o aviso
 
 def enviarkey_elemento(nav,elemento,tipo,texto):
     try:
@@ -66,10 +62,8 @@ def enviarkey_elemento(nav,elemento,tipo,texto):
     except TimeoutException:
         root = tk.Tk()
         root.withdraw()  # Oculta a janela principal do Tkinter
-        messagebox.showwarning("Alerta", "Elemento não encontrado. O código continuará a executar ao apertar OK.")
+        messagebox.showwarning("Alerta", "Botão ou campo não encontrado. Localize e preencha manualmente. O código continuará a executar ao apertar OK.")
         root.destroy()
-    finally:
-        pass  # Garante que o código continue mesmo após o aviso
 
 def primeiro_e_ultimo_dia_do_mes(ano, mes):
     primeiro_dia = datetime(ano, mes, 1)# Primeiro dia do mês
@@ -117,10 +111,8 @@ def enviarkey_java(nav, element_name, value):
     except TimeoutException:
         root = tk.Tk()
         root.withdraw()  # Oculta a janela principal do Tkinter
-        messagebox.showwarning("Alerta", "Elemento não encontrado. O código continuará a executar ao apertar OK.")
+        messagebox.showwarning("Alerta", "Botão ou campo não encontrado. Localize e preencha manualmente. O código continuará a executar ao apertar OK.")
         root.destroy()
-    finally:
-        pass  # Garante que o código continue mesmo após o aviso
 
 def selecionar_arquivo():
     caminho_arquivo = askopenfilename(title="Selecione a Planilha COB!") # Solciita o usuario selecionar a planilha!
@@ -224,7 +216,6 @@ def variavel_novo(nav,linha):
 
 cod_filial = '01MG0014' # Codigo Filial - Padrão
 cod_uo = '10310' # Codigo UO - Padrão
-
 
 while True:
     print('-----------Automação COB-----------/n')
