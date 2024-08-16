@@ -89,7 +89,7 @@ def copiar_linha_ativa(df, destino, sheet_name, linha, texto_adicional=None):
     else:
         dia_column_index = 24
         hoje = datetime.today().strftime('%d/%m/%Y')# Pega a data de hoje
-        sheet.cell(row=next_row, column=dia_column_index, value=hoje)# Adiciona a data de hoje na coluna seguinte  
+        sheet.cell(row=next_row, column=dia_column_index, value=hoje)# Adiciona a data de hoje na coluna  
     
     book.save(destino)# Salva o arquivo de destino
 
@@ -214,6 +214,17 @@ def variavel_novo(nav,linha):
         enviarkey_elemento(nav,'id_dadosDaCobranca__dadosParaHistorico__diaLimiteNFCliente__',By.ID,str(int(planilha.iloc[linha]['DIA LIMITE'])))# Dia Limite
         enviarkey_elemento(nav,'var_dadosDaCobranca__cobrancaRelacionadaComConvenio__',By.ID,'Não')# Convenio
 
+def esperar_alerta(nav, cob, aba_original,planilha, local_destino,nome_guia,linha):
+    alert = WebDriverWait(nav, 30).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.alert')))# Espera que qualquer alerta de sucesso ou perigo apareça
+    if 'alert-success' in alert.get_attribute('class'):# Verifica a classe do alerta
+        copiar_linha_ativa(planilha, local_destino, 'Medição', linha)
+        print('Cob executado com sucesso!!')
+        nav.close()  # Fecha a aba após o alerta carregar
+        nav.switch_to.window(aba_original)  # Volta para a aba original
+    else:
+        print(f"O {cob} apresentou falha ao enviar, não foi incluído na planilha Histórico!!")
+
+
 cod_filial = '01MG0014' # Codigo Filial - Padrão
 cod_uo = '10310' # Codigo UO - Padrão
 
@@ -244,11 +255,12 @@ while True:
                 enviarkey_elemento(navegador,'searchBarProcessQuery',By.ID,planilha.iloc[linha]['COB'])#Envio do COB
                 esperar_elementos_carregar(navegador)
                 clicar_elemento_rustico(navegador,'//*[@id="page-content-wrapper"]/div/div/div[1]/div[1]/nav/div/form/div/div/span/button',By.XPATH) # Clica no botão de pesquisa inicial
-                aba_orignal = navegador.window_handles[0] # Identifica Aba Primaria
+                aba_original = navegador.window_handles[0] # Identifica Aba Primaria
                 clicar_elemento_rustico(navegador, 'header', By.CLASS_NAME) # Clica no COB pesquisado
                 WebDriverWait(navegador, 10).until(lambda d: len(d.window_handles) > 1)
                 nova_aba = navegador.window_handles[1]# Identifica nova aba apos iniciar Cobrança
                 navegador.switch_to.window(nova_aba) # Troca para nova Aba
+                nome_cob = texto_elemento(navegador,'headerTitle',By.ID)
                 data = planilha.iloc[linha]['DATA_DESCRIÇÃO'] # Pega data de Descrição
                 date = datetime.strptime(data.strftime('%d/%m/%Y'), '%d/%m/%Y') # Transforma data em string
                 primeiro_dia, ultimo_dia = primeiro_e_ultimo_dia_do_mes(date.year, date.month) # Pega o mês e dia
@@ -381,12 +393,7 @@ while True:
                     enviarkey_elemento(navegador,'id_dadosDaCobranca__acao__',By.ID,'Solicitar Nova Medição')
                 input('Confirma o lançamento!!!')
                 clicar_elemento(navegador,'action.send',By.NAME)
-                while len(navegador.find_elements(By.CLASS_NAME, 'alert')) == 0: # Loop para aguardar o alerta carregar!
-                    time.sleep(1)
-                time.sleep(1)
-                copiar_linha_ativa(planilha, local_destino, 'Medição', linha)
-                navegador.close() # Fecha a aba apos Alerta Carregar!!
-                navegador.switch_to.window(aba_orignal)
+                esperar_alerta(navegador,nome_cob, aba_original,planilha,local_destino,'Medição',linha)
                 time.sleep(1)
                 acessar_iframe_default(navegador)
                 clicar_elemento_rustico(navegador,'clear-input-filter',By.CLASS_NAME)#Limpa o campo de Pesquisa
@@ -406,7 +413,7 @@ while True:
             enviarkey_elemento(navegador,'pass',By.ID,senha)# Senha
             clicar_elemento(navegador,'btnLogin',By.ID) # Clica no botão de Login
             acessar_iframe_default(navegador)# Acessa o Iframe
-            aba_orignal = navegador.window_handles[0] # Identifica Aba Primaria
+            aba_original = navegador.window_handles[0] # Identifica Aba Primaria
 
             for linha in range(len(planilha)):
                 clicar_elemento(navegador,'btnStartProcess',By.ID) # Iniciar novo processo
@@ -502,12 +509,7 @@ while True:
                     input('Confirma o lançamento!!!')
                     navegador.switch_to.default_content()
                     clicar_elemento(navegador,'action.send',By.NAME)
-                    while len(navegador.find_elements(By.CLASS_NAME, 'alert')) == 0: # Loop para aguardar o alerta carregar!
-                        time.sleep(1)
-                    time.sleep(1)
-                    copiar_linha_ativa(planilha, local_destino, 'Novo', linha,nome_cob)
-                    navegador.close() # Fecha a aba apos Alerta Carregar!!
-                    navegador.switch_to.window(aba_orignal)
+                    esperar_alerta(navegador,nome_cob, aba_original,planilha,local_destino,'Novo',linha)
                     time.sleep(1)
                     acessar_iframe_default(navegador)
 
@@ -560,12 +562,7 @@ while True:
                     input('Confirma o lançamento!!!')
                     navegador.switch_to.default_content()
                     clicar_elemento(navegador,'action.send',By.NAME)
-                    while len(navegador.find_elements(By.CLASS_NAME, 'alert')) == 0: # Loop para aguardar o alerta carregar!
-                        time.sleep(1)
-                    time.sleep(1)
-                    copiar_linha_ativa(planilha, local_destino, 'Novo', linha,nome_cob)
-                    navegador.close() # Fecha a aba apos Alerta Carregar!!
-                    navegador.switch_to.window(aba_orignal)
+                    esperar_alerta(navegador,nome_cob, aba_original,planilha,local_destino,'Novo',linha)
                     time.sleep(1)
                     acessar_iframe_default(navegador)
 
@@ -619,12 +616,7 @@ while True:
                     input('Confirma o lançamento!!!')
                     navegador.switch_to.default_content()
                     clicar_elemento(navegador,'action.send',By.NAME)
-                    while len(navegador.find_elements(By.CLASS_NAME, 'alert')) == 0: # Loop para aguardar o alerta carregar!
-                        time.sleep(1)
-                    time.sleep(1)
-                    copiar_linha_ativa(planilha, local_destino, 'Novo', linha,nome_cob)
-                    navegador.close() # Fecha a aba apos Alerta Carregar!!
-                    navegador.switch_to.window(aba_orignal)
+                    esperar_alerta(navegador,nome_cob, aba_original,planilha,local_destino,'Novo',linha)
                     time.sleep(1)
                     acessar_iframe_default(navegador)
 
@@ -691,12 +683,7 @@ while True:
                     input('Confirma o lançamento!!!')
                     navegador.switch_to.default_content()
                     clicar_elemento(navegador,'action.send',By.NAME)
-                    while len(navegador.find_elements(By.CLASS_NAME, 'alert')) == 0: # Loop para aguardar o alerta carregar!
-                        time.sleep(1)
-                    time.sleep(1)
-                    copiar_linha_ativa(planilha, local_destino, 'Novo', linha,nome_cob)
-                    navegador.close() # Fecha a aba apos Alerta Carregar!!
-                    navegador.switch_to.window(aba_orignal)
+                    esperar_alerta(navegador,nome_cob, aba_original,planilha,local_destino,'Novo',linha)
                     time.sleep(1)
                     acessar_iframe_default(navegador)
 
