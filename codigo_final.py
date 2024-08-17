@@ -214,15 +214,20 @@ def variavel_novo(nav,linha):
         enviarkey_elemento(nav,'id_dadosDaCobranca__dadosParaHistorico__diaLimiteNFCliente__',By.ID,str(int(planilha.iloc[linha]['DIA LIMITE'])))# Dia Limite
         enviarkey_elemento(nav,'var_dadosDaCobranca__cobrancaRelacionadaComConvenio__',By.ID,'Não')# Convenio
 
-def esperar_alerta(nav, cob, aba_original,planilha, local_destino,nome_guia,linha):
+def esperar_alerta(nav, cob, aba_original,planilha, local_destino,nome_guia,linha,texto_adicional=None):
     alert = WebDriverWait(nav, 30).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.alert')))# Espera que qualquer alerta de sucesso ou perigo apareça
     if 'alert-success' in alert.get_attribute('class'):# Verifica a classe do alerta
-        copiar_linha_ativa(planilha, local_destino, 'Medição', linha)
+        if nome_guia == 'Medição':
+            copiar_linha_ativa(planilha, local_destino, 'Medição', linha)
+        elif nome_guia == 'Novo':
+            copiar_linha_ativa(planilha, local_destino, 'Novo', linha,texto_adicional)
         print('Cob executado com sucesso!!')
         nav.close()  # Fecha a aba após o alerta carregar
         nav.switch_to.window(aba_original)  # Volta para a aba original
     else:
         print(f"O {cob} apresentou falha ao enviar, não foi incluído na planilha Histórico!!")
+        nav.close()  # Fecha a aba após o alerta carregar
+        nav.switch_to.window(aba_original)  # Volta para a aba original
 
 
 cod_filial = '01MG0014' # Codigo Filial - Padrão
@@ -509,7 +514,7 @@ while True:
                     input('Confirma o lançamento!!!')
                     navegador.switch_to.default_content()
                     clicar_elemento(navegador,'action.send',By.NAME)
-                    esperar_alerta(navegador,nome_cob, aba_original,planilha,local_destino,'Novo',linha)
+                    esperar_alerta(navegador,nome_cob, aba_original,planilha,local_destino,'Novo',linha,nome_cob)
                     time.sleep(1)
                     acessar_iframe_default(navegador)
 
@@ -562,7 +567,7 @@ while True:
                     input('Confirma o lançamento!!!')
                     navegador.switch_to.default_content()
                     clicar_elemento(navegador,'action.send',By.NAME)
-                    esperar_alerta(navegador,nome_cob, aba_original,planilha,local_destino,'Novo',linha)
+                    esperar_alerta(navegador,nome_cob, aba_original,planilha,local_destino,'Novo',linha,nome_cob)
                     time.sleep(1)
                     acessar_iframe_default(navegador)
 
@@ -616,7 +621,7 @@ while True:
                     input('Confirma o lançamento!!!')
                     navegador.switch_to.default_content()
                     clicar_elemento(navegador,'action.send',By.NAME)
-                    esperar_alerta(navegador,nome_cob, aba_original,planilha,local_destino,'Novo',linha)
+                    esperar_alerta(navegador,nome_cob, aba_original,planilha,local_destino,'Novo',linha,nome_cob)
                     time.sleep(1)
                     acessar_iframe_default(navegador)
 
@@ -683,7 +688,7 @@ while True:
                     input('Confirma o lançamento!!!')
                     navegador.switch_to.default_content()
                     clicar_elemento(navegador,'action.send',By.NAME)
-                    esperar_alerta(navegador,nome_cob, aba_original,planilha,local_destino,'Novo',linha)
+                    esperar_alerta(navegador,nome_cob, aba_original,planilha,local_destino,'Novo',linha,nome_cob)
                     time.sleep(1)
                     acessar_iframe_default(navegador)
 
@@ -696,7 +701,9 @@ while True:
         else:
             print("Escolha inválida. Tente novamente.")
     except ValueError:
-        print("Entrada inválida. Digite um número.")
+        print(f"Ocorreu um erro: {e}")
+        copiar_para_planilha(planilha_destino,local_destino)
+        input('Chame a T.I')
     except Exception as e:
         print(f"Ocorreu um erro: {e}")
         copiar_para_planilha(planilha_destino,local_destino)
