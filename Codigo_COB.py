@@ -2,7 +2,6 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -26,7 +25,7 @@ locale.setlocale(locale.LC_TIME, 'pt_BR.UTF-8')
 
 tempo_fusion = input("O Site Fusion está mais lento que o normal?? Responda com S ou N: ") # Validação para o codigo rodar sem travar devido a lentidão do site!
 tempo_carregar = 0.5
-if tempo_fusion.lower() == 'n':
+if tempo_fusion.lower() == 's':
     tempo_carregar = 3.0
 
 
