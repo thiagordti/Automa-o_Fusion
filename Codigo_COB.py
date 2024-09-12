@@ -1,11 +1,7 @@
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
-from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
 from tkinter.filedialog import askopenfilename
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
@@ -706,7 +702,7 @@ while True:
         
         else:
             print("Escolha inválida. Tente novamente.")
-    except ValueError:
+    except ValueError as e:
         print(f"Ocorreu um erro: {e}")
         copiar_para_planilha(planilha_destino,local_destino)
         input('Chame a T.I')
