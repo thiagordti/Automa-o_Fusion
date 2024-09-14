@@ -1,0 +1,50 @@
+from utils import copiar_para_planilha, selecionar_arquivo
+from cob_novo import cob_nv
+from medicao_variavel import medicao_vr
+from getpass import getpass
+import os
+
+tempo_fusion = input("O Site Fusion está mais lento que o normal?? Responda com S ou N: ") # Validação para o codigo rodar sem travar devido a lentidão do site!
+tempo_carregar = 0.5
+if tempo_fusion.lower() == 's':
+    tempo_carregar = 3.0
+
+
+usuario = input('Insira o usuario do Fusion: ')
+senha = getpass('Insira a senha do Fusion: ')
+
+caminho = selecionar_arquivo()
+
+destino = os.path.dirname(caminho)# Pega o caminho da pasta
+planilha_destino = destino + r'/Historico.xlsx' # Caminho do Historico
+local_destino = r'C:\Temp\Historico.xlsx'
+
+while True:
+    print('-----------Automação COB-----------/n')
+    print("\nMenu de Escolhas:")
+    print("1 - Medição Variavel")
+    print("2 - Criar Novos COB's")
+    print("0 - Sair")
+    escolha = input("Escolha uma opção: ")
+
+    try:
+        escolha = int(escolha)
+
+        if escolha == 1: medicao_vr(caminho,usuario,senha,cod_filial = '01MG0014',cod_uo = '10310',tempo_espera=0.5)
+
+        elif escolha == 2: cob_nv(caminho,usuario,senha,cod_filial = '01MG0014',cod_uo = '10310',tempo_espera=0.5)
+
+        elif escolha == 0:
+            print("Saindo...")
+            break
+        
+        else:
+            print("Escolha inválida. Tente novamente.")
+    except ValueError as e:
+        print(f"Ocorreu um erro: {e}")
+        copiar_para_planilha(planilha_destino,local_destino)
+        input('Chame a T.I')
+    except Exception as e:
+        print(f"Ocorreu um erro: {e}")
+        copiar_para_planilha(planilha_destino,local_destino)
+        input('Chame a T.I')
