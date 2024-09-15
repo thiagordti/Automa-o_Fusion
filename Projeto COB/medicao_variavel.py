@@ -148,7 +148,7 @@ def medicao_vr(caminho,usuario,senha,cod_filial = '01MG0014',cod_uo = '10310',te
             clicar_porcentagem(navegador,contador_2,linha,planilha) # Baseado na soma do Contador clica nos itens
 
         # ---------------------- Esta Parte se refere aos Anexos ------------------------
-        enviar_anexo(navegador,linha,'//*[@id="menu_bar_genericoHistoricoAtendimento"]/li[1]','var_dadosDaCobranca__historico__anexo__','//*[@id="progress-complete-var_dadosDaCobranca__historico__anexo__"]/span','var_dadosDaCobranca__historico__registro__',planilha) # Envia Anexos
+        enviar_anexo(navegador,linha,'//*[@id="menu_bar_genericoHistoricoAtendimento"]/li[1]','var_dadosDaCobranca__historico__anexo__','//*[@id="progress-complete-var_dadosDaCobranca__historico__anexo__"]/span','var_dadosDaCobranca__historico__registro__',planilha,caminho) # Envia Anexos
         if len(navegador.find_elements(By.ID, 'id_dadosDaCobranca__acao__')) >= 1: # Verifica se o campo existe
             enviarkey_elemento(navegador,'id_dadosDaCobranca__acao__',By.ID,'Solicitar Nova Medição')
         input('Confirma o lançamento!!!')
