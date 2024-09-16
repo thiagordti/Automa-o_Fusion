@@ -86,7 +86,7 @@ def medicao_vr(caminho,usuario,senha,cod_filial = '01MG0014',cod_uo = '10310',te
                 if pd.isna(planilha.iloc[linha][f'CRR{com_rateio+1}']): # Loop para verificar se o Item está vazio!!
                     pass # Pula o item vazio
                 else:
-                    dados_rateio(navegador,linha,cod_filial,cod_uo,planilha)
+                    dados_rateio(navegador,linha,cod_filial,cod_uo,planilha, tempo_espera)
                     enviarkey_elemento(navegador,'var_codccusto__',By.NAME,str(int(planilha.iloc[linha][f'CRR{com_rateio+1}']))) # Envia COD PRODUTO
                     clicar_elemento(navegador,'searchbutton',By.ID) # Clica na Pesquisa
                     acessar_iframe_default(navegador,tempo_espera) # Acessa Iframe da Pesquisa
@@ -96,7 +96,7 @@ def medicao_vr(caminho,usuario,senha,cod_filial = '01MG0014',cod_uo = '10310',te
                     clicar_elemento(navegador,'action.save',By.NAME) # Clica para salvar.
                     acessar_iframe_default(navegador,tempo_espera) # Acessa Iframe primario
                     contador += 1 # Soma 1 a quantidade de contador, será utiizado para clicar no loop Contador!
-            clicar_porcentagem(navegador,contador,linha,planilha) # Baseado na soma do Contador clica nos itens
+            clicar_porcentagem(navegador,contador,linha,planilha, tempo_espera) # Baseado na soma do Contador clica nos itens
 
         elif int(planilha.iloc[linha]['QTD RATEIO']) == 2: # Ira rodar o processo de sem rateio duas vezes uma para a coluna CRR1 e 2 e ou para CRR3 e 4
             # Processo para coluna 1 e 2
@@ -111,7 +111,7 @@ def medicao_vr(caminho,usuario,senha,cod_filial = '01MG0014',cod_uo = '10310',te
                 if pd.isna(planilha.iloc[linha][f'CRR{com_rateio+1}']): # Loop para verificar se o Item está vazio!!
                     pass # Pula o item vazio
                 else:
-                    dados_rateio(navegador,linha,cod_filial,cod_uo,planilha)
+                    dados_rateio(navegador,linha,cod_filial,cod_uo,planilha, tempo_espera)
                     enviarkey_elemento(navegador,'var_codccusto__',By.NAME,str(int(planilha.iloc[linha][f'CRR{com_rateio+1}']))) # Envia COD PRODUTO
                     clicar_elemento(navegador,'searchbutton',By.ID) # Clica na Pesquisa
                     acessar_iframe_default(navegador,tempo_espera) # Acessa Iframe da Pesquisa
@@ -121,7 +121,7 @@ def medicao_vr(caminho,usuario,senha,cod_filial = '01MG0014',cod_uo = '10310',te
                     clicar_elemento(navegador,'action.save',By.NAME) # Clica para salvar.
                     acessar_iframe_default(navegador,tempo_espera) # Acessa Iframe primario
                     contador_1 += 1 # Soma 1 a quantidade de contador, será utiizado para clicar no loop Contador!
-            clicar_porcentagem(navegador,contador_1,linha,planilha) # Baseado na soma do Contador clica nos itens
+            clicar_porcentagem(navegador,contador_1,linha,planilha, tempo_espera) # Baseado na soma do Contador clica nos itens
 
             # Processo para coluna 3 e 4
             clicar_elemento(navegador,'createitem',By.ID)# Clica para criar novo Item
@@ -135,7 +135,7 @@ def medicao_vr(caminho,usuario,senha,cod_filial = '01MG0014',cod_uo = '10310',te
                 if pd.isna(planilha.iloc[linha][f'CRR{com_rateio+3}']): # Loop para verificar se o Item está vazio!!
                     pass # Pula o item vazio
                 else:
-                    dados_rateio(navegador,linha,cod_filial,cod_uo,planilha)
+                    dados_rateio(navegador,linha,cod_filial,cod_uo,planilha, tempo_espera)
                     enviarkey_elemento(navegador,'var_codccusto__',By.NAME,str(int(planilha.iloc[linha][f'CRR{com_rateio+3}']))) # Envia COD PRODUTO
                     clicar_elemento(navegador,'searchbutton',By.ID) # Clica na Pesquisa
                     acessar_iframe_default(navegador,tempo_espera) # Acessa Iframe da Pesquisa
@@ -145,10 +145,10 @@ def medicao_vr(caminho,usuario,senha,cod_filial = '01MG0014',cod_uo = '10310',te
                     clicar_elemento(navegador,'action.save',By.NAME) # Clica para salvar.
                     acessar_iframe_default(navegador,tempo_espera) # Acessa Iframe primario
                     contador_2 += 1 # Soma 1 a quantidade de contador, será utiizado para clicar no loop Contador!
-            clicar_porcentagem(navegador,contador_2,linha,planilha) # Baseado na soma do Contador clica nos itens
+            clicar_porcentagem(navegador,contador_2,linha,planilha, tempo_espera) # Baseado na soma do Contador clica nos itens
 
         # ---------------------- Esta Parte se refere aos Anexos ------------------------
-        enviar_anexo(navegador,linha,'//*[@id="menu_bar_genericoHistoricoAtendimento"]/li[1]','var_dadosDaCobranca__historico__anexo__','//*[@id="progress-complete-var_dadosDaCobranca__historico__anexo__"]/span','var_dadosDaCobranca__historico__registro__',planilha,caminho) # Envia Anexos
+        enviar_anexo(navegador,linha,'//*[@id="menu_bar_genericoHistoricoAtendimento"]/li[1]','var_dadosDaCobranca__historico__anexo__','//*[@id="progress-complete-var_dadosDaCobranca__historico__anexo__"]/span','var_dadosDaCobranca__historico__registro__',planilha,caminho,tempo_espera) # Envia Anexos
         if len(navegador.find_elements(By.ID, 'id_dadosDaCobranca__acao__')) >= 1: # Verifica se o campo existe
             enviarkey_elemento(navegador,'id_dadosDaCobranca__acao__',By.ID,'Solicitar Nova Medição')
         input('Confirma o lançamento!!!')

@@ -78,7 +78,7 @@ def cob_nv(caminho,usuario,senha,cod_filial = '01MG0014',cod_uo = '10310',tempo_
                 if pd.isna(planilha.iloc[linha][f'CR{com_rateio+2}']): # Loop para verificar se o Item está vazio!!
                     pass # Pula o item vazio
                 else:
-                    dados_rateio(navegador,linha,cod_filial,cod_uo,planilha)
+                    dados_rateio(navegador,linha,cod_filial,cod_uo,planilha, tempo_espera)
                     enviarkey_elemento(navegador,'var_codccusto__',By.NAME,str(int(planilha.iloc[linha][f'CR{com_rateio+2}']))) # Envia COD PRODUTO
                     clicar_elemento(navegador,'searchbutton',By.ID) # Clica na Pesquisa
                     acessar_iframe_default(navegador,tempo_espera) # Acessa Iframe da Pesquisa
@@ -102,8 +102,8 @@ def cob_nv(caminho,usuario,senha,cod_filial = '01MG0014',cod_uo = '10310',tempo_
             clicar_elemento(navegador,'action.save',By.NAME) # Clica para salvar.
             navegador.switch_to.default_content()#Volta para o inicio
             
-            enviar_anexo(navegador,linha,'//*[@id="menu_bar_genericoHistoricoAtendimento"]/li[1]','var_dadosDaCobranca__historico__anexo__','//*[@id="progress-complete-var_dadosDaCobranca__historico__anexo__"]/span','var_dadosDaCobranca__historico__registro__',planilha,caminho)#Envia Anexos
-            enviar_emails(navegador,linha,"//li[@onclick=\"activeDeactiveObjMenu2(this);javascript: ellist_emailClienteFP__.addNewItem('CreateItens', true);\"]//a[@id='createitens']",'var_emailClienteFP__Email__',planilha) # Envia e-mails
+            enviar_anexo(navegador,linha,'//*[@id="menu_bar_genericoHistoricoAtendimento"]/li[1]','var_dadosDaCobranca__historico__anexo__','//*[@id="progress-complete-var_dadosDaCobranca__historico__anexo__"]/span','var_dadosDaCobranca__historico__registro__',planilha,caminho,tempo_espera)#Envia Anexos
+            enviar_emails(navegador,linha,"//li[@onclick=\"activeDeactiveObjMenu2(this);javascript: ellist_emailClienteFP__.addNewItem('CreateItens', true);\"]//a[@id='createitens']",'var_emailClienteFP__Email__',planilha, tempo_espera) # Envia e-mails
             input('Confirma o lançamento!!!')
             navegador.switch_to.default_content()
             clicar_elemento(navegador,'action.send',By.NAME)
@@ -155,8 +155,8 @@ def cob_nv(caminho,usuario,senha,cod_filial = '01MG0014',cod_uo = '10310',tempo_
             navegador.switch_to.default_content()#Volta para o inicio
 
             # ---------------------- Esta Parte se refere aos Anexos ------------------------
-            enviar_anexo(navegador,linha,'//*[@id="menu_bar_genericoHistoricoAtendimento"]/li[1]','var_dadosDaCobranca__historico__anexo__','//*[@id="progress-complete-var_dadosDaCobranca__historico__anexo__"]/span','var_dadosDaCobranca__historico__registro__',planilha,caminho)#Envia Anexos
-            enviar_emails(navegador,linha,"//li[@onclick=\"activeDeactiveObjMenu2(this);javascript: ellist_emailClienteFP__.addNewItem('CreateItens', true);\"]//a[@id='createitens']",'var_emailClienteFP__Email__',planilha)
+            enviar_anexo(navegador,linha,'//*[@id="menu_bar_genericoHistoricoAtendimento"]/li[1]','var_dadosDaCobranca__historico__anexo__','//*[@id="progress-complete-var_dadosDaCobranca__historico__anexo__"]/span','var_dadosDaCobranca__historico__registro__',planilha,caminho,tempo_espera)#Envia Anexos
+            enviar_emails(navegador,linha,"//li[@onclick=\"activeDeactiveObjMenu2(this);javascript: ellist_emailClienteFP__.addNewItem('CreateItens', true);\"]//a[@id='createitens']",'var_emailClienteFP__Email__',planilha, tempo_espera)
             input('Confirma o lançamento!!!')
             navegador.switch_to.default_content()
             clicar_elemento(navegador,'action.send',By.NAME)
@@ -210,7 +210,7 @@ def cob_nv(caminho,usuario,senha,cod_filial = '01MG0014',cod_uo = '10310',tempo_
             clicar_elemento(navegador,'cancelButtonModal',By.ID) # Botão Cancelar
             navegador.switch_to.default_content()
             enviarkey_elemento(navegador,'var_dadosCobranca__Observacao__',By.ID,planilha.iloc[linha]['OBSERVACAO']) # Envia Observação
-            enviar_emails(navegador,linha,"//li[@onclick=\"activeDeactiveObjMenu2(this);javascript: ellist_EmailDeContatoDosClientes__.addNewItem('CreateItens', true);\"]/a[@id='createitens']",'var_EmailDeContatoDosClientes__Email__',planilha)
+            enviar_emails(navegador,linha,"//li[@onclick=\"activeDeactiveObjMenu2(this);javascript: ellist_EmailDeContatoDosClientes__.addNewItem('CreateItens', true);\"]/a[@id='createitens']",'var_EmailDeContatoDosClientes__Email__',planilha, tempo_espera)
             input('Confirma o lançamento!!!')
             navegador.switch_to.default_content()
             clicar_elemento(navegador,'action.send',By.NAME)
@@ -277,7 +277,7 @@ def cob_nv(caminho,usuario,senha,cod_filial = '01MG0014',cod_uo = '10310',tempo_
                 navegador.switch_to.default_content()
 
             enviarkey_elemento(navegador,'var_dadosCobranca__Observacao__',By.ID,planilha.iloc[linha]['OBSERVACAO']) # Envia Observação
-            enviar_emails(navegador,linha,"//li[@onclick=\"activeDeactiveObjMenu2(this);javascript: ellist_EmailDeContatoDosClientes__.addNewItem('CreateItens', true);\"]/a[@id='createitens']",'var_EmailDeContatoDosClientes__Email__',planilha)
+            enviar_emails(navegador,linha,"//li[@onclick=\"activeDeactiveObjMenu2(this);javascript: ellist_EmailDeContatoDosClientes__.addNewItem('CreateItens', true);\"]/a[@id='createitens']",'var_EmailDeContatoDosClientes__Email__',planilha, tempo_espera)
             input('Confirma o lançamento!!!')
             navegador.switch_to.default_content()
             clicar_elemento(navegador,'action.send',By.NAME)

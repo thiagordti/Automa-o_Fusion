@@ -10,7 +10,7 @@ if __name__ == "__main__":
 
     tempo_fusion = input("O Site Fusion está mais lento que o normal?? Responda com S ou N: ")  # Validação para o código rodar sem travar devido a lentidão do site!
     if tempo_fusion.lower() == 's':
-        tempo_carregar = 3.0
+        tempo_carregar = 1.5
 
     usuario = input('Insira o usuario do Fusion: ')
     senha = getpass('Insira a senha do Fusion: ')

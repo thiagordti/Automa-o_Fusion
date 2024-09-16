@@ -355,7 +355,7 @@ def esperar_elementos_carregar(nav, timeout=60):
                         len(driver.find_elements(By.XPATH, '//div[contains(@class, "no-results-default-boxes") and contains(@class, "ng-scope") and contains(., "Sua Caixa de Entrada está vazia")]')) > 0
     )
 
-def enviar_emails(nav, linha,click,campo,planilha):
+def enviar_emails(nav, linha,click,campo,planilha,tempo_espera):
     """
     Envia e-mails para endereços listados em uma célula de uma planilha, interagindo com elementos da interface web via WebDriver.
 
@@ -386,11 +386,11 @@ def enviar_emails(nav, linha,click,campo,planilha):
     lst_email = email.split('/') # Transforma os e-mails recebidos em lista, separador '/'
     clicar_elemento(nav,click,By.XPATH) # Itens novos e-mails
     for i in range(len(lst_email)):
-            acessar_iframe_default(nav) # Acessa Iframe dos e-mails
+            acessar_iframe_default(nav,tempo_espera) # Acessa Iframe dos e-mails
             enviarkey_elemento(nav,campo,By.ID,lst_email[i]) # Envia e-mail
             clicar_elemento_rustico(nav,'form_container',By.ID) # Clica no container para o e-mail carregar
             clicar_elemento(nav,'//*[@id="dibButtons"]/input[1]',By.XPATH) # Botão Ok
-    acessar_iframe_default(nav) # Acessa Iframe dos e-mails
+    acessar_iframe_default(nav,tempo_espera) # Acessa Iframe dos e-mails
     clicar_elemento(nav,'cancelButtonModal',By.ID) # Botão Cancelar, para fechar janelas!
 
 def tratar_cnpj(cnpj):
@@ -420,7 +420,7 @@ def tratar_cnpj(cnpj):
     cnpj_formatado = str(int(cnpj_limpo))# Converte para inteiro para remover zeros à esquerda, depois para string novamente
     return cnpj_formatado
 
-def enviar_anexo(nav,linha,click,element,status,descr,planilha,caminho):
+def enviar_anexo(nav,linha,click,element,status,descr,planilha,caminho,tempo_espera):
     """
     Envia anexos e suas descrições para uma interface web, iterando sobre os anexos listados em uma planilha.
 
@@ -455,7 +455,7 @@ def enviar_anexo(nav,linha,click,element,status,descr,planilha,caminho):
             pass
         else:
             clicar_elemento(nav,click,By.XPATH) # Clica no anexo para enviar arquivo
-            acessar_iframe(nav)#Acesso Iframe
+            acessar_iframe(nav,tempo_espera)#Acesso Iframe
             enviarkey_elemento(nav,element,By.ID,fr"{caminho[:-16]}Arquivos\{planilha.iloc[linha][f'ARQUIVO{anexo+1}']}") # Envia o anexo
             while len(nav.find_elements(By.XPATH, status)) == 0: # Loop para aguardar a lista de itens carregar, se a lista não carregar a pesquisa não funciona!
                 time.sleep(1)
@@ -489,7 +489,7 @@ def opcoes_pagamento(nav,selec,seta):
         nav.find_element(By.XPATH, selec).click()
         nav.find_element(By.ID, seta).click()  
 
-def clicar_porcentagem(nav,contador,linha,planilha):
+def clicar_porcentagem(nav,contador,linha,planilha, tempo_espera):
     """
     Clica em itens com base em um contador e envia um número de contrato para uma interface web, salvando as alterações.
 
@@ -516,15 +516,15 @@ def clicar_porcentagem(nav,contador,linha,planilha):
     """
     for i in range(contador): # Baseado na soma do Contador clica nos itens
         clicar_elemento_rustico(nav,f'//*[@id="{i}"]/td[2]',By.XPATH) # Clica no Item baseado nos indices (No fusion o indice 0 conta!)!!
-        acessar_iframe_default(nav) # Acessa Iframe primario
+        acessar_iframe_default(nav, tempo_espera) # Acessa Iframe primario
         clicar_elemento(nav,'action.save',By.NAME) # Clica para salvar.
-        acessar_iframe_default(nav) # Acessa Iframe primario
+        acessar_iframe_default(nav, tempo_espera) # Acessa Iframe primario
     enviarkey_elemento(nav,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__numeroContratoProtheus__',By.ID,str(int(planilha.iloc[linha]['NUMERO DO CONTRATO']))) # Envia o numero de contrato
     clicar_elemento(nav,'//*[@id="ui-id-10"]/li',By.XPATH) # Clica no numero de contrato
     clicar_elemento(nav,'action.save',By.NAME) # Clica para salvar.
     nav.switch_to.default_content()#Volta para o inicio
 
-def dados_rateio(nav,linha,cod_filial,cod_uo,planilha):
+def dados_rateio(nav,linha,cod_filial,cod_uo,planilha, tempo_espera):
     """
     Preenche dados de rateio em um formulário de interface web com base nas informações fornecidas.
 
@@ -554,12 +554,12 @@ def dados_rateio(nav,linha,cod_filial,cod_uo,planilha):
         - A função utiliza as funções auxiliares `clicar_elemento`, `acessar_iframe_default`, `opcoes_pagamento`, e `enviarkey_elemento` para interagir com a interface da web.
     """
     clicar_elemento(nav,'//*[@id="menu_bar_FINFFCobFaturamentoVariavelCentroDeResultadosXFilialXValor"]/li[1]',By.XPATH) # Clica para abrir campo de produtos
-    acessar_iframe_default(nav) # Acessa Iframe da Pesquisa de produtos
+    acessar_iframe_default(nav, tempo_espera) # Acessa Iframe da Pesquisa de produtos
     opcoes_pagamento(nav,'//*[@id="mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoRateio__formaDeEntradaDosRecursos_ori"]/option[1]','move_this_right_mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoRateio__formaDeEntradaDosRecursos')#Loop para selecionar as opções de pagamento
     clicar_elemento(nav,'id_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoRateio__UOCRProtheus___anchor',By.ID) # Clica para abrir campo de pesquisa
-    acessar_iframe_default(nav) # Acessa Iframe da Pesquisa
+    acessar_iframe_default(nav, tempo_espera) # Acessa Iframe da Pesquisa
     clicar_elemento(nav,'//*[@id="menu_bar_EXTERNOProtheusAmarracaoContabil"]/li',By.XPATH) # Clica para abrir filtro
-    acessar_iframe_default(nav) # Acessa Iframe do Filtro
+    acessar_iframe_default(nav, tempo_espera) # Acessa Iframe do Filtro
     enviarkey_elemento(nav,'var_codclvlr__',By.NAME,str(int(planilha.iloc[linha]['CLASSE DE VALOR']))) # Envia Classa de valor Cliente
     enviarkey_elemento(nav,'var_codfilialprotheus__',By.NAME,cod_filial) # Envia COD FILIAL - PADRÃO
     enviarkey_elemento(nav,'var_coduo__',By.NAME,cod_uo) # Envia COD UO - PADRÃO
