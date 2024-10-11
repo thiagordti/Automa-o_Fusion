@@ -92,6 +92,39 @@ def clicar_elemento(nav, elemento, tipo):
         )
         root.destroy()
 
+def clicar_elemento_dinamico(nav):
+    """
+    Localiza e clica em um elemento cujo ID é dinâmico, utilizando XPath para identificar pelo padrão do ID.
+
+    Args:
+        nav (WebDriver): O navegador (WebDriver) usado para interagir com a página.
+
+    Functionality:
+        - Tenta localizar o elemento especificado utilizando `WebDriverWait`, aguardando até 30 segundos para ele estar visível e clicável.
+        - Clica no elemento utilizando um comando JavaScript para garantir a execução do clique.
+        - Se o elemento não for encontrado após o tempo de espera, exibe um alerta através de uma janela Tkinter, informando o usuário para interagir manualmente.
+
+    Returns:
+        None: A função tenta localizar e clicar no elemento, e em caso de falha, exibe uma mensagem de alerta ao usuário.
+    """
+    try:
+        # XPath que localiza um elemento cujo ID começa com 'ui-id-' e que é um link (a tag)
+        xpath = "//a[starts-with(@id, 'ui-id-')]"
+        
+        # Aguarda até que o elemento esteja visível e clicável (até 30 segundos)
+        obj = WebDriverWait(nav, 30).until(EC.element_to_be_clickable((By.XPATH, xpath)))
+        
+        nav.execute_script("arguments[0].scrollIntoView(true);", obj)  # Garante que o elemento esteja visível na tela
+        nav.execute_script("arguments[0].click();", obj)  # Clica no objeto utilizando JavaScript
+
+    except Exception as e:
+        root = tk.Tk()
+        root.withdraw()  # Oculta a janela principal do Tkinter
+        messagebox.showwarning(
+            "Alerta", f"Elemento não encontrado ou não clicável. Localize e clique manualmente. O código continuará a executar ao apertar OK.\nErro: {str(e)}"
+        )
+        root.destroy()
+
 def clicar_elemento_rustico(nav, elemento, tipo):
     """
     Localiza e clica em um elemento na página web usando o método tradicional do Selenium.

@@ -38,7 +38,7 @@ def cob_nv(caminho,usuario,senha,cod_filial = '01MG0014',cod_uo = '10310',tempo_
                 clicar_elemento(navegador,'//*[@id="createitem"]',By.XPATH) # Clica no Novo Item
                 acessar_iframe(navegador,tempo_espera)# Acessa o Iframe
                 enviarkey_elemento(navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoCliente__',By.ID,tratar_cnpj(planilha.iloc[linha]['CNPJ'])) # Envia CNPJ
-                clicar_elemento(navegador,'ui-id-11',By.ID) # Clica no CNPJ informado
+                clicar_elemento_dinamico(navegador) # Clica no CNPJ informado
                 enviarkey_elemento(navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA SESI VIVA+: AEP,PGR,PCMSO,LTCAT \nPERÍODO: {primeiro_dia} a {ultimo_dia}.') # Envia Descrição
                 enviarkey_elemento(navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__rateio__', By.NAME,'Não')# Envia não ao campo de rateio
                 clicar_elemento(navegador,'id_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDeCobranca__UOCRProtheus___anchor',By.ID) # Clica na pesquisa
@@ -68,7 +68,7 @@ def cob_nv(caminho,usuario,senha,cod_filial = '01MG0014',cod_uo = '10310',tempo_
             clicar_elemento(navegador,'//*[@id="createitem"]',By.XPATH) # Clica no Novo
             acessar_iframe(navegador,tempo_espera)# Acessa o Iframe
             enviarkey_elemento(navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoCliente__',By.ID,tratar_cnpj(planilha.iloc[linha]['CNPJ'])) # Envia CNPJ
-            clicar_elemento(navegador,'ui-id-11',By.ID) # Clica no CNPJ informado
+            clicar_elemento_dinamico(navegador) # Clica no CNPJ informado
             enviarkey_elemento(navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA CONSULTAS E EXAMES COMPLEMENTARES. \nPERÍODO: {primeiro_dia} a {ultimo_dia}.') # Envia Descrição
             enviarkey_elemento(navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__rateio__', By.NAME,'SIM')# Envia Sim ao campo de rateio
 
@@ -123,7 +123,7 @@ def cob_nv(caminho,usuario,senha,cod_filial = '01MG0014',cod_uo = '10310',tempo_
             clicar_elemento(navegador,'//*[@id="createitem"]',By.XPATH) #  Clica no Novo Item
             acessar_iframe(navegador,tempo_espera)# Acessa o Iframe
             enviarkey_elemento(navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoCliente__',By.ID,tratar_cnpj(planilha.iloc[linha]['CNPJ'])) # Envia CNPJ
-            clicar_elemento(navegador,'ui-id-11',By.ID) # Clica no CNPJ informado
+            clicar_elemento_dinamico(navegador) # Clica no CNPJ informado
             enviarkey_elemento(navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA SESI VIVA+: AEP,PGR,PCMSO,LTCAT \nPERÍODO: {primeiro_dia} a {ultimo_dia}.') # Envia Descrição
             enviarkey_elemento(navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__rateio__', By.NAME,'Não')# Envia não ao campo de rateio
             for sem_rateio in range(2):
