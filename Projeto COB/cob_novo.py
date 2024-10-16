@@ -1,7 +1,7 @@
 from utils import *
 
 def cob_nv(caminho,usuario,senha,cod_filial = '01MG0014',cod_uo = '10310',tempo_espera=0.5):
-    planilha = pd.read_excel(caminho,'Novo').applymap(lambda x: str(x).replace('\xa0', '') if isinstance(x, str) else x) # Carrega a Planilha
+    planilha = pd.read_excel(caminho, 'Medição').apply(lambda col: col.map(lambda x: str(x).replace('\xa0', '') if isinstance(x, str) else x)) # Carrega a Planilha
     destino = os.path.dirname(caminho) # Pega o caminho da pasta
     planilha_destino = destino + r'/Historico.xlsx' # Caminho do Historico
     local_destino = r'C:\Temp\Historico.xlsx'
