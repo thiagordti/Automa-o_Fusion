@@ -18,8 +18,8 @@ if __name__ == "__main__":
     caminho = selecionar_arquivo()
 
     destino = os.path.dirname(caminho)  # Pega o caminho da pasta
-    planilha_destino = destino + r'/Historico.xlsx'  # Caminho do Historico
-    local_destino = r'C:\Temp\Historico.xlsx'
+    planilha_destino = destino + '/Historico.xlsx'  # Caminho do Historico
+    local_destino = 'C:/Temp/Historico.xlsx'
 
     while True:
 
