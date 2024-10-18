@@ -24,7 +24,7 @@ def cob_nv(caminho,usuario,senha,cod_filial = '01MG0014',cod_uo = '10310',tempo_
         enviarkey_elemento(navegador,'id_plataformaGestaoDaVenda__',By.ID,'Protheus')# Plataforma - Padrão
 
         if planilha.iloc[linha]['TIPO'].lower() == "variavel" and planilha.iloc[linha]['RATEIO'].lower() == "sim":
-
+            enviarkey_elemento(navegador,'id_tipoDeMedicao__',By.ID,'Variavel')# Tipo de medição
             data = planilha.iloc[linha]['DESCRICAO']
             date = datetime.strptime(data.strftime('%d/%m/%Y'), '%d/%m/%Y') # Transforma data em string
             primeiro_dia, ultimo_dia = primeiro_e_ultimo_dia_do_mes(date.year, date.month) # Pega o mês e dia
@@ -112,7 +112,7 @@ def cob_nv(caminho,usuario,senha,cod_filial = '01MG0014',cod_uo = '10310',tempo_
             acessar_iframe_default(navegador,tempo_espera)
 
         elif planilha.iloc[linha]['TIPO'].lower() == "variavel" and planilha.iloc[linha]['RATEIO'].lower() == "não":
-
+            enviarkey_elemento(navegador,'id_tipoDeMedicao__',By.ID,'Variavel')# Tipo de medição
             data = planilha.iloc[linha]['DESCRICAO']
             date = datetime.strptime(data.strftime('%d/%m/%Y'), '%d/%m/%Y') # Transforma data em string
             primeiro_dia, ultimo_dia = primeiro_e_ultimo_dia_do_mes(date.year, date.month) # Pega o mês e dia
