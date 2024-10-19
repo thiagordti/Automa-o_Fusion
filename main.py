@@ -1,16 +1,15 @@
 if __name__ == "__main__":
-    # O código que você deseja executar quando main.py for executado diretamente
     from utils import copiar_para_planilha, selecionar_arquivo,inicializacao
-    from cob_novo import cob_nv
-    from medicao_variavel import medicao_vr
+    from cobnv_class import CobNV
     from getpass import getpass
+    from medicao_class import MedicaoVR
     import os
 
     print('-----------Automação COB-----------\n')
 
     tempo_fusion = input("O Site Fusion está mais lento que o normal?? Responda com S ou N: ")  # Validação para o código rodar sem travar devido a lentidão do site!
     if tempo_fusion.lower() == 's':
-        tempo_carregar = 1.5
+        tempo_espera = 1.5
 
     usuario = input('Insira o usuario do Fusion: ')
     senha = getpass('Insira a senha do Fusion: ')
@@ -33,11 +32,13 @@ if __name__ == "__main__":
 
             if escolha == 1:
                 navegador, planilha = inicializacao(caminho,"Medição",local_destino,planilha_destino,usuario, senha, tempo_espera=0.5)
-                medicao_vr(caminho,navegador, planilha,planilha_destino,local_destino, cod_filial='01MG0014', cod_uo='10310', tempo_espera=0.5)
+                medicao = MedicaoVR(caminho, navegador, planilha, planilha_destino, local_destino, cod_filial='01MG0014', cod_uo='10310', tempo_espera=0.5)
+                medicao.medicao_vr()  # Chama o método medicao_vr da instância medicao
 
             elif escolha == 2:
                 navegador, planilha = inicializacao(caminho,"Novo",local_destino,planilha_destino,usuario, senha, tempo_espera=0.5)
-                cob_nv(caminho,navegador, planilha,planilha_destino,local_destino, cod_filial='01MG0014', cod_uo='10310', tempo_espera=0.5)
+                cob_nv = CobNV(caminho,navegador, planilha,planilha_destino,local_destino, cod_filial='01MG0014', cod_uo='10310', tempo_espera=0.5)
+                cob_nv.cob_nv()()  # Chama o método cob_nv da instância cob novo
 
             elif escolha == 0:
                 print("Saindo...")

@@ -94,13 +94,15 @@ def clicar_elemento(nav, elemento, tipo):
                 "Alerta", 
                 "Botão ou campo não encontrado. O que você gostaria de fazer?",
                 icon='warning',
-                type=messagebox.YESNO,
+                type=messagebox.YESNOCANCEL,
                 default=messagebox.NO,
-                detail="Aperte 'Sim' para tentar novamente ou 'Não' para continuar para o próximo comando."
+                detail="Aperte 'Sim' para tentar novamente, 'Não' para continuar para o próximo comando, ou 'Cancelar' para pular para a próxima linha."
             )
             root.destroy()
             if resposta == 'no':
                 break  # Sai do loop e continua para a próxima função
+            elif resposta == 'cancel':
+                pular_linha(nav)
 
 def clicar_elemento_dinamico(nav):
     """
@@ -168,13 +170,15 @@ def clicar_elemento_rustico(nav, elemento, tipo):
                 "Alerta", 
                 "Botão ou campo não encontrado. O que você gostaria de fazer?",
                 icon='warning',
-                type=messagebox.YESNO,
+                type=messagebox.YESNOCANCEL,
                 default=messagebox.NO,
-                detail="Aperte 'Sim' para tentar novamente ou 'Não' para continuar para o próximo comando."
+                detail="Aperte 'Sim' para tentar novamente, 'Não' para continuar para o próximo comando, ou 'Cancelar' para pular para a próxima linha."
             )
             root.destroy()
             if resposta == 'no':
                 break  # Sai do loop e continua para a próxima função
+            elif resposta == 'cancel':
+                pular_linha(nav)
 
 def enviarkey_elemento(nav, elemento, tipo, texto):
     """
@@ -741,3 +745,13 @@ def inicializacao(caminho, tipo, local_destino, planilha_destino, usuario, senha
     acessar_iframe_default(navegador, tempo_espera) # Acessa o Iframe
 
     return navegador, planilha
+
+def pular_linha(nav):
+        # Verifica se há mais de uma aba aberta
+    if len(nav.window_handles) > 1:
+        nav.close()  # Fecha a aba atual
+        nav.switch_to.window(nav.window_handles[0])  # Volta para a aba original
+        nav.refresh()  # Atualiza a aba original (F5)
+    else:
+        nav.switch_to.window(nav.window_handles[0])  # Volta para a aba original
+        nav.refresh()  # Atualiza a aba original (F5)
