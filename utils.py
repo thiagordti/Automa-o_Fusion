@@ -71,9 +71,10 @@ def clicar_elemento(nav, elemento, tipo):
         tipo (By): O tipo de seletor (e.g., By.ID, By.CLASS_NAME, etc.) usado para localizar o elemento.
 
     Functionality:
-        - Tenta localizar o elemento especificado utilizando `WebDriverWait`, aguardando até 30 segundos para ele aparecer.
+        - Tenta localizar o elemento especificado utilizando `WebDriverWait`, aguardando até 10 segundos para ele aparecer.
         - Clica no elemento utilizando um comando JavaScript para garantir a execução do clique.
         - Se o elemento não for encontrado após o tempo de espera, exibe um alerta através de uma janela Tkinter, informando o usuário para interagir manualmente.
+        - Oferece ao usuário a opção de tentar novamente ou continuar para o próximo comando.
 
     Returns:
         None: A função tenta localizar e clicar no elemento, e em caso de falha, exibe uma mensagem de alerta ao usuário.
@@ -81,16 +82,25 @@ def clicar_elemento(nav, elemento, tipo):
     Raises:
         Exibe um alerta ao usuário se o elemento não for encontrado dentro do tempo de espera.
     """
-    try:
-        obj = WebDriverWait(nav, 30).until(EC.presence_of_element_located((tipo, elemento)))  # Aguarda 30 segundos até o elemento carregar
-        nav.execute_script("arguments[0].click();", obj)  # Clica no objeto utilizando JavaScript
-    except Exception:
-        root = tk.Tk()
-        root.withdraw()  # Oculta a janela principal do Tkinter
-        messagebox.showwarning(
-            "Alerta", "Botão ou campo não encontrado. Localize e preencha manualmente. O código continuará a executar ao apertar OK."
-        )
-        root.destroy()
+    while True:
+        try:
+            obj = WebDriverWait(nav, 10).until(EC.presence_of_element_located((tipo, elemento)))  # Aguarda 10 segundos até o elemento carregar
+            nav.execute_script("arguments[0].click();", obj)  # Clica no objeto utilizando JavaScript
+            break  # Sai do loop se o comando for bem-sucedido
+        except Exception:
+            root = tk.Tk()
+            root.withdraw()  # Oculta a janela principal do Tkinter
+            resposta = messagebox.askquestion(
+                "Alerta", 
+                "Botão ou campo não encontrado. O que você gostaria de fazer?",
+                icon='warning',
+                type=messagebox.YESNO,
+                default=messagebox.NO,
+                detail="Aperte 'Sim' para tentar novamente ou 'Não' para continuar para o próximo comando."
+            )
+            root.destroy()
+            if resposta == 'no':
+                break  # Sai do loop e continua para a próxima função
 
 def clicar_elemento_dinamico(nav):
     """
@@ -135,9 +145,10 @@ def clicar_elemento_rustico(nav, elemento, tipo):
         tipo (By): O tipo de seletor (e.g., By.ID, By.CLASS_NAME, etc.) usado para localizar o elemento.
 
     Functionality:
-        - Aguarda até 60 segundos para que o elemento especificado esteja presente no DOM.
+        - Aguarda até 15 segundos para que o elemento especificado esteja presente no DOM.
         - Utiliza o método padrão do Selenium `find_element` para localizar e clicar no elemento.
         - Se o elemento não for encontrado após o tempo de espera, exibe um alerta através de uma janela Tkinter, informando o usuário para interagir manualmente.
+        - Oferece ao usuário a opção de tentar novamente ou continuar para o próximo comando.
 
     Returns:
         None: A função tenta localizar e clicar no elemento, e em caso de falha, exibe uma mensagem de alerta ao usuário.
@@ -145,16 +156,25 @@ def clicar_elemento_rustico(nav, elemento, tipo):
     Raises:
         Exibe um alerta ao usuário se o elemento não for encontrado dentro do tempo de espera.
     """
-    try:
-        WebDriverWait(nav, 60).until(EC.presence_of_element_located((tipo, elemento)))  # Aguarda 60 segundos até o elemento carregar
-        nav.find_element(tipo, elemento).click()  # Clica no elemento usando o método padrão do Selenium
-    except Exception:
-        root = tk.Tk()
-        root.withdraw()  # Oculta a janela principal do Tkinter
-        messagebox.showwarning(
-            "Alerta", "Botão ou campo não encontrado. Localize e preencha manualmente. O código continuará a executar ao apertar OK."
-        )
-        root.destroy()
+    while True:
+        try:
+            WebDriverWait(nav, 15).until(EC.presence_of_element_located((tipo, elemento)))  # Aguarda 15 segundos até o elemento carregar
+            nav.find_element(tipo, elemento).click()  # Clica no elemento usando o método padrão do Selenium
+            break  # Sai do loop se o comando for bem-sucedido
+        except Exception:
+            root = tk.Tk()
+            root.withdraw()  # Oculta a janela principal do Tkinter
+            resposta = messagebox.askquestion(
+                "Alerta", 
+                "Botão ou campo não encontrado. O que você gostaria de fazer?",
+                icon='warning',
+                type=messagebox.YESNO,
+                default=messagebox.NO,
+                detail="Aperte 'Sim' para tentar novamente ou 'Não' para continuar para o próximo comando."
+            )
+            root.destroy()
+            if resposta == 'no':
+                break  # Sai do loop e continua para a próxima função
 
 def enviarkey_elemento(nav, elemento, tipo, texto):
     """
