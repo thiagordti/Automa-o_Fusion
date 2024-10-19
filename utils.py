@@ -696,4 +696,27 @@ def esperar_alerta(nav, cob, aba_original,planilha, local_destino,nome_guia,linh
         print(f"O {cob} apresentou falha ao enviar, não foi incluído na planilha Histórico!!")
         nav.close()  # Fecha a aba após o alerta carregar
         nav.switch_to.window(aba_original)  # Volta para a aba original
+def inicializacao(caminho, tipo, local_destino, planilha_destino, usuario, senha, tempo_espera=0.5):
+    """
+    Inicializa o processo de carregamento e manipulação de uma planilha Excel, além de realizar login em um navegador.
 
+    Args:
+        caminho (str): O caminho do arquivo Excel a ser carregado.
+        tipo (str): O tipo de leitura do arquivo Excel (por exemplo, 'sheet_name').
+        local_destino (str): O caminho de destino onde a planilha será copiada.
+        planilha_destino (str): O nome da planilha de destino.
+        usuario (str): O nome de usuário para login.
+        senha (str): A senha para login.
+        tempo_espera (float, optional): O tempo de espera para acessar o iframe. Padrão é 0.5 segundos.
+
+    Returns:
+        tuple: Um tuplo contendo o navegador inicializado e a planilha carregada e manipulada.
+    """
+    planilha = pd.read_excel(caminho, tipo).apply(lambda col: col.map(lambda x: str(x).replace('\xa0', '') if isinstance(x, str) else x)) # Carrega a Planilha
+    copiar_para_planilha(local_destino, planilha_destino)
+    navegador = iniciar_navegador()
+    enviarkey_elemento(navegador, 'user', By.ID, usuario) # Login
+    enviarkey_elemento(navegador, 'pass', By.ID, senha) # Senha
+    clicar_elemento(navegador, 'btnLogin', By.ID) # Clica no botão de Login
+    acessar_iframe_default(navegador, tempo_espera) # Acessa o Iframe
+    return navegador, planilha

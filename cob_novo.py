@@ -1,18 +1,7 @@
 from utils import *
 
-def cob_nv(caminho,usuario,senha,cod_filial = '01MG0014',cod_uo = '10310',tempo_espera=0.5):
-    planilha = pd.read_excel(caminho, 'Novo').apply(lambda col: col.map(lambda x: str(x).replace('\xa0', '') if isinstance(x, str) else x)) # Carrega a Planilha
-    destino = os.path.dirname(caminho) # Pega o caminho da pasta
-    planilha_destino = destino + r'/Historico.xlsx' # Caminho do Historico
-    local_destino = r'C:\Temp\Historico.xlsx'
-    copiar_para_planilha(local_destino, planilha_destino)
-    navegador = iniciar_navegador() #Inicia o Navegador
-    enviarkey_elemento(navegador,'user',By.ID,usuario)# Login
-    enviarkey_elemento(navegador,'pass',By.ID,senha)# Senha
-    clicar_elemento(navegador,'btnLogin',By.ID) # Clica no botão de Login
-    acessar_iframe_default(navegador,tempo_espera)# Acessa o Iframe
+def cob_nv(caminho,navegador,planilha,planilha_destino,local_destino,cod_filial = '01MG0014',cod_uo = '10310',tempo_espera=0.5):
     aba_original = navegador.window_handles[0] # Identifica Aba Primaria
-
     for linha in range(len(planilha)):
         clicar_elemento(navegador,'btnStartProcess',By.ID) # Iniciar novo processo
         clicar_elemento(navegador,'//*[@id="page-content-wrapper"]/div/div/div[1]/div[1]/nav/div/div/div/ul/li[3]/ul/li[5]/a/div/span[1]',By.XPATH) # Iniciar nova Cobrança
@@ -24,7 +13,7 @@ def cob_nv(caminho,usuario,senha,cod_filial = '01MG0014',cod_uo = '10310',tempo_
         enviarkey_elemento(navegador,'id_plataformaGestaoDaVenda__',By.ID,'Protheus')# Plataforma - Padrão
 
         if planilha.iloc[linha]['TIPO'].lower() == "variavel" and planilha.iloc[linha]['RATEIO'].lower() == "sim":
-
+            enviarkey_elemento(navegador,'id_tipoDeMedicao__',By.ID,'Variavel')# Tipo de medição
             data = planilha.iloc[linha]['DESCRICAO']
             date = datetime.strptime(data.strftime('%d/%m/%Y'), '%d/%m/%Y') # Transforma data em string
             primeiro_dia, ultimo_dia = primeiro_e_ultimo_dia_do_mes(date.year, date.month) # Pega o mês e dia
@@ -112,7 +101,7 @@ def cob_nv(caminho,usuario,senha,cod_filial = '01MG0014',cod_uo = '10310',tempo_
             acessar_iframe_default(navegador,tempo_espera)
 
         elif planilha.iloc[linha]['TIPO'].lower() == "variavel" and planilha.iloc[linha]['RATEIO'].lower() == "não":
-
+            enviarkey_elemento(navegador,'id_tipoDeMedicao__',By.ID,'Variavel')# Tipo de medição
             data = planilha.iloc[linha]['DESCRICAO']
             date = datetime.strptime(data.strftime('%d/%m/%Y'), '%d/%m/%Y') # Transforma data em string
             primeiro_dia, ultimo_dia = primeiro_e_ultimo_dia_do_mes(date.year, date.month) # Pega o mês e dia

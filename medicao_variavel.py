@@ -1,16 +1,6 @@
 from utils import *
 
-def medicao_vr(caminho,usuario,senha,cod_filial = '01MG0014',cod_uo = '10310',tempo_espera = 0.5):
-    planilha = pd.read_excel(caminho, 'Medição').apply(lambda col: col.map(lambda x: str(x).replace('\xa0', '') if isinstance(x, str) else x))# Carrega a Planilha
-    destino = os.path.dirname(caminho)# Pega o caminho da pasta
-    planilha_destino = destino + r'/Historico.xlsx' # Caminho do Historico
-    local_destino = r'C:\Temp\Historico.xlsx'
-    copiar_para_planilha(local_destino, planilha_destino)
-    navegador = iniciar_navegador()
-    enviarkey_elemento(navegador,'user',By.ID,usuario)# Login
-    enviarkey_elemento(navegador,'pass',By.ID,senha)# Senha
-    clicar_elemento(navegador,'btnLogin',By.ID) # Clica no botão de Login
-    acessar_iframe_default(navegador,tempo_espera)# Acessa o Iframe
+def medicao_vr(caminho,navegador,planilha,planilha_destino,local_destino,cod_filial = '01MG0014',cod_uo = '10310',tempo_espera = 0.5):
     for linha in range(len(planilha)):
         enviarkey_elemento(navegador,'searchBarProcessQuery',By.ID,planilha.iloc[linha]['COB'])#Envio do COB
         esperar_elementos_carregar(navegador)
