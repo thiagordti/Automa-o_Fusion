@@ -14,7 +14,8 @@ class MedicaoVR:
         self.linha_atual = 0
 
     def medicao_vr(self):
-        for linha in range(len(self.planilha)):
+        for linha in range(self.linha_atual, len(self.planilha)):
+            self.linha_atual = linha  # Atualiza a linha atual
             enviarkey_elemento(self.navegador,'searchBarProcessQuery',By.ID,self.planilha.iloc[linha]['COB'])#Envio do COB
             esperar_elementos_carregar(self.navegador)
             clicar_elemento_rustico(self.navegador,'//*[@id="page-content-wrapper"]/div/div/div[1]/div[1]/nav/div/form/div/div/span/button',By.XPATH) # Clica no botão de pesquisa inicial
@@ -65,7 +66,7 @@ class MedicaoVR:
                     clicar_elemento(self.navegador,'action.save',By.NAME) # Clica para salvar.
                     acessar_iframe_default(self.navegador,self.tempo_espera) # Acessa Iframe primario
                     enviarkey_elemento(self.navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__numeroContratoProtheus__',By.ID,str(int(self.planilha.iloc[linha]['NUMERO DO CONTRATO']))) # Envia o numero de contrato
-                    clicar_elemento_dinamico(self.navegador) # Clica no numero de contrato
+                    clicar_elemento(self.navegador,'//*[@id="ui-id-10"]/li',By.XPATH) # Clica no numero de contrato
                     clicar_elemento(self.navegador,'action.save',By.NAME) # Clica para salvar.
                     self.navegador.switch_to.default_content()#Volta para o inicio
 
@@ -161,3 +162,18 @@ class MedicaoVR:
             acessar_iframe_default(self.navegador,self.tempo_espera)
             clicar_elemento_rustico(self.navegador,'clear-input-filter',By.CLASS_NAME)#Limpa o campo de Pesquisa
         copiar_para_planilha(self.planilha_destino,self.local_destino)
+
+    def pular_linha(self):
+        # Verifica se há mais de uma aba aberta
+        if len(self.navegador.window_handles) > 1:
+            self.navegador.close()  # Fecha a aba atual
+            self.navegador.switch_to.window(self.navegador.window_handles[0])  # Volta para a aba original
+            self.navegador.refresh()  # Atualiza a aba original (F5)
+        else:
+            self.navegador.switch_to.window(self.navegador.window_handles[0])  # Volta para a aba original
+            self.navegador.refresh()  # Atualiza a aba original (F5)
+
+        # Atualiza a linha atual para pular para a próxima linha
+        self.linha_atual += 1
+        acessar_iframe(self.navegador, self.tempo_espera)
+        self.medicao_vr()  # Chama a função medicao_vr novamente

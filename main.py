@@ -4,6 +4,8 @@ if __name__ == "__main__":
     from getpass import getpass
     from medicao_class import MedicaoVR
     import os
+    import globals
+    import traceback 
 
     print('-----------Automação COB-----------\n')
 
@@ -31,9 +33,9 @@ if __name__ == "__main__":
             escolha = int(escolha)
 
             if escolha == 1:
-                navegador, planilha = inicializacao(caminho,"Medição",local_destino,planilha_destino,usuario, senha, tempo_espera=0.5)
-                medicao = MedicaoVR(caminho, navegador, planilha, planilha_destino, local_destino, cod_filial='01MG0014', cod_uo='10310', tempo_espera=0.5)
-                medicao.medicao_vr()  # Chama o método medicao_vr da instância medicao
+                navegador, planilha = inicializacao(caminho, "Medição", local_destino, planilha_destino, usuario, senha, tempo_espera=0.5)
+                globals.global_medicao_instance = MedicaoVR(caminho, navegador, planilha, planilha_destino, local_destino, cod_filial='01MG0014', cod_uo='10310', tempo_espera=0.5)
+                globals.global_medicao_instance.medicao_vr()  # Chama o método medicao_vr da instância global_medicao_instance
 
             elif escolha == 2:
                 navegador, planilha = inicializacao(caminho,"Novo",local_destino,planilha_destino,usuario, senha, tempo_espera=0.5)
@@ -52,5 +54,6 @@ if __name__ == "__main__":
             input('Chame a T.I')
         except Exception as e:
             print(f"Ocorreu um erro: {e}")
+            print(traceback.format_exc())  # Imprime o stack trace completo
             copiar_para_planilha(planilha_destino, local_destino)
             input('Chame a T.I')

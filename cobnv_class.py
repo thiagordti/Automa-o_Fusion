@@ -62,7 +62,7 @@ class CobNV:
                     clicar_elemento(self.navegador,'action.save',By.NAME) # Clica para salvar.
                     acessar_iframe_default(self.navegador,self.tempo_espera) # Acessa Iframe primario
                 enviarkey_elemento(self.navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__numeroContratoProtheus__',By.ID,int(self.planilha.iloc[linha]['NUMERO DO CONTRATO'])) # Envia o numero de contrato
-                clicar_elemento_dinamico(self.navegador) # Clica no numero de contrato
+                clicar_elemento(self.navegador,'//*[@id="ui-id-10"]/li',By.XPATH) # Clica no numero de contrato
                 clicar_elemento(self.navegador,'//*[@id="dibButtons"]/input[1]',By.XPATH) # Clica no numero de contrato
                 self.navegador.switch_to.default_content()#Volta para o inicio
                 #------------------------Rateio--------------------------------------------------
@@ -99,7 +99,7 @@ class CobNV:
                     acessar_iframe_default(self.navegador,self.tempo_espera) # Acessa Iframe primario
 
                 enviarkey_elemento(self.navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__numeroContratoProtheus__',By.ID,str(int(self.planilha.iloc[linha]['NUMERO DO CONTRATO']))) # Envia o numero de contrato
-                clicar_elemento_dinamico(self.navegador) # Clica no numero de contrato
+                clicar_elemento(self.navegador,'//*[@id="ui-id-10"]/li',By.XPATH) # Clica no numero de contrato
                 clicar_elemento(self.navegador,'action.save',By.NAME) # Clica para salvar.
                 self.navegador.switch_to.default_content()#Volta para o inicio
                 
@@ -151,7 +151,7 @@ class CobNV:
                         clicar_elemento(self.navegador,'action.save',By.NAME) # Clica para salvar.
                         acessar_iframe_default(self.navegador,self.tempo_espera) # Acessa Iframe primario
                 enviarkey_elemento(self.navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__numeroContratoProtheus__',By.ID,int(self.planilha.iloc[linha]['NUMERO DO CONTRATO'])) # Envia o numero de contrato
-                clicar_elemento_dinamico(self.navegador) # Clica no numero de contrato
+                clicar_elemento(self.navegador,'//*[@id="ui-id-10"]/li',By.XPATH) # Clica no numero de contrato
                 clicar_elemento(self.navegador,'//*[@id="dibButtons"]/input[1]',By.XPATH) # Clica no numero de contrato
                 self.navegador.switch_to.default_content()#Volta para o inicio
 
@@ -174,7 +174,7 @@ class CobNV:
                 enviarkey_elemento(self.navegador,'var_dadosCobranca__descricaoServico__',By.ID,self.planilha.iloc[linha]['DESCRICAO'])# Envia Descrição
                 enviarkey_elemento(self.navegador,'var_dadosCobranca__dadosParaHistorico2__HouvePrestacaoDeServicos__',By.ID,'Sim')# Prestação de Serviço - Padrão
                 enviarkey_elemento(self.navegador,'id_txt_dadosCobranca__dadosParaHistorico2__numeroContratoProtheus__',By.ID,str(int(self.planilha.iloc[linha]['NUMERO DO CONTRATO'])))# Numero de contrato
-                clicar_elemento_dinamico(self.navegador) # Clica no contrato informado
+                clicar_elemento(self.navegador,'//*[@id="ui-id-6"]/li',By.XPATH) # Clica no contrato informado
                 enviarkey_elemento(self.navegador,'id_dadosCobranca__dadosParaHistorico2__diaLimiteNFCliente__',By.ID,str(int(self.planilha.iloc[linha]['DIA LIMITE'])))# Data Limite
                 opcoes_pagamento(self.navegador,'//*[@id="mul_dadosCobranca__formaDeEntradaDosRecursosRevisado_ori"]/option[1]','move_this_right_mul_dadosCobranca__formaDeEntradaDosRecursosRevisado') # Loop para opções de pagamento
                 enviarkey_elemento(self.navegador,'//*[@id="var_dadosCobranca__rateio__"]',By.XPATH,'Não')# Tipo de Rateio
@@ -228,7 +228,7 @@ class CobNV:
                 enviarkey_elemento(self.navegador,'var_dadosCobranca__descricaoServico__',By.ID,self.planilha.iloc[linha]['DESCRICAO'])# Envia Descrição
                 enviarkey_elemento(self.navegador,'var_dadosCobranca__dadosParaHistorico2__HouvePrestacaoDeServicos__',By.ID,'Sim')# Prestação de Serviço - Padrão
                 enviarkey_elemento(self.navegador,'id_txt_dadosCobranca__dadosParaHistorico2__numeroContratoProtheus__',By.ID,str(int(self.planilha.iloc[linha]['NUMERO DO CONTRATO'])))# Numero de contrato
-                clicar_elemento_dinamico(self.navegador) # Clica no contrato informado
+                clicar_elemento(self.navegador,'//*[@id="ui-id-6"]/li',By.XPATH) # Clica no contrato informado
                 enviarkey_elemento(self.navegador,'id_dadosCobranca__dadosParaHistorico2__diaLimiteNFCliente__',By.ID,str(int(self.planilha.iloc[linha]['DIA LIMITE'])))# Data Limite
                 opcoes_pagamento(self.navegador,'//*[@id="mul_dadosCobranca__formaDeEntradaDosRecursosRevisado_ori"]/option[1]','move_this_right_mul_dadosCobranca__formaDeEntradaDosRecursosRevisado')# Loop para opções de pagamento
                 enviarkey_elemento(self.navegador,'//*[@id="var_dadosCobranca__rateio__"]',By.XPATH,'Sim')# Tipo de Rateio

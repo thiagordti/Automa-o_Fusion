@@ -15,6 +15,7 @@ import locale
 import pandas as pd
 import shutil
 import os
+import globals 
 
 locale.setlocale(locale.LC_TIME, 'pt_BR.UTF-8')
 
@@ -102,8 +103,11 @@ def clicar_elemento(nav, elemento, tipo):
             if resposta == 'no':
                 break  # Sai do loop e continua para a próxima função
             elif resposta == 'cancel':
-                pular_linha(nav)
-
+                from medicao_class import MedicaoVR  # Importa a classe dentro da função para evitar importação circular
+                if globals.global_medicao_instance:
+                    globals.global_medicao_instance.pular_linha()  # Chama a função para pular a linha
+                break  # Sai do loop e pula para a próxima linha
+            
 def clicar_elemento_dinamico(nav):
     """
     Localiza e clica em um elemento cujo ID é dinâmico, utilizando XPath para identificar pelo padrão do ID.
@@ -178,7 +182,11 @@ def clicar_elemento_rustico(nav, elemento, tipo):
             if resposta == 'no':
                 break  # Sai do loop e continua para a próxima função
             elif resposta == 'cancel':
-                pular_linha(nav)
+                from medicao_class import MedicaoVR  # Importa a classe dentro da função para evitar importação circular
+                if globals.global_medicao_instance:
+                    globals.global_medicao_instance.pular_linha()  # Chama a função para pular a linha
+                break  # Sai do loop e pula para a próxima linha
+
 
 def enviarkey_elemento(nav, elemento, tipo, texto):
     """
@@ -577,7 +585,7 @@ def clicar_porcentagem(nav,contador,linha,planilha, tempo_espera):
         clicar_elemento(nav,'action.save',By.NAME) # Clica para salvar.
         acessar_iframe_default(nav, tempo_espera) # Acessa Iframe primario
     enviarkey_elemento(nav,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__numeroContratoProtheus__',By.ID,str(int(planilha.iloc[linha]['NUMERO DO CONTRATO']))) # Envia o numero de contrato
-    clicar_elemento_dinamico(nav) # Clica no numero de contrato
+    clicar_elemento(nav,'//*[@id="ui-id-10"]/li',By.XPATH) # Clica no numero de contrato
     clicar_elemento(nav,'action.save',By.NAME) # Clica para salvar.
     nav.switch_to.default_content()#Volta para o inicio
 
@@ -673,7 +681,7 @@ def variavel_novo(nav,linha,planilha,primeiro_dia,ultimo_dia):
     enviarkey_elemento(nav,'var_dadosDaCobranca__APeriodicidadeDoFaturamentoEMensal__',By.ID,'Sim')# Periodicidade
     enviarkey_elemento(nav,'var_dadosDaCobranca__dadosParaHistorico__HouvePrestacaoDeServicos__',By.ID,'Sim')# Prestação de serviço
     enviarkey_elemento(nav,'id_txt_dadosDaCobranca__dadosParaHistorico__numeroContratoProtheus__',By.ID,str(int(planilha.iloc[linha]['NUMERO DO CONTRATO'])))# Numero do Contrato
-    clicar_elemento_dinamico(nav) # Clica no Numero do contrato
+    clicar_elemento(nav,'//*[@id="ui-id-3"]/li',By.XPATH) # Clica no Numero do contrato
     enviarkey_elemento(nav,'var_dadosDaCobranca__dadosParaHistorico__existeGasOuOS__',By.ID,'Não')# Existe GAS ou OS
     enviarkey_elemento(nav,'var_dadosDaCobranca__dadosParaHistorico__parcelaContrato__',By.ID,'0')# Informa Parcela
     enviarkey_elemento(nav,'var_dadosDaCobranca__dadosParaHistorico__inicioPrestacao__',By.ID,primeiro_dia)# Data Inicio
@@ -745,13 +753,3 @@ def inicializacao(caminho, tipo, local_destino, planilha_destino, usuario, senha
     acessar_iframe_default(navegador, tempo_espera) # Acessa o Iframe
 
     return navegador, planilha
-
-def pular_linha(nav):
-        # Verifica se há mais de uma aba aberta
-    if len(nav.window_handles) > 1:
-        nav.close()  # Fecha a aba atual
-        nav.switch_to.window(nav.window_handles[0])  # Volta para a aba original
-        nav.refresh()  # Atualiza a aba original (F5)
-    else:
-        nav.switch_to.window(nav.window_handles[0])  # Volta para a aba original
-        nav.refresh()  # Atualiza a aba original (F5)
