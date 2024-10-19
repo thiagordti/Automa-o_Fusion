@@ -52,7 +52,7 @@ def medicao_vr(caminho,navegador,planilha,planilha_destino,local_destino,cod_fil
                 clicar_elemento(navegador,'action.save',By.NAME) # Clica para salvar.
                 acessar_iframe_default(navegador,tempo_espera) # Acessa Iframe primario
                 enviarkey_elemento(navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__numeroContratoProtheus__',By.ID,str(int(planilha.iloc[linha]['NUMERO DO CONTRATO']))) # Envia o numero de contrato
-                clicar_elemento(navegador,'//*[@id="ui-id-10"]/li',By.XPATH) # Clica no numero de contrato
+                clicar_elemento_dinamico(navegador) # Clica no numero de contrato
                 clicar_elemento(navegador,'action.save',By.NAME) # Clica para salvar.
                 navegador.switch_to.default_content()#Volta para o inicio
 

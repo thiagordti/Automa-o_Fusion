@@ -553,7 +553,7 @@ def clicar_porcentagem(nav,contador,linha,planilha, tempo_espera):
         clicar_elemento(nav,'action.save',By.NAME) # Clica para salvar.
         acessar_iframe_default(nav, tempo_espera) # Acessa Iframe primario
     enviarkey_elemento(nav,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__numeroContratoProtheus__',By.ID,str(int(planilha.iloc[linha]['NUMERO DO CONTRATO']))) # Envia o numero de contrato
-    clicar_elemento(nav,'//*[@id="ui-id-10"]/li',By.XPATH) # Clica no numero de contrato
+    clicar_elemento_dinamico(nav) # Clica no numero de contrato
     clicar_elemento(nav,'action.save',By.NAME) # Clica para salvar.
     nav.switch_to.default_content()#Volta para o inicio
 
@@ -649,7 +649,7 @@ def variavel_novo(nav,linha,planilha,primeiro_dia,ultimo_dia):
     enviarkey_elemento(nav,'var_dadosDaCobranca__APeriodicidadeDoFaturamentoEMensal__',By.ID,'Sim')# Periodicidade
     enviarkey_elemento(nav,'var_dadosDaCobranca__dadosParaHistorico__HouvePrestacaoDeServicos__',By.ID,'Sim')# Prestação de serviço
     enviarkey_elemento(nav,'id_txt_dadosDaCobranca__dadosParaHistorico__numeroContratoProtheus__',By.ID,str(int(planilha.iloc[linha]['NUMERO DO CONTRATO'])))# Numero do Contrato
-    clicar_elemento(nav,'//*[@id="ui-id-3"]/li',By.XPATH) # Clica no Numero do contrato
+    clicar_elemento_dinamico(nav) # Clica no Numero do contrato
     enviarkey_elemento(nav,'var_dadosDaCobranca__dadosParaHistorico__existeGasOuOS__',By.ID,'Não')# Existe GAS ou OS
     enviarkey_elemento(nav,'var_dadosDaCobranca__dadosParaHistorico__parcelaContrato__',By.ID,'0')# Informa Parcela
     enviarkey_elemento(nav,'var_dadosDaCobranca__dadosParaHistorico__inicioPrestacao__',By.ID,primeiro_dia)# Data Inicio
@@ -713,10 +713,11 @@ def inicializacao(caminho, tipo, local_destino, planilha_destino, usuario, senha
         tuple: Um tuplo contendo o navegador inicializado e a planilha carregada e manipulada.
     """
     planilha = pd.read_excel(caminho, tipo).apply(lambda col: col.map(lambda x: str(x).replace('\xa0', '') if isinstance(x, str) else x)) # Carrega a Planilha
-    copiar_para_planilha(local_destino, planilha_destino)
-    navegador = iniciar_navegador()
+    copiar_para_planilha(local_destino, planilha_destino) # realiza a copia do Historico
+    navegador = iniciar_navegador() # Inicia o navegador
     enviarkey_elemento(navegador, 'user', By.ID, usuario) # Login
     enviarkey_elemento(navegador, 'pass', By.ID, senha) # Senha
     clicar_elemento(navegador, 'btnLogin', By.ID) # Clica no botão de Login
     acessar_iframe_default(navegador, tempo_espera) # Acessa o Iframe
+
     return navegador, planilha

@@ -50,7 +50,7 @@ def cob_nv(caminho,navegador,planilha,planilha_destino,local_destino,cod_filial 
                 clicar_elemento(navegador,'action.save',By.NAME) # Clica para salvar.
                 acessar_iframe_default(navegador,tempo_espera) # Acessa Iframe primario
             enviarkey_elemento(navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__numeroContratoProtheus__',By.ID,int(planilha.iloc[linha]['NUMERO DO CONTRATO'])) # Envia o numero de contrato
-            clicar_elemento(navegador,'//*[@id="ui-id-10"]/li',By.XPATH) # Clica no numero de contrato
+            clicar_elemento_dinamico(navegador) # Clica no numero de contrato
             clicar_elemento(navegador,'//*[@id="dibButtons"]/input[1]',By.XPATH) # Clica no numero de contrato
             navegador.switch_to.default_content()#Volta para o inicio
             #------------------------Rateio--------------------------------------------------
@@ -87,7 +87,7 @@ def cob_nv(caminho,navegador,planilha,planilha_destino,local_destino,cod_filial 
                 acessar_iframe_default(navegador,tempo_espera) # Acessa Iframe primario
 
             enviarkey_elemento(navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__numeroContratoProtheus__',By.ID,str(int(planilha.iloc[linha]['NUMERO DO CONTRATO']))) # Envia o numero de contrato
-            clicar_elemento(navegador,'//*[@id="ui-id-10"]/li',By.XPATH) # Clica no numero de contrato
+            clicar_elemento_dinamico(navegador) # Clica no numero de contrato
             clicar_elemento(navegador,'action.save',By.NAME) # Clica para salvar.
             navegador.switch_to.default_content()#Volta para o inicio
             
@@ -139,7 +139,7 @@ def cob_nv(caminho,navegador,planilha,planilha_destino,local_destino,cod_filial 
                     clicar_elemento(navegador,'action.save',By.NAME) # Clica para salvar.
                     acessar_iframe_default(navegador,tempo_espera) # Acessa Iframe primario
             enviarkey_elemento(navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__numeroContratoProtheus__',By.ID,int(planilha.iloc[linha]['NUMERO DO CONTRATO'])) # Envia o numero de contrato
-            clicar_elemento(navegador,'//*[@id="ui-id-10"]/li',By.XPATH) # Clica no numero de contrato
+            clicar_elemento_dinamico(navegador) # Clica no numero de contrato
             clicar_elemento(navegador,'//*[@id="dibButtons"]/input[1]',By.XPATH) # Clica no numero de contrato
             navegador.switch_to.default_content()#Volta para o inicio
 
@@ -162,7 +162,7 @@ def cob_nv(caminho,navegador,planilha,planilha_destino,local_destino,cod_filial 
             enviarkey_elemento(navegador,'var_dadosCobranca__descricaoServico__',By.ID,planilha.iloc[linha]['DESCRICAO'])# Envia Descrição
             enviarkey_elemento(navegador,'var_dadosCobranca__dadosParaHistorico2__HouvePrestacaoDeServicos__',By.ID,'Sim')# Prestação de Serviço - Padrão
             enviarkey_elemento(navegador,'id_txt_dadosCobranca__dadosParaHistorico2__numeroContratoProtheus__',By.ID,str(int(planilha.iloc[linha]['NUMERO DO CONTRATO'])))# Numero de contrato
-            clicar_elemento(navegador,'//*[@id="ui-id-6"]/li',By.XPATH) # Clica no contrato informado
+            clicar_elemento_dinamico(navegador) # Clica no contrato informado
             enviarkey_elemento(navegador,'id_dadosCobranca__dadosParaHistorico2__diaLimiteNFCliente__',By.ID,str(int(planilha.iloc[linha]['DIA LIMITE'])))# Data Limite
             opcoes_pagamento(navegador,'//*[@id="mul_dadosCobranca__formaDeEntradaDosRecursosRevisado_ori"]/option[1]','move_this_right_mul_dadosCobranca__formaDeEntradaDosRecursosRevisado') # Loop para opções de pagamento
             enviarkey_elemento(navegador,'//*[@id="var_dadosCobranca__rateio__"]',By.XPATH,'Não')# Tipo de Rateio
@@ -216,7 +216,7 @@ def cob_nv(caminho,navegador,planilha,planilha_destino,local_destino,cod_filial 
             enviarkey_elemento(navegador,'var_dadosCobranca__descricaoServico__',By.ID,planilha.iloc[linha]['DESCRICAO'])# Envia Descrição
             enviarkey_elemento(navegador,'var_dadosCobranca__dadosParaHistorico2__HouvePrestacaoDeServicos__',By.ID,'Sim')# Prestação de Serviço - Padrão
             enviarkey_elemento(navegador,'id_txt_dadosCobranca__dadosParaHistorico2__numeroContratoProtheus__',By.ID,str(int(planilha.iloc[linha]['NUMERO DO CONTRATO'])))# Numero de contrato
-            clicar_elemento(navegador,'//*[@id="ui-id-6"]/li',By.XPATH) # Clica no contrato informado
+            clicar_elemento_dinamico(navegador) # Clica no contrato informado
             enviarkey_elemento(navegador,'id_dadosCobranca__dadosParaHistorico2__diaLimiteNFCliente__',By.ID,str(int(planilha.iloc[linha]['DIA LIMITE'])))# Data Limite
             opcoes_pagamento(navegador,'//*[@id="mul_dadosCobranca__formaDeEntradaDosRecursosRevisado_ori"]/option[1]','move_this_right_mul_dadosCobranca__formaDeEntradaDosRecursosRevisado')# Loop para opções de pagamento
             enviarkey_elemento(navegador,'//*[@id="var_dadosCobranca__rateio__"]',By.XPATH,'Sim')# Tipo de Rateio
@@ -238,7 +238,7 @@ def cob_nv(caminho,navegador,planilha,planilha_destino,local_destino,cod_filial 
                     enviarkey_elemento(navegador,'id_txt_dadosCobranca__cobRateio__filialCustos__FilialProtheus__',By.ID,cod_filial) # Envia COD FILIAL - PADRÃO
                     clicar_elemento(navegador,'ui-menu-item',By.CLASS_NAME)
                     enviarkey_elemento(navegador,'id_txt_dadosCobranca__cobRateio__filialCustos__UO__',By.ID,cod_uo) # Envia COD FILIAL - PADRÃO
-                    clicar_elemento(navegador,'//*[@id="ui-id-4"]/li',By.XPATH)
+                    clicar_elemento_dinamico(navegador)
                     clicar_elemento(navegador,'id_dadosCobranca__cobRateio__filialCustos__UOXCRProtheus___anchor',By.ID)
 
                     acessar_iframe_default(navegador,tempo_espera)# Acessa o Iframe
