@@ -177,3 +177,17 @@ class MedicaoVR:
         self.linha_atual += 1
         acessar_iframe(self.navegador, self.tempo_espera)
         self.medicao_vr()  # Chama a função medicao_vr novamente
+
+    def repetir_linha(self):
+        # Verifica se há mais de uma aba aberta
+        if len(self.navegador.window_handles) > 1:
+            self.navegador.close()  # Fecha a aba atual
+            self.navegador.switch_to.window(self.navegador.window_handles[0])  # Volta para a aba original
+            self.navegador.refresh()  # Atualiza a aba original (F5)
+        else:
+            self.navegador.switch_to.window(self.navegador.window_handles[0])  # Volta para a aba original
+            self.navegador.refresh()  # Atualiza a aba original (F5)
+
+        # Não atualiza a linha atual para repetir a execução da linha atual
+        acessar_iframe(self.navegador, self.tempo_espera)
+        self.medicao_vr()  # Chama a função medicao_vr novamente

@@ -13,8 +13,8 @@ class CobNV:
         self.linha_atual = 0
     
     def cob_nv(self):
-        aba_original = self.navegador.window_handles[0] # Identifica Aba Primaria
-        for linha in range(len(self.planilha)):
+        for linha in range(self.linha_atual, len(self.planilha)):
+            aba_original = self.navegador.window_handles[0] # Identifica Aba Primaria
             clicar_elemento(self.navegador,'btnStartProcess',By.ID) # Iniciar novo processo
             clicar_elemento(self.navegador,'//*[@id="page-content-wrapper"]/div/div/div[1]/div[1]/nav/div/div/div/ul/li[3]/ul/li[5]/a/div/span[1]',By.XPATH) # Iniciar nova Cobrança
             WebDriverWait(self.navegador, 10).until(lambda d: len(d.window_handles) > 1)
@@ -150,8 +150,8 @@ class CobNV:
                         enviarkey_java(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__valor__',self.planilha.iloc[linha][f'VALOR{sem_rateio+1}'])
                         clicar_elemento(self.navegador,'action.save',By.NAME) # Clica para salvar.
                         acessar_iframe_default(self.navegador,self.tempo_espera) # Acessa Iframe primario
-                enviarkey_elemento(self.navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__numeroContratoProtheus__',By.ID,int(self.planilha.iloc[linha]['NUMERO DO CONTRATO'])) # Envia o numero de contrato
-                clicar_elemento(self.navegador,'//*[@id="ui-id-10"]/li',By.XPATH) # Clica no numero de contrato
+                #enviarkey_elemento(self.navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__numeroContratoProtheus__',By.ID,int(self.planilha.iloc[linha]['NUMERO DO CONTRATO'])) # Envia o numero de contrato
+                #clicar_elemento(self.navegador,'//*[@id="ui-id-10"]/li',By.XPATH) # Clica no numero de contrato
                 clicar_elemento(self.navegador,'//*[@id="dibButtons"]/input[1]',By.XPATH) # Clica no numero de contrato
                 self.navegador.switch_to.default_content()#Volta para o inicio
 
@@ -287,3 +287,32 @@ class CobNV:
                 acessar_iframe_default(self.navegador,self.tempo_espera)
 
         copiar_para_planilha(self.planilha_destino,self.local_destino)
+
+    def pular_linha(self):
+        # Verifica se há mais de uma aba aberta
+        if len(self.navegador.window_handles) > 1:
+            self.navegador.close()  # Fecha a aba atual
+            self.navegador.switch_to.window(self.navegador.window_handles[0])  # Volta para a aba original
+            self.navegador.refresh()  # Atualiza a aba original (F5)
+        else:
+            self.navegador.switch_to.window(self.navegador.window_handles[0])  # Volta para a aba original
+            self.navegador.refresh()  # Atualiza a aba original (F5)
+
+        # Atualiza a linha atual para pular para a próxima linha
+        self.linha_atual += 1
+        acessar_iframe(self.navegador, self.tempo_espera)
+        self.cob_nv()  # Chama a função medicao_vr novamente
+
+    def repetir_linha(self):
+        # Verifica se há mais de uma aba aberta
+        if len(self.navegador.window_handles) > 1:
+            self.navegador.close()  # Fecha a aba atual
+            self.navegador.switch_to.window(self.navegador.window_handles[0])  # Volta para a aba original
+            self.navegador.refresh()  # Atualiza a aba original (F5)
+        else:
+            self.navegador.switch_to.window(self.navegador.window_handles[0])  # Volta para a aba original
+            self.navegador.refresh()  # Atualiza a aba original (F5)
+
+        # Não atualiza a linha atual para repetir a execução da linha atual
+        acessar_iframe(self.navegador, self.tempo_espera)
+        self.cob_nv()  # Chama a função medicao_vr novamente

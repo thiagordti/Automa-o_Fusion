@@ -1,2 +1,2 @@
 # globals.py
-global_medicao_instance = None
+global_instance = None

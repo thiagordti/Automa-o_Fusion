@@ -34,13 +34,13 @@ if __name__ == "__main__":
 
             if escolha == 1:
                 navegador, planilha = inicializacao(caminho, "Medição", local_destino, planilha_destino, usuario, senha, tempo_espera=0.5)
-                globals.global_medicao_instance = MedicaoVR(caminho, navegador, planilha, planilha_destino, local_destino, cod_filial='01MG0014', cod_uo='10310', tempo_espera=0.5)
-                globals.global_medicao_instance.medicao_vr()  # Chama o método medicao_vr da instância global_medicao_instance
+                globals.global_instance = MedicaoVR(caminho, navegador, planilha, planilha_destino, local_destino, cod_filial='01MG0014', cod_uo='10310', tempo_espera=0.5)
+                globals.global_instance.medicao_vr()  # Chama o método medicao_vr da instância global_medicao_instance
 
             elif escolha == 2:
                 navegador, planilha = inicializacao(caminho,"Novo",local_destino,planilha_destino,usuario, senha, tempo_espera=0.5)
-                cob_nv = CobNV(caminho,navegador, planilha,planilha_destino,local_destino, cod_filial='01MG0014', cod_uo='10310', tempo_espera=0.5)
-                cob_nv.cob_nv()()  # Chama o método cob_nv da instância cob novo
+                globals.global_instance = CobNV(caminho,navegador, planilha,planilha_destino,local_destino, cod_filial='01MG0014', cod_uo='10310', tempo_espera=0.5)
+                globals.global_instance.cob_nv() # Chama o método cob_nv da instância global_cobnv_instance
 
             elif escolha == 0:
                 print("Saindo...")

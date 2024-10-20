@@ -15,6 +15,7 @@ import locale
 import pandas as pd
 import shutil
 import os
+import sys
 import globals 
 
 locale.setlocale(locale.LC_TIME, 'pt_BR.UTF-8')
@@ -35,9 +36,17 @@ def acessar_iframe(nav, tempo_espera):
     Returns:
         None: A função realiza a troca de contexto para o iframe, sem retornar um valor.
     """
-    time.sleep(tempo_espera)  # Espera antes de mudar para o Iframe
-    iframe = WebDriverWait(nav, 180).until(EC.presence_of_element_located((By.TAG_NAME, 'iframe')))  # Espera 180 segundos até o iframe aparecer
-    nav.switch_to.frame(iframe)  # Troca para o iframe
+    from medicao_class import MedicaoVR  # Importa a classe dentro da função para evitar importação circular
+
+    while True:
+        try:
+            time.sleep(tempo_espera)  # Espera antes de mudar para o Iframe
+            iframe = WebDriverWait(nav, 180).until(EC.presence_of_element_located((By.TAG_NAME, 'iframe')))  # Espera 180 segundos até o iframe aparecer
+            nav.switch_to.frame(iframe)  # Troca para o iframe
+            break  # Sai do loop se o comando for bem-sucedido
+        except Exception:
+            if not handle_custom_messagebox_response():
+                break
 
 def acessar_iframe_default(nav, tempo_espera, timeout=10):
     """
@@ -57,10 +66,18 @@ def acessar_iframe_default(nav, tempo_espera, timeout=10):
     Returns:
         None: A função realiza a troca de contexto para o iframe, sem retornar um valor.
     """
-    time.sleep(tempo_espera)  # Espera antes de mudar para o conteúdo padrão
-    nav.switch_to.default_content()  # Volta ao conteúdo principal da página
-    iframe = WebDriverWait(nav, timeout).until(EC.presence_of_element_located((By.TAG_NAME, 'iframe')))  # Espera até que o iframe esteja presente
-    nav.switch_to.frame(iframe)  # Troca para o iframe 
+    from medicao_class import MedicaoVR  # Importa a classe dentro da função para evitar importação circular
+
+    while True:
+        try:
+            time.sleep(tempo_espera)  # Espera antes de mudar para o conteúdo padrão
+            nav.switch_to.default_content()  # Volta ao conteúdo principal da página
+            iframe = WebDriverWait(nav, timeout).until(EC.presence_of_element_located((By.TAG_NAME, 'iframe')))  # Espera até que o iframe esteja presente
+            nav.switch_to.frame(iframe)  # Troca para o iframe
+            break  # Sai do loop se o comando for bem-sucedido
+        except Exception:
+            if not handle_custom_messagebox_response():
+                break
 
 def clicar_elemento(nav, elemento, tipo):
     """
@@ -89,24 +106,8 @@ def clicar_elemento(nav, elemento, tipo):
             nav.execute_script("arguments[0].click();", obj)  # Clica no objeto utilizando JavaScript
             break  # Sai do loop se o comando for bem-sucedido
         except Exception:
-            root = tk.Tk()
-            root.withdraw()  # Oculta a janela principal do Tkinter
-            resposta = messagebox.askquestion(
-                "Alerta", 
-                "Botão ou campo não encontrado. O que você gostaria de fazer?",
-                icon='warning',
-                type=messagebox.YESNOCANCEL,
-                default=messagebox.NO,
-                detail="Aperte 'Sim' para tentar novamente, 'Não' para continuar para o próximo comando, ou 'Cancelar' para pular para a próxima linha."
-            )
-            root.destroy()
-            if resposta == 'no':
-                break  # Sai do loop e continua para a próxima função
-            elif resposta == 'cancel':
-                from medicao_class import MedicaoVR  # Importa a classe dentro da função para evitar importação circular
-                if globals.global_medicao_instance:
-                    globals.global_medicao_instance.pular_linha()  # Chama a função para pular a linha
-                break  # Sai do loop e pula para a próxima linha
+            if not handle_custom_messagebox_response():
+                break
             
 def clicar_elemento_dinamico(nav):
     """
@@ -168,25 +169,8 @@ def clicar_elemento_rustico(nav, elemento, tipo):
             nav.find_element(tipo, elemento).click()  # Clica no elemento usando o método padrão do Selenium
             break  # Sai do loop se o comando for bem-sucedido
         except Exception:
-            root = tk.Tk()
-            root.withdraw()  # Oculta a janela principal do Tkinter
-            resposta = messagebox.askquestion(
-                "Alerta", 
-                "Botão ou campo não encontrado. O que você gostaria de fazer?",
-                icon='warning',
-                type=messagebox.YESNOCANCEL,
-                default=messagebox.NO,
-                detail="Aperte 'Sim' para tentar novamente, 'Não' para continuar para o próximo comando, ou 'Cancelar' para pular para a próxima linha."
-            )
-            root.destroy()
-            if resposta == 'no':
-                break  # Sai do loop e continua para a próxima função
-            elif resposta == 'cancel':
-                from medicao_class import MedicaoVR  # Importa a classe dentro da função para evitar importação circular
-                if globals.global_medicao_instance:
-                    globals.global_medicao_instance.pular_linha()  # Chama a função para pular a linha
-                break  # Sai do loop e pula para a próxima linha
-
+            if not handle_custom_messagebox_response():
+                break
 
 def enviarkey_elemento(nav, elemento, tipo, texto):
     """
@@ -209,16 +193,16 @@ def enviarkey_elemento(nav, elemento, tipo, texto):
     Raises:
         Exibe um alerta ao usuário se o elemento não for encontrado dentro do tempo de espera.
     """
-    try:
-        WebDriverWait(nav, 60).until(EC.presence_of_element_located((tipo, elemento)))  # Aguarda 60 segundos até o elemento carregar
-        nav.find_element(tipo, elemento).send_keys(texto)  # Envia o texto para o elemento
-    except Exception:
-        root = tk.Tk()
-        root.withdraw()  # Oculta a janela principal do Tkinter
-        messagebox.showwarning(
-            "Alerta", "Botão ou campo não encontrado. Localize e preencha manualmente. O código continuará a executar ao apertar OK."
-        )
-        root.destroy()
+    from medicao_class import MedicaoVR  # Importa a classe dentro da função para evitar importação circular
+
+    while True:
+        try:
+            WebDriverWait(nav, 60).until(EC.presence_of_element_located((tipo, elemento)))  # Aguarda 60 segundos até o elemento carregar
+            nav.find_element(tipo, elemento).send_keys(texto)  # Envia o texto para o elemento
+            break  # Sai do loop se o comando for bem-sucedido
+        except Exception:
+            if not handle_custom_messagebox_response():
+                break
 
 def primeiro_e_ultimo_dia_do_mes(ano, mes):
     """
@@ -728,6 +712,7 @@ def esperar_alerta(nav, cob, aba_original,planilha, local_destino,nome_guia,linh
         print(f"O {cob} apresentou falha ao enviar, não foi incluído na planilha Histórico!!")
         nav.close()  # Fecha a aba após o alerta carregar
         nav.switch_to.window(aba_original)  # Volta para a aba original
+
 def inicializacao(caminho, tipo, local_destino, planilha_destino, usuario, senha, tempo_espera=0.5):
     """
     Inicializa o processo de carregamento e manipulação de uma planilha Excel, além de realizar login em um navegador.
@@ -753,3 +738,80 @@ def inicializacao(caminho, tipo, local_destino, planilha_destino, usuario, senha
     acessar_iframe_default(navegador, tempo_espera) # Acessa o Iframe
 
     return navegador, planilha
+
+def custom_messagebox():
+    """
+    Exibe uma janela personalizada com cinco botões: Tentar novamente, Pular botão, Repetir linha, Pular linha e Cancelar.
+
+    Returns:
+        str: A escolha do usuário ('try_again', 'skip_button', 'repeat_line', 'skip_line', 'cancel').
+    """
+    root = tk.Tk()
+    root.withdraw()  # Oculta a janela principal do Tkinter
+
+    # Cria uma nova janela
+    custom_box = tk.Toplevel(root)
+    custom_box.title("Alerta")
+    custom_box.geometry("628x260")
+
+    # Adiciona uma mensagem
+    message = tk.Label(custom_box, text="Botão ou campo não encontrado. O que você gostaria de fazer?", wraplength=350)
+    message.pack(pady=10)
+
+    # Adiciona detalhes
+    detail = tk.Label(custom_box, text="Aperte 'Tentar novamente' para tentar novamente, 'Pular botão' para continuar para o próximo comando, 'Repetir linha' para repetir a linha, 'Pular linha' para pular para a próxima linha, ou 'Cancelar' para encerrar o programa.", wraplength=350)
+    detail.pack(pady=10)
+
+    # Variável para armazenar a resposta
+    resposta = tk.StringVar()
+
+    # Funções para definir a resposta e fechar a janela
+    def set_resposta(value):
+        resposta.set(value)
+        custom_box.destroy()
+
+    # Adiciona botões com o mesmo tamanho
+    button_width = 15
+
+    button_try_again = tk.Button(custom_box, text="Tentar novamente", width=button_width, command=lambda: set_resposta("try_again"))
+    button_try_again.pack(side=tk.LEFT, padx=5, pady=10)
+
+    button_skip_button = tk.Button(custom_box, text="Pular botão", width=button_width, command=lambda: set_resposta("skip_button"))
+    button_skip_button.pack(side=tk.LEFT, padx=5, pady=10)
+
+    button_repeat_line = tk.Button(custom_box, text="Repetir linha", width=button_width, command=lambda: set_resposta("repeat_line"))
+    button_repeat_line.pack(side=tk.LEFT, padx=5, pady=10)
+
+    button_skip_line = tk.Button(custom_box, text="Pular linha", width=button_width, command=lambda: set_resposta("skip_line"))
+    button_skip_line.pack(side=tk.LEFT, padx=5, pady=10)
+
+    button_cancel = tk.Button(custom_box, text="Cancelar", width=button_width, command=lambda: set_resposta("cancel"))
+    button_cancel.pack(side=tk.LEFT, padx=5, pady=10)
+
+    # Espera pela resposta do usuário
+    custom_box.wait_window()
+
+    return resposta.get()
+
+def handle_custom_messagebox_response():
+    """
+    Exibe a caixa de diálogo personalizada e lida com a resposta do usuário.
+
+    Returns:
+        bool: True se deve continuar tentando, False se deve parar.
+    """
+    resposta = custom_messagebox()
+    if resposta == "try_again":
+        return True  # Tentar novamente
+    elif resposta == "skip_button":
+        return False  # Pular botão
+    elif resposta == "repeat_line":
+        if globals.global_instance:
+            globals.global_instance.repetir_linha()  # Repetir linha
+        return False
+    elif resposta == "skip_line":
+        if globals.global_instance:
+            globals.global_instance.pular_linha()  # Pular linha
+        return False
+    elif resposta == "cancel":
+        sys.exit("Programa encerrado pelo usuário.")  # Encerra o programa
