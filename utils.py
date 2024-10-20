@@ -7,7 +7,6 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from openpyxl import load_workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
-from tkinter import messagebox
 import tkinter as tk
 import calendar
 import time
@@ -124,23 +123,20 @@ def clicar_elemento_dinamico(nav):
     Returns:
         None: A função tenta localizar e clicar no elemento, e em caso de falha, exibe uma mensagem de alerta ao usuário.
     """
-    try:
-        # XPath que localiza um elemento cujo ID começa com 'ui-id-' e que é um link (a tag)
-        xpath = "//a[starts-with(@id, 'ui-id-')]"
-        
-        # Aguarda até que o elemento esteja visível e clicável (até 30 segundos)
-        obj = WebDriverWait(nav, 30).until(EC.element_to_be_clickable((By.XPATH, xpath)))
-        
-        nav.execute_script("arguments[0].scrollIntoView(true);", obj)  # Garante que o elemento esteja visível na tela
-        nav.execute_script("arguments[0].click();", obj)  # Clica no objeto utilizando JavaScript
+    while True:
+        try:
+            # XPath que localiza um elemento cujo ID começa com 'ui-id-' e que é um link (a tag)
+            xpath = "//a[starts-with(@id, 'ui-id-')]"
+            
+            # Aguarda até que o elemento esteja visível e clicável (até 30 segundos)
+            obj = WebDriverWait(nav, 30).until(EC.element_to_be_clickable((By.XPATH, xpath)))
+            
+            nav.execute_script("arguments[0].scrollIntoView(true);", obj)  # Garante que o elemento esteja visível na tela
+            nav.execute_script("arguments[0].click();", obj)  # Clica no objeto utilizando JavaScript
 
-    except Exception as e:
-        root = tk.Tk()
-        root.withdraw()  # Oculta a janela principal do Tkinter
-        messagebox.showwarning(
-            "Alerta", f"Elemento não encontrado ou não clicável. Localize e clique manualmente. O código continuará a executar ao apertar OK.\nErro: {str(e)}"
-        )
-        root.destroy()
+        except Exception:
+            if not handle_custom_messagebox_response():
+                break
 
 def clicar_elemento_rustico(nav, elemento, tipo):
     """
@@ -314,21 +310,20 @@ def enviarkey_java(nav, element_name, value):
     Returns:
         None: A função não retorna valores, apenas interage com o navegador.
     """
-    try:
-        WebDriverWait(nav, 60).until(EC.presence_of_element_located((By.NAME, element_name)))
-        script = f"document.getElementsByName('{element_name}')[0].value='{value}';" # Simula a entrada de dados via JavaScript para evitar interferência da máscara de entrada
-        nav.execute_script(script)
-        script = f"""
-        var input = document.getElementsByName('{element_name}')[0];
-        var event = new Event('input', {{ bubbles: true }});
-        input.dispatchEvent(event);
-        """
-        nav.execute_script(script) # Dispara eventos para que o script de máscara possa processar o novo valor
-    except Exception:
-        root = tk.Tk()
-        root.withdraw()  # Oculta a janela principal do Tkinter
-        messagebox.showwarning("Alerta", "Botão ou campo não encontrado. Localize e preencha manualmente. O código continuará a executar ao apertar OK.")
-        root.destroy()
+    while True:
+        try:
+            WebDriverWait(nav, 60).until(EC.presence_of_element_located((By.NAME, element_name)))
+            script = f"document.getElementsByName('{element_name}')[0].value='{value}';" # Simula a entrada de dados via JavaScript para evitar interferência da máscara de entrada
+            nav.execute_script(script)
+            script = f"""
+            var input = document.getElementsByName('{element_name}')[0];
+            var event = new Event('input', {{ bubbles: true }});
+            input.dispatchEvent(event);
+            """
+            nav.execute_script(script) # Dispara eventos para que o script de máscara possa processar o novo valor
+        except Exception:
+            if not handle_custom_messagebox_response():
+                break      
 
 def selecionar_arquivo():
     """
