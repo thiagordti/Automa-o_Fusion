@@ -133,7 +133,7 @@ def clicar_elemento_dinamico(nav):
             
             nav.execute_script("arguments[0].scrollIntoView(true);", obj)  # Garante que o elemento esteja visível na tela
             nav.execute_script("arguments[0].click();", obj)  # Clica no objeto utilizando JavaScript
-
+            break  # Sai do loop se o clique for bem-sucedido
         except Exception:
             if not handle_custom_messagebox_response():
                 break
@@ -321,6 +321,7 @@ def enviarkey_java(nav, element_name, value):
             input.dispatchEvent(event);
             """
             nav.execute_script(script) # Dispara eventos para que o script de máscara possa processar o novo valor
+            break  # Sai do loop se o clique for bem-sucedido
         except Exception:
             if not handle_custom_messagebox_response():
                 break      
