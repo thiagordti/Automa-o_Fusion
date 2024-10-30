@@ -42,9 +42,15 @@ class MedicaoVR:
                     enviarkey_elemento(self.navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoCliente__',By.ID,tratar_cnpj(self.planilha.iloc[linha]['CNPJ'])) # Envia CNPJ
                     clicar_elemento_dinamico(self.navegador) # Clica no CNPJ informado
                     if sem_rateio == 0: # Difere o primeiro produto do segundo
-                        enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA SESI VIVA+: AEP,PGR,PCMSO,LTCAT \nPERÍODO: {primeiro_dia} a {ultimo_dia}.') # Envia Descrição
+                        if len(self.planilha.iloc[linha]['TEXTO1']) > 3: # Verifica se o campo TEXTO1 é maior que 3, se sim Envia o TEXTO1
+                            enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,self.planilha.iloc[linha]['TEXTO1']) # Envia Descrição da coluna TEXTO1
+                        else: #Se não envia a descrição padrão
+                            enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA SESI VIVA+: AEP,PGR,PCMSO,LTCAT \nPERÍODO: {primeiro_dia} a {ultimo_dia}.') # Envia Descrição Padrão
                     else:
-                        enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA CONSULTAS E EXAMES COMPLEMENTARES. \nPERÍODO: {primeiro_dia} a {ultimo_dia}.') # Envia Descrição
+                        if len(self.planilha.iloc[linha]['TEXTO2']) > 3: # Verifica se o campo TEXTO2 é maior que 3, se sim Envia o TEXTO2
+                            enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,self.planilha.iloc[linha]['TEXTO1']) # Envia Descrição da coluna TEXTO2
+                        else:#Se não envia a descrição padrão
+                            enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA CONSULTAS E EXAMES COMPLEMENTARES. \nPERÍODO: {primeiro_dia} a {ultimo_dia}.') # Envia Descrição Padrão
                     enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__rateio__', By.NAME,'Não')# Envia não ao campo de rateio
                     clicar_elemento(self.navegador,'id_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDeCobranca__UOCRProtheus___anchor',By.ID)# Clica na pesquisa de produto
                     acessar_iframe_default(self.navegador,self.tempo_espera) # Acessa Iframe da Pesquisa
@@ -83,7 +89,10 @@ class MedicaoVR:
                 acessar_iframe(self.navegador,self.tempo_espera)# Acessa o Iframe
                 enviarkey_elemento(self.navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoCliente__',By.ID,tratar_cnpj(self.planilha.iloc[linha]['CNPJ'])) # Envia CNPJ
                 clicar_elemento_dinamico(self.navegador) # Clica no CNPJ informado
-                enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA CONSULTAS E EXAMES COMPLEMENTARES. \nPERÍODO: {primeiro_dia} a {ultimo_dia}.') # Envia Descrição
+                if len(self.planilha.iloc[linha]['TEXTO3']) > 3: # Verifica se o campo TEXTO3 é maior que 3, se sim Envia o TEXTO3
+                            enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,self.planilha.iloc[linha]['TEXTO3']) # Envia Descrição da coluna TEXTO3
+                else:#Se não envia a descrição padrão
+                    enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA CONSULTAS E EXAMES COMPLEMENTARES. \nPERÍODO: {primeiro_dia} a {ultimo_dia}.') # Envia Descrição
                 enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__rateio__', By.NAME,'Sim')# Envia sim ao campo de rateio
                 #Loop para a quantidade de Itens
                 for com_rateio in range(4): # Loop para verificar todos os itens (Total 4) com rateio na self.planilha!!
@@ -108,7 +117,10 @@ class MedicaoVR:
                 acessar_iframe(self.navegador,self.tempo_espera)# Acessa o Iframe
                 enviarkey_elemento(self.navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoCliente__',By.ID,tratar_cnpj(self.planilha.iloc[linha]['CNPJ'])) # Envia CNPJ
                 clicar_elemento_dinamico(self.navegador) # Clica no CNPJ informado
-                enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA CONSULTAS E EXAMES COMPLEMENTARES. \nPERÍODO: {primeiro_dia} a {ultimo_dia}.') # Envia Descrição
+                if len(self.planilha.iloc[linha]['TEXTO3']) > 3: # Verifica se o campo TEXTO3 é maior que 3, se sim Envia o TEXTO3
+                            enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,self.planilha.iloc[linha]['TEXTO3']) # Envia Descrição da coluna TEXTO3
+                else:#Se não envia a descrição padrão
+                    enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA CONSULTAS E EXAMES COMPLEMENTARES. \nPERÍODO: {primeiro_dia} a {ultimo_dia}.') # Envia Descrição
                 enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__rateio__', By.NAME,'Sim')# Envia sim ao campo de rateio
                 #Loop para a quantidade de Itens
                 for com_rateio in range(2): # Loop para verificar todos os itens (Total 4) com rateio na self.planilha!!
@@ -132,7 +144,10 @@ class MedicaoVR:
                 acessar_iframe(self.navegador,self.tempo_espera)# Acessa o Iframe
                 enviarkey_elemento(self.navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoCliente__',By.ID,tratar_cnpj(self.planilha.iloc[linha]['CNPJ'])) # Envia CNPJ
                 clicar_elemento_dinamico(self.navegador) # Clica no CNPJ informado
-                enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'IN LOCO COBRANÇA CONSULTAS E EXAMES COMPLEMENTARES. \nPERÍODO: {primeiro_dia} a {ultimo_dia}.') # Envia Descrição
+                if len(self.planilha.iloc[linha]['TEXTO4']) > 3: # Verifica se o campo TEXTO4 é maior que 4, se sim Envia o TEXTO4
+                    enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,self.planilha.iloc[linha]['TEXTO4']) # Envia Descrição da coluna TEXTO4
+                else:#Se não envia a descrição padrão
+                    enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'IN LOCO COBRANÇA CONSULTAS E EXAMES COMPLEMENTARES. \nPERÍODO: {primeiro_dia} a {ultimo_dia}.') # Envia Descrição
                 enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__rateio__', By.NAME,'Sim')# Envia sim ao campo de rateio
                 #Loop para a quantidade de Itens
                 for com_rateio in range(2): # Loop para verificar todos os itens (Total 4) com rateio na self.planilha!!

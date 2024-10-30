@@ -261,7 +261,7 @@ def copiar_linha_ativa(df, destino, sheet_name, linha, texto_adicional=None):
         hoje = datetime.today().strftime('%d/%m/%Y')# Pega a data de hoje
         sheet.cell(row=next_row, column=cob_column_index + 1, value=hoje)# Adiciona a data de hoje na coluna seguinte
     else:
-        dia_column_index = 25
+        dia_column_index = 29
         hoje = datetime.today().strftime('%d/%m/%Y')# Pega a data de hoje
         sheet.cell(row=next_row, column=dia_column_index, value=hoje)# Adiciona a data de hoje na coluna  
     
