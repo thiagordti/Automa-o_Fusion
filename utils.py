@@ -35,7 +35,6 @@ def acessar_iframe(nav, tempo_espera):
     Returns:
         None: A função realiza a troca de contexto para o iframe, sem retornar um valor.
     """
-    from medicao_class import MedicaoVR  # Importa a classe dentro da função para evitar importação circular
 
     while True:
         try:
@@ -65,7 +64,6 @@ def acessar_iframe_default(nav, tempo_espera, timeout=10):
     Returns:
         None: A função realiza a troca de contexto para o iframe, sem retornar um valor.
     """
-    from medicao_class import MedicaoVR  # Importa a classe dentro da função para evitar importação circular
 
     while True:
         try:
@@ -189,7 +187,6 @@ def enviarkey_elemento(nav, elemento, tipo, texto):
     Raises:
         Exibe um alerta ao usuário se o elemento não for encontrado dentro do tempo de espera.
     """
-    from medicao_class import MedicaoVR  # Importa a classe dentro da função para evitar importação circular
 
     while True:
         try:
