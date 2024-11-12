@@ -23,7 +23,6 @@ class CobNV:
             enviarkey_elemento(self.navegador,'id_informeNucleo__',By.ID,'Núcleo de Faturamento')# Envia nucleo - Padrão
             enviarkey_elemento(self.navegador,'id_tipoSolicitacao__',By.ID,'Solicitação de cobrança (FG-176)')# Solicitação de cobrança - Padrão
             enviarkey_elemento(self.navegador,'id_plataformaGestaoDaVenda__',By.ID,'Protheus')# Plataforma - Padrão
-
             if self.planilha.iloc[linha]['TIPO'].lower() == "variavel" and self.planilha.iloc[linha]['RATEIO'].lower() == "sim":
                 enviarkey_elemento(self.navegador,'id_tipoDeMedicao__',By.ID,'Variavel')# Tipo de medição
                 data = self.planilha.iloc[linha]['DESCRICAO']
@@ -58,12 +57,12 @@ class CobNV:
                     acessar_iframe_default(self.navegador,self.tempo_espera) # Acessa Iframe de valor
                     opcoes_pagamento(self.navegador,'//*[@id="mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__formaDeEntradaDosRecursos_ori"]/option[1]','move_this_right_mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__formaDeEntradaDosRecursos')#Loop para selecionar as opções de pagamento     
                     enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__data__',By.ID,data_obj.strftime('%d/%m/%Y')) # Envia data da cobrança
-                    enviarkey_java(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__valor__',self.planilha.iloc[linha]['VALOR1'])
+                    enviarkey_java(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__valor__',self.planilha.iloc[linha]['VALOR1'])# Envia Valor
                     clicar_elemento(self.navegador,'action.save',By.NAME) # Clica para salvar.
                     acessar_iframe_default(self.navegador,self.tempo_espera) # Acessa Iframe primario
-                enviarkey_elemento(self.navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__numeroContratoProtheus__',By.ID,int(self.planilha.iloc[linha]['NUMERO DO CONTRATO'])) # Envia o numero de contrato
-                clicar_elemento(self.navegador,'//*[@id="ui-id-10"]/li',By.XPATH) # Clica no numero de contrato
-                clicar_elemento(self.navegador,'//*[@id="dibButtons"]/input[1]',By.XPATH) # Clica no numero de contrato
+                # enviarkey_elemento(self.navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__numeroContratoProtheus__',By.ID,int(self.planilha.iloc[linha]['NUMERO DO CONTRATO'])) # Envia o numero de contrato
+                # clicar_elemento(self.navegador,'//*[@id="ui-id-10"]/li',By.XPATH) # Clica no numero de contrato
+                clicar_elemento(self.navegador,'//*[@id="dibButtons"]/input[1]',By.XPATH) # Clica para salvar
                 self.navegador.switch_to.default_content()#Volta para o inicio
                 #------------------------Rateio--------------------------------------------------
                 clicar_elemento(self.navegador,'//*[@id="createitem"]',By.XPATH) # Clica no Novo
@@ -72,7 +71,6 @@ class CobNV:
                 clicar_elemento_dinamico(self.navegador) # Clica no CNPJ informado
                 enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA CONSULTAS E EXAMES COMPLEMENTARES. \nPERÍODO: {primeiro_dia} a {ultimo_dia}.') # Envia Descrição
                 enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__rateio__', By.NAME,'SIM')# Envia Sim ao campo de rateio
-
                 contador = 0 # Contador utilizado para clicar nos rateios no processo Final!
                 #Loop para a quantidade de Itens
                 for com_rateio in range(5): # Loop para verificar todos os itens (Total 5) com rateio na self.planilha!!
@@ -91,18 +89,15 @@ class CobNV:
                         clicar_elemento(self.navegador,'action.save',By.NAME) # Clica para salvar.
                         acessar_iframe_default(self.navegador,self.tempo_espera) # Acessa Iframe primario
                         contador += 1 # Soma 1 a quantidade de contador, será utiizado para clicar no loop Contador!
-
                 for i in range(contador): # Baseado na soma do Contador clica nos itens
                     clicar_elemento_rustico(self.navegador,f'//*[@id="{i}"]/td[2]',By.XPATH) # Clica no Item baseado nos indices (No fusion o indice 0 conta!)!!
                     acessar_iframe_default(self.navegador,self.tempo_espera) # Acessa Iframe primario
                     clicar_elemento(self.navegador,'action.save',By.NAME) # Clica para salvar.
                     acessar_iframe_default(self.navegador,self.tempo_espera) # Acessa Iframe primario
-
-                enviarkey_elemento(self.navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__numeroContratoProtheus__',By.ID,str(int(self.planilha.iloc[linha]['NUMERO DO CONTRATO']))) # Envia o numero de contrato
-                clicar_elemento(self.navegador,'//*[@id="ui-id-10"]/li',By.XPATH) # Clica no numero de contrato
+                # enviarkey_elemento(self.navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__numeroContratoProtheus__',By.ID,str(int(self.planilha.iloc[linha]['NUMERO DO CONTRATO']))) # Envia o numero de contrato
+                # clicar_elemento(self.navegador,'//*[@id="ui-id-10"]/li',By.XPATH) # Clica no numero de contrato
                 clicar_elemento(self.navegador,'action.save',By.NAME) # Clica para salvar.
                 self.navegador.switch_to.default_content()#Volta para o inicio
-                
                 enviar_anexo(self.navegador,linha,'//*[@id="menu_bar_genericoHistoricoAtendimento"]/li[1]','var_dadosDaCobranca__historico__anexo__','//*[@id="progress-complete-var_dadosDaCobranca__historico__anexo__"]/span','var_dadosDaCobranca__historico__registro__',self.planilha,self.caminho,self.tempo_espera)#Envia Anexos
                 enviar_emails(self.navegador,linha,"//li[@onclick=\"activeDeactiveObjMenu2(this);javascript: ellist_emailClienteFP__.addNewItem('CreateItens', true);\"]//a[@id='createitens']",'var_emailClienteFP__Email__',self.planilha, self.tempo_espera) # Envia e-mails
                 input('Confirma o lançamento!!!')
@@ -111,7 +106,6 @@ class CobNV:
                 esperar_alerta(self.navegador,nome_cob, aba_original,self.planilha,self.local_destino,'Novo',linha,nome_cob)
                 time.sleep(1)
                 acessar_iframe_default(self.navegador,self.tempo_espera)
-
             elif self.planilha.iloc[linha]['TIPO'].lower() == "variavel" and self.planilha.iloc[linha]['RATEIO'].lower() == "não":
                 enviarkey_elemento(self.navegador,'id_tipoDeMedicao__',By.ID,'Variavel')# Tipo de medição
                 data = self.planilha.iloc[linha]['DESCRICAO']
@@ -152,7 +146,7 @@ class CobNV:
                         acessar_iframe_default(self.navegador,self.tempo_espera) # Acessa Iframe primario
                 #enviarkey_elemento(self.navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__numeroContratoProtheus__',By.ID,int(self.planilha.iloc[linha]['NUMERO DO CONTRATO'])) # Envia o numero de contrato
                 #clicar_elemento(self.navegador,'//*[@id="ui-id-10"]/li',By.XPATH) # Clica no numero de contrato
-                clicar_elemento(self.navegador,'//*[@id="dibButtons"]/input[1]',By.XPATH) # Clica no numero de contrato
+                clicar_elemento(self.navegador,'//*[@id="dibButtons"]/input[1]',By.XPATH) # Clica para salvar
                 self.navegador.switch_to.default_content()#Volta para o inicio
 
                 # ---------------------- Esta Parte se refere aos Anexos ------------------------
@@ -164,7 +158,6 @@ class CobNV:
                 esperar_alerta(self.navegador,nome_cob, aba_original,self.planilha,self.local_destino,'Novo',linha,nome_cob)
                 time.sleep(1)
                 acessar_iframe_default(self.navegador,self.tempo_espera)
-
             elif self.planilha.iloc[linha]['TIPO'].lower() == "fixo" and self.planilha.iloc[linha]['RATEIO'].lower() == "não":
                 enviarkey_elemento(self.navegador,'id_tipoDeMedicao__',By.ID,'Fixa')# Tipo de medição
                 clicar_elemento(self.navegador,'//*[@id="tab_bar_"]/li[2]/a',By.XPATH) # Clica na guia Dados de cobrança
@@ -178,10 +171,8 @@ class CobNV:
                 enviarkey_elemento(self.navegador,'id_dadosCobranca__dadosParaHistorico2__diaLimiteNFCliente__',By.ID,str(int(self.planilha.iloc[linha]['DIA LIMITE'])))# Data Limite
                 opcoes_pagamento(self.navegador,'//*[@id="mul_dadosCobranca__formaDeEntradaDosRecursosRevisado_ori"]/option[1]','move_this_right_mul_dadosCobranca__formaDeEntradaDosRecursosRevisado') # Loop para opções de pagamento
                 enviarkey_elemento(self.navegador,'//*[@id="var_dadosCobranca__rateio__"]',By.XPATH,'Não')# Tipo de Rateio
-
                 clicar_elemento(self.navegador,'id_dadosCobranca__filaisSemRateio__UOCRProtheus___anchor',By.ID) # Pequisa
                 acessar_iframe_default(self.navegador,self.tempo_espera)# Acessa o Iframe
-
                 clicar_elemento(self.navegador,'vfilter',By.ID) # Clica no Filtro
                 acessar_iframe_default(self.navegador,self.tempo_espera) # Acessa Iframe do Filtro
                 enviarkey_elemento(self.navegador,'var_codclvlr__',By.NAME,str(int(self.planilha.iloc[linha]['CLASSE DE VALOR']))) # Envia Classa de valor Cliente
@@ -192,7 +183,6 @@ class CobNV:
                 acessar_iframe_default(self.navegador,self.tempo_espera) # Acessa Iframe da Pesquisa
                 clicar_elemento(self.navegador,'tooltip0',By.ID)
                 self.navegador.switch_to.default_content()
-
                 valor = float(self.planilha.iloc[linha]['VALOR1'])
                 parcelas = int(self.planilha.iloc[linha]['PARCELA'])
                 valor_parcela = valor / parcelas
@@ -218,7 +208,6 @@ class CobNV:
                 esperar_alerta(self.navegador,nome_cob, aba_original,self.planilha,self.local_destino,'Novo',linha,nome_cob)
                 time.sleep(1)
                 acessar_iframe_default(self.navegador,self.tempo_espera)
-
             elif self.planilha.iloc[linha]['TIPO'].lower() == "fixo" and self.planilha.iloc[linha]['RATEIO'].lower() == "sim":
                 enviarkey_elemento(self.navegador,'id_tipoDeMedicao__',By.ID,'Fixa')# Tipo de medição
                 clicar_elemento(self.navegador,'//*[@id="tab_bar_"]/li[2]/a',By.XPATH) # Clica na guia Dados de cobrança
