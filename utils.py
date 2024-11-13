@@ -48,17 +48,15 @@ def acessar_iframe(nav, tempo_espera):
 
 def acessar_iframe_default(nav, tempo_espera, timeout=10):
     """
-    Retorna ao conteúdo principal da página (fora de qualquer iframe) e acessa novamente um iframe.
+    Acessa e muda o contexto para um iframe em uma página da web.
 
     Args:
         nav (WebDriver): O navegador (WebDriver) usado para interagir com a página.
-        tempo_espera (int, float): Tempo, em segundos, para aguardar antes de retornar ao conteúdo padrão.
-        timeout (int, optional): Tempo máximo, em segundos, para aguardar o iframe aparecer. O padrão é 10 segundos.
+        tempo_espera (int, float): Tempo, em segundos, para aguardar antes de procurar pelo iframe.
 
     Functionality:
-        - Aguarda o tempo especificado (tempo_espera) antes de trocar o contexto para o conteúdo padrão da página.
-        - Muda o contexto do WebDriver para o conteúdo principal (fora de qualquer iframe).
-        - Espera até o `timeout` para que o iframe esteja presente no DOM.
+        - Aguarda o tempo especificado (tempo_espera) antes de tentar acessar o iframe.
+        - Espera até 180 segundos para que o iframe esteja presente no DOM da página.
         - Muda o contexto do WebDriver para o iframe localizado.
 
     Returns:
@@ -85,7 +83,7 @@ def clicar_elemento(nav, elemento, tipo):
         elemento (str): O seletor do elemento a ser localizado na página.
         tipo (By): O tipo de seletor (e.g., By.ID, By.CLASS_NAME, etc.) usado para localizar o elemento.
 
-    Functionality:
+    Funcionalidade:
         - Tenta localizar o elemento especificado utilizando `WebDriverWait`, aguardando até 10 segundos para ele aparecer.
         - Clica no elemento utilizando um comando JavaScript para garantir a execução do clique.
         - Se o elemento não for encontrado após o tempo de espera, exibe um alerta através de uma janela Tkinter, informando o usuário para interagir manualmente.
@@ -807,4 +805,5 @@ def handle_custom_messagebox_response():
             globals.global_instance.pular_linha()  # Pular linha
         return False
     elif resposta == "cancel":
+        copiar_para_planilha(globals.local_destino, globals.planilha_destino)
         sys.exit("Programa encerrado pelo usuário.")  # Encerra o programa

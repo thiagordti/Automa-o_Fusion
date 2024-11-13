@@ -18,8 +18,8 @@ if __name__ == "__main__":
 
     caminho = selecionar_arquivo()
     destino = os.path.dirname(caminho)  # Pega o caminho da pasta
-    planilha_destino = destino + '/Historico.xlsx'  # Caminho do Historico
-    local_destino = 'C:/Temp/Historico.xlsx'
+    globals.planilha_destino = destino + '/Historico.xlsx'  # Caminho do Historico
+    globals.local_destino = 'C:/Temp/Historico.xlsx'
 
     while True:
 
@@ -33,13 +33,13 @@ if __name__ == "__main__":
             escolha = int(escolha)
 
             if escolha == 1:
-                navegador, planilha = inicializacao(caminho, "Medição", local_destino, planilha_destino, usuario, senha, tempo_espera=0.5)
-                globals.global_instance = MedicaoVR(caminho, navegador, planilha, planilha_destino, local_destino, cod_filial='01MG0014', cod_uo='10310', tempo_espera=0.5)
+                navegador, planilha = inicializacao(caminho, "Medição", globals.local_destino, globals.planilha_destino, usuario, senha, tempo_espera=0.5)
+                globals.global_instance = MedicaoVR(caminho, navegador, planilha, globals.planilha_destino, globals.local_destino, cod_filial='01MG0014', cod_uo='10310', tempo_espera=0.5)
                 globals.global_instance.medicao_vr()  # Chama o método instância global_instance
 
             elif escolha == 2:
-                navegador, planilha = inicializacao(caminho,"Novo",local_destino,planilha_destino,usuario, senha, tempo_espera=0.5)
-                globals.global_instance = CobNV(caminho,navegador, planilha,planilha_destino,local_destino, cod_filial='01MG0014', cod_uo='10310', tempo_espera=0.5)
+                navegador, planilha = inicializacao(caminho,"Novo",globals.local_destino,globals.planilha_destino,usuario, senha, tempo_espera=0.5)
+                globals.global_instance = CobNV(caminho,navegador, planilha,globals.planilha_destino,globals.local_destino, cod_filial='01MG0014', cod_uo='10310', tempo_espera=0.5)
                 globals.global_instance.cob_nv() # Chama o método instância global_instance
 
             elif escolha == 0:
@@ -50,10 +50,10 @@ if __name__ == "__main__":
                 print("Escolha inválida. Tente novamente.")
         except ValueError as e:
             print(f"Ocorreu um erro: {e}")
-            copiar_para_planilha(planilha_destino, local_destino)
+            copiar_para_planilha(globals.planilha_destino, globals.local_destino)
             input('Chame a T.I')
         except Exception as e:
             print(f"Ocorreu um erro: {e}")
             print(traceback.format_exc())  # Imprime o stack trace completo
-            copiar_para_planilha(planilha_destino, local_destino)
+            copiar_para_planilha(globals.planilha_destino, globals.local_destino)
             input('Chame a T.I')
