@@ -239,9 +239,8 @@ class CobNV:
                         enviarkey_elemento(self.navegador,'id_txt_dadosCobranca__cobRateio__filialCustos__FilialProtheus__',By.ID,self.cod_filial) # Envia COD FILIAL - PADRÃO
                         clicar_elemento(self.navegador,'ui-menu-item',By.CLASS_NAME)
                         enviarkey_elemento(self.navegador,'id_txt_dadosCobranca__cobRateio__filialCustos__UO__',By.ID,self.cod_uo) # Envia COD FILIAL - PADRÃO
-                        clicar_elemento_dinamico(self.navegador)
+                        clicar_elemento(self.navegador,'//*[@id="ui-id-4"]/li',By.XPATH)
                         clicar_elemento(self.navegador,'id_dadosCobranca__cobRateio__filialCustos__UOXCRProtheus___anchor',By.ID)
-
                         acessar_iframe_default(self.navegador,self.tempo_espera)# Acessa o Iframe
                         clicar_elemento(self.navegador,'vfilter',By.ID) # Clica no Filtro
                         acessar_iframe_default(self.navegador,self.tempo_espera) # Acessa Iframe do Filtro
