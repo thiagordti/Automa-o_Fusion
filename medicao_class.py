@@ -48,7 +48,7 @@ class MedicaoVR:
                             enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA SESI VIVA+: AEP,PGR,PCMSO,LTCAT \nPERÍODO: {primeiro_dia} a {ultimo_dia}.') # Envia Descrição Padrão
                     else:
                         if not pd.isna(self.planilha.iloc[linha]['TEXTO2']): # Verifica se o campo TEXTO2 é maior que 3, se sim Envia o TEXTO2
-                            enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,self.planilha.iloc[linha]['TEXTO1']) # Envia Descrição da coluna TEXTO2
+                            enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,self.planilha.iloc[linha]['TEXTO2']) # Envia Descrição da coluna TEXTO2
                         else:#Se não envia a descrição padrão
                             enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA CONSULTAS E EXAMES COMPLEMENTARES. \nPERÍODO: {primeiro_dia} a {ultimo_dia}.') # Envia Descrição Padrão
                     enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__rateio__', By.NAME,'Não')# Envia não ao campo de rateio
@@ -170,9 +170,7 @@ class MedicaoVR:
             enviar_anexo(self.navegador,linha,'//*[@id="menu_bar_genericoHistoricoAtendimento"]/li[1]','var_dadosDaCobranca__historico__anexo__','//*[@id="progress-complete-var_dadosDaCobranca__historico__anexo__"]/span','var_dadosDaCobranca__historico__registro__',self.planilha,self.caminho,self.tempo_espera) # Envia Anexos
             if len(self.navegador.find_elements(By.ID, 'id_dadosDaCobranca__acao__')) >= 1: # Verifica se o campo existe
                 enviarkey_elemento(self.navegador,'id_dadosDaCobranca__acao__',By.ID,'Solicitar Nova Medição')
-            input('Confirma o lançamento!!!')
-            clicar_elemento(self.navegador,'action.send',By.NAME)
-            esperar_alerta(self.navegador,nome_cob, aba_original,self.planilha,self.local_destino,'Medição',linha)
+            self.handle_confirmacao_lancamento(nome_cob, aba_original, linha)
             time.sleep(1)
             acessar_iframe_default(self.navegador,self.tempo_espera)
             clicar_elemento_rustico(self.navegador,'clear-input-filter',By.CLASS_NAME)#Limpa o campo de Pesquisa
@@ -206,3 +204,31 @@ class MedicaoVR:
         # Não atualiza a linha atual para repetir a execução da linha atual
         acessar_iframe(self.navegador, self.tempo_espera)
         self.medicao_vr()  # Chama a função medicao_vr novamente
+
+    def fechar_navegador(self):
+        """
+        Fecha todas as abas do navegador e encerra a sessão do navegador.
+        """
+        self.navegador.quit()  # Fecha todas as abas e encerra a sessão do navegador
+    
+    def handle_confirmacao_lancamento(self, nome_cob, aba_original, linha):
+        resposta = confirmacao_lancamento()
+        if resposta == "confirmar":
+            # Executa as duas ações ao confirmar
+            clicar_elemento(self.navegador, 'action.send', By.NAME)
+            esperar_alerta(self.navegador, nome_cob, aba_original, self.planilha, self.local_destino, 'Medição', linha)
+        elif resposta == "recusar":
+            clicar_elemento(self.navegador, 'url.cancel', By.NAME)
+            self.navegador.switch_to.window(aba_original)
+            print("Tarefa de recusa executada.")
+        elif resposta == "repetir_linha":
+            # Chama o método repetir_linha
+            self.repetir_linha()
+        elif resposta == "pular_linha":
+            # Chama o método pular_linha
+            self.pular_linha()
+        elif resposta == "confirmar_finalizar":
+            # Executa as duas ações e finaliza o programa
+            clicar_elemento(self.navegador, 'action.send', By.NAME)
+            esperar_alerta(self.navegador, nome_cob, aba_original, self.planilha, self.local_destino, 'Medição', linha)
+            sys.exit("Programa encerrado pelo usuário.")

@@ -807,3 +807,57 @@ def handle_custom_messagebox_response():
     elif resposta == "cancel":
         copiar_para_planilha(globals.local_destino, globals.planilha_destino)
         sys.exit("Programa encerrado pelo usuário.")  # Encerra o programa
+
+def confirmacao_lancamento():
+    """
+    Exibe uma janela de confirmação com cinco opções: Confirmar, Recusar, Repetir linha, Pular linha e Confirmar e finalizar.
+
+    Returns:
+        str: A escolha do usuário ('confirmar', 'recusar', 'repetir_linha', 'pular_linha', 'confirmar_finalizar').
+    """
+    root = tk.Tk()
+    root.withdraw()  # Oculta a janela principal do Tkinter
+
+    # Cria uma nova janela
+    confirm_box = tk.Toplevel(root)
+    confirm_box.title("Confirmação de Lançamento")
+    confirm_box.geometry("800x200")
+
+    # Adiciona uma mensagem
+    message = tk.Label(confirm_box, text="Confirma o lançamento?", wraplength=350)
+    message.pack(pady=10)
+
+    # Adiciona detalhes
+    detail = tk.Label(confirm_box, text="Escolha uma das opções abaixo:", wraplength=350)
+    detail.pack(pady=10)
+
+    # Variável para armazenar a resposta
+    resposta = tk.StringVar()
+
+    # Funções para definir a resposta e fechar a janela
+    def set_resposta(value):
+        resposta.set(value)
+        confirm_box.destroy()
+
+    # Adiciona botões com o mesmo tamanho
+    button_width = 20
+
+    button_confirmar = tk.Button(confirm_box, text="Confirmar", width=button_width, command=lambda: set_resposta("confirmar"))
+    button_confirmar.pack(side=tk.LEFT, padx=5, pady=10)
+
+    button_recusar = tk.Button(confirm_box, text="Recusar", width=button_width, command=lambda: set_resposta("recusar"))
+    button_recusar.pack(side=tk.LEFT, padx=5, pady=10)
+
+    button_repetir_linha = tk.Button(confirm_box, text="Repetir linha", width=button_width, command=lambda: set_resposta("repetir_linha"))
+    button_repetir_linha.pack(side=tk.LEFT, padx=5, pady=10)
+
+    button_pular_linha = tk.Button(confirm_box, text="Pular linha", width=button_width, command=lambda: set_resposta("pular_linha"))
+    button_pular_linha.pack(side=tk.LEFT, padx=5, pady=10)
+
+    button_confirmar_finalizar = tk.Button(confirm_box, text="Confirmar e finalizar", width=button_width, command=lambda: set_resposta("confirmar_finalizar"))
+    button_confirmar_finalizar.pack(side=tk.LEFT, padx=5, pady=10)
+
+    # Espera pela resposta do usuário
+    confirm_box.wait_window()
+
+    return resposta.get()

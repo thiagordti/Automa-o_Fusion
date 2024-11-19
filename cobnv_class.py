@@ -100,10 +100,8 @@ class CobNV:
                 self.navegador.switch_to.default_content()#Volta para o inicio
                 enviar_anexo(self.navegador,linha,'//*[@id="menu_bar_genericoHistoricoAtendimento"]/li[1]','var_dadosDaCobranca__historico__anexo__','//*[@id="progress-complete-var_dadosDaCobranca__historico__anexo__"]/span','var_dadosDaCobranca__historico__registro__',self.planilha,self.caminho,self.tempo_espera)#Envia Anexos
                 enviar_emails(self.navegador,linha,"//li[@onclick=\"activeDeactiveObjMenu2(this);javascript: ellist_emailClienteFP__.addNewItem('CreateItens', true);\"]//a[@id='createitens']",'var_emailClienteFP__Email__',self.planilha, self.tempo_espera) # Envia e-mails
-                input('Confirma o lançamento!!!')
                 self.navegador.switch_to.default_content()
-                clicar_elemento(self.navegador,'action.send',By.NAME)
-                esperar_alerta(self.navegador,nome_cob, aba_original,self.planilha,self.local_destino,'Novo',linha,nome_cob)
+                self.handle_confirmacao_lancamento(nome_cob, aba_original, linha)
                 time.sleep(1)
                 acessar_iframe_default(self.navegador,self.tempo_espera)
             elif self.planilha.iloc[linha]['TIPO'].lower() == "variavel" and self.planilha.iloc[linha]['RATEIO'].lower() == "não":
@@ -152,10 +150,8 @@ class CobNV:
                 # ---------------------- Esta Parte se refere aos Anexos ------------------------
                 enviar_anexo(self.navegador,linha,'//*[@id="menu_bar_genericoHistoricoAtendimento"]/li[1]','var_dadosDaCobranca__historico__anexo__','//*[@id="progress-complete-var_dadosDaCobranca__historico__anexo__"]/span','var_dadosDaCobranca__historico__registro__',self.planilha,self.caminho,self.tempo_espera)#Envia Anexos
                 enviar_emails(self.navegador,linha,"//li[@onclick=\"activeDeactiveObjMenu2(this);javascript: ellist_emailClienteFP__.addNewItem('CreateItens', true);\"]//a[@id='createitens']",'var_emailClienteFP__Email__',self.planilha, self.tempo_espera)
-                input('Confirma o lançamento!!!')
                 self.navegador.switch_to.default_content()
-                clicar_elemento(self.navegador,'action.send',By.NAME)
-                esperar_alerta(self.navegador,nome_cob, aba_original,self.planilha,self.local_destino,'Novo',linha,nome_cob)
+                self.handle_confirmacao_lancamento(nome_cob, aba_original, linha)
                 time.sleep(1)
                 acessar_iframe_default(self.navegador,self.tempo_espera)
             elif self.planilha.iloc[linha]['TIPO'].lower() == "fixo" and self.planilha.iloc[linha]['RATEIO'].lower() == "não":
@@ -202,10 +198,8 @@ class CobNV:
                 self.navegador.switch_to.default_content()
                 enviarkey_elemento(self.navegador,'var_dadosCobranca__Observacao__',By.ID,self.planilha.iloc[linha]['OBSERVACAO']) # Envia Observação
                 enviar_emails(self.navegador,linha,"//li[@onclick=\"activeDeactiveObjMenu2(this);javascript: ellist_EmailDeContatoDosClientes__.addNewItem('CreateItens', true);\"]/a[@id='createitens']",'var_EmailDeContatoDosClientes__Email__',self.planilha, self.tempo_espera)
-                input('Confirma o lançamento!!!')
                 self.navegador.switch_to.default_content()
-                clicar_elemento(self.navegador,'action.send',By.NAME)
-                esperar_alerta(self.navegador,nome_cob, aba_original,self.planilha,self.local_destino,'Novo',linha,nome_cob)
+                self.handle_confirmacao_lancamento(nome_cob, aba_original, linha)
                 time.sleep(1)
                 acessar_iframe_default(self.navegador,self.tempo_espera)
             elif self.planilha.iloc[linha]['TIPO'].lower() == "fixo" and self.planilha.iloc[linha]['RATEIO'].lower() == "sim":
@@ -264,13 +258,10 @@ class CobNV:
                         acessar_iframe_default(self.navegador,self.tempo_espera) # Acessa Iframe da Pesquisa
                     clicar_elemento(self.navegador,'//*[@id="dibButtons"]/input[1]',By.XPATH) #botão ok
                     self.navegador.switch_to.default_content()
-
                 enviarkey_elemento(self.navegador,'var_dadosCobranca__Observacao__',By.ID,self.planilha.iloc[linha]['OBSERVACAO']) # Envia Observação
                 enviar_emails(self.navegador,linha,"//li[@onclick=\"activeDeactiveObjMenu2(this);javascript: ellist_EmailDeContatoDosClientes__.addNewItem('CreateItens', true);\"]/a[@id='createitens']",'var_EmailDeContatoDosClientes__Email__',self.planilha, self.tempo_espera)
-                input('Confirma o lançamento!!!')
                 self.navegador.switch_to.default_content()
-                clicar_elemento(self.navegador,'action.send',By.NAME)
-                esperar_alerta(self.navegador,nome_cob, aba_original,self.planilha,self.local_destino,'Novo',linha,nome_cob)
+                self.handle_confirmacao_lancamento(nome_cob, aba_original, linha)
                 time.sleep(1)
                 acessar_iframe_default(self.navegador,self.tempo_espera)
 
@@ -304,3 +295,25 @@ class CobNV:
         # Não atualiza a linha atual para repetir a execução da linha atual
         acessar_iframe(self.navegador, self.tempo_espera)
         self.cob_nv()  # Chama a função medicao_vr novamente
+    
+    def handle_confirmacao_lancamento(self, nome_cob, aba_original, linha):
+        resposta = confirmacao_lancamento()
+        if resposta == "confirmar":
+            # Executa as duas ações ao confirmar
+            clicar_elemento(self.navegador, 'action.send', By.NAME)
+            esperar_alerta(self.navegador,nome_cob, aba_original,self.planilha,self.local_destino,'Novo',linha,nome_cob)
+        elif resposta == "recusar":
+            clicar_elemento(self.navegador, 'url.cancel', By.NAME)
+            self.navegador.switch_to.window(aba_original)
+            print("Tarefa de recusa executada.")
+        elif resposta == "repetir_linha":
+            # Chama o método repetir_linha
+            self.repetir_linha()
+        elif resposta == "pular_linha":
+            # Chama o método pular_linha
+            self.pular_linha()
+        elif resposta == "confirmar_finalizar":
+            # Executa as duas ações e finaliza o programa
+            clicar_elemento(self.navegador, 'action.send', By.NAME)
+            esperar_alerta(self.navegador,nome_cob, aba_original,self.planilha,self.local_destino,'Novo',linha,nome_cob)
+            sys.exit("Programa encerrado pelo usuário.")
