@@ -316,4 +316,6 @@ class CobNV:
             # Executa as duas ações e finaliza o programa
             clicar_elemento(self.navegador, 'action.send', By.NAME)
             esperar_alerta(self.navegador,nome_cob, aba_original,self.planilha,self.local_destino,'Novo',linha,nome_cob)
+            time.sleep(5)
+            copiar_para_planilha(self.planilha_destino,self.local_destino)
             sys.exit("Programa encerrado pelo usuário.")
