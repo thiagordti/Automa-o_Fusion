@@ -7,6 +7,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from openpyxl import load_workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
+from context import get_automacao_fusion_instance
 import tkinter as tk
 import calendar
 import time
@@ -15,7 +16,7 @@ import pandas as pd
 import shutil
 import os
 import sys
-import globals 
+
 
 locale.setlocale(locale.LC_TIME, 'pt_BR.UTF-8')
 
@@ -35,6 +36,7 @@ def acessar_iframe(nav, tempo_espera):
     Returns:
         None: A função realiza a troca de contexto para o iframe, sem retornar um valor.
     """
+    automacao_fusion_instance = get_automacao_fusion_instance()
 
     while True:
         try:
@@ -43,7 +45,7 @@ def acessar_iframe(nav, tempo_espera):
             nav.switch_to.frame(iframe)  # Troca para o iframe
             break  # Sai do loop se o comando for bem-sucedido
         except Exception:
-            if not handle_custom_messagebox_response():
+            if not automacao_fusion_instance.handle_custom_messagebox_response():
                 break
 
 def acessar_iframe_default(nav, tempo_espera, timeout=10):
@@ -62,7 +64,7 @@ def acessar_iframe_default(nav, tempo_espera, timeout=10):
     Returns:
         None: A função realiza a troca de contexto para o iframe, sem retornar um valor.
     """
-
+    automacao_fusion_instance = get_automacao_fusion_instance()
     while True:
         try:
             time.sleep(tempo_espera)  # Espera antes de mudar para o conteúdo padrão
@@ -71,7 +73,7 @@ def acessar_iframe_default(nav, tempo_espera, timeout=10):
             nav.switch_to.frame(iframe)  # Troca para o iframe
             break  # Sai do loop se o comando for bem-sucedido
         except Exception:
-            if not handle_custom_messagebox_response():
+            if not automacao_fusion_instance.handle_custom_messagebox_response():
                 break
 
 def clicar_elemento(nav, elemento, tipo):
@@ -95,13 +97,14 @@ def clicar_elemento(nav, elemento, tipo):
     Raises:
         Exibe um alerta ao usuário se o elemento não for encontrado dentro do tempo de espera.
     """
+    automacao_fusion_instance = get_automacao_fusion_instance()
     while True:
         try:
             obj = WebDriverWait(nav, 10).until(EC.presence_of_element_located((tipo, elemento)))  # Aguarda 10 segundos até o elemento carregar
             nav.execute_script("arguments[0].click();", obj)  # Clica no objeto utilizando JavaScript
             break  # Sai do loop se o comando for bem-sucedido
         except Exception:
-            if not handle_custom_messagebox_response():
+            if not automacao_fusion_instance.handle_custom_messagebox_response():
                 break
             
 def clicar_elemento_dinamico(nav):
@@ -119,6 +122,7 @@ def clicar_elemento_dinamico(nav):
     Returns:
         None: A função tenta localizar e clicar no elemento, e em caso de falha, exibe uma mensagem de alerta ao usuário.
     """
+    automacao_fusion_instance = get_automacao_fusion_instance()
     while True:
         try:
             # XPath que localiza um elemento cujo ID começa com 'ui-id-' e que é um link (a tag)
@@ -131,7 +135,7 @@ def clicar_elemento_dinamico(nav):
             nav.execute_script("arguments[0].click();", obj)  # Clica no objeto utilizando JavaScript
             break  # Sai do loop se o clique for bem-sucedido
         except Exception:
-            if not handle_custom_messagebox_response():
+            if not automacao_fusion_instance.handle_custom_messagebox_response():
                 break
 
 def clicar_elemento_rustico(nav, elemento, tipo):
@@ -155,13 +159,14 @@ def clicar_elemento_rustico(nav, elemento, tipo):
     Raises:
         Exibe um alerta ao usuário se o elemento não for encontrado dentro do tempo de espera.
     """
+    automacao_fusion_instance = get_automacao_fusion_instance()
     while True:
         try:
             WebDriverWait(nav, 15).until(EC.presence_of_element_located((tipo, elemento)))  # Aguarda 15 segundos até o elemento carregar
             nav.find_element(tipo, elemento).click()  # Clica no elemento usando o método padrão do Selenium
             break  # Sai do loop se o comando for bem-sucedido
         except Exception:
-            if not handle_custom_messagebox_response():
+            if not automacao_fusion_instance.handle_custom_messagebox_response():
                 break
 
 def enviarkey_elemento(nav, elemento, tipo, texto):
@@ -185,14 +190,14 @@ def enviarkey_elemento(nav, elemento, tipo, texto):
     Raises:
         Exibe um alerta ao usuário se o elemento não for encontrado dentro do tempo de espera.
     """
-
+    automacao_fusion_instance = get_automacao_fusion_instance()
     while True:
         try:
             WebDriverWait(nav, 60).until(EC.presence_of_element_located((tipo, elemento)))  # Aguarda 60 segundos até o elemento carregar
             nav.find_element(tipo, elemento).send_keys(texto)  # Envia o texto para o elemento
             break  # Sai do loop se o comando for bem-sucedido
         except Exception:
-            if not handle_custom_messagebox_response():
+            if not automacao_fusion_instance.handle_custom_messagebox_response():
                 break
 
 def primeiro_e_ultimo_dia_do_mes(ano, mes):
@@ -305,6 +310,7 @@ def enviarkey_java(nav, element_name, value):
     Returns:
         None: A função não retorna valores, apenas interage com o navegador.
     """
+    automacao_fusion_instance = get_automacao_fusion_instance()
     while True:
         try:
             WebDriverWait(nav, 60).until(EC.presence_of_element_located((By.NAME, element_name)))
@@ -318,7 +324,7 @@ def enviarkey_java(nav, element_name, value):
             nav.execute_script(script) # Dispara eventos para que o script de máscara possa processar o novo valor
             break  # Sai do loop se o clique for bem-sucedido
         except Exception:
-            if not handle_custom_messagebox_response():
+            if not automacao_fusion_instance.handle_custom_messagebox_response():
                 break      
 
 def selecionar_arquivo():
@@ -729,135 +735,3 @@ def inicializacao(caminho, tipo, local_destino, planilha_destino, usuario, senha
     acessar_iframe_default(navegador, tempo_espera) # Acessa o Iframe
 
     return navegador, planilha
-
-def custom_messagebox():
-    """
-    Exibe uma janela personalizada com cinco botões: Tentar novamente, Pular botão, Repetir linha, Pular linha e Cancelar.
-
-    Returns:
-        str: A escolha do usuário ('try_again', 'skip_button', 'repeat_line', 'skip_line', 'cancel').
-    """
-    root = tk.Tk()
-    root.withdraw()  # Oculta a janela principal do Tkinter
-
-    # Cria uma nova janela
-    custom_box = tk.Toplevel(root)
-    custom_box.title("Alerta")
-    custom_box.geometry("628x260")
-
-    # Adiciona uma mensagem
-    message = tk.Label(custom_box, text="Botão ou campo não encontrado. O que você gostaria de fazer?", wraplength=350)
-    message.pack(pady=10)
-
-    # Adiciona detalhes
-    detail = tk.Label(custom_box, text="Aperte 'Tentar novamente' para tentar novamente, 'Pular botão' para continuar para o próximo comando, 'Repetir linha' para repetir a linha, 'Pular linha' para pular para a próxima linha, ou 'Cancelar' para encerrar o programa.", wraplength=350)
-    detail.pack(pady=10)
-
-    # Variável para armazenar a resposta
-    resposta = tk.StringVar()
-
-    # Funções para definir a resposta e fechar a janela
-    def set_resposta(value):
-        resposta.set(value)
-        custom_box.destroy()
-
-    # Adiciona botões com o mesmo tamanho
-    button_width = 15
-
-    button_try_again = tk.Button(custom_box, text="Tentar novamente", width=button_width, command=lambda: set_resposta("try_again"))
-    button_try_again.pack(side=tk.LEFT, padx=5, pady=10)
-
-    button_skip_button = tk.Button(custom_box, text="Pular botão", width=button_width, command=lambda: set_resposta("skip_button"))
-    button_skip_button.pack(side=tk.LEFT, padx=5, pady=10)
-
-    button_repeat_line = tk.Button(custom_box, text="Repetir linha", width=button_width, command=lambda: set_resposta("repeat_line"))
-    button_repeat_line.pack(side=tk.LEFT, padx=5, pady=10)
-
-    button_skip_line = tk.Button(custom_box, text="Pular linha", width=button_width, command=lambda: set_resposta("skip_line"))
-    button_skip_line.pack(side=tk.LEFT, padx=5, pady=10)
-
-    button_cancel = tk.Button(custom_box, text="Cancelar", width=button_width, command=lambda: set_resposta("cancel"))
-    button_cancel.pack(side=tk.LEFT, padx=5, pady=10)
-
-    # Espera pela resposta do usuário
-    custom_box.wait_window()
-
-    return resposta.get()
-
-def handle_custom_messagebox_response():
-    """
-    Exibe a caixa de diálogo personalizada e lida com a resposta do usuário.
-
-    Returns:
-        bool: True se deve continuar tentando, False se deve parar.
-    """
-    resposta = custom_messagebox()
-    if resposta == "try_again":
-        return True  # Tentar novamente
-    elif resposta == "skip_button":
-        return False  # Pular botão
-    elif resposta == "repeat_line":
-        if globals.global_instance:
-            globals.global_instance.repetir_linha()  # Repetir linha
-        return False
-    elif resposta == "skip_line":
-        if globals.global_instance:
-            globals.global_instance.pular_linha()  # Pular linha
-        return False
-    elif resposta == "cancel":
-        copiar_para_planilha(globals.local_destino, globals.planilha_destino)
-        sys.exit("Programa encerrado pelo usuário.")  # Encerra o programa
-
-def confirmacao_lancamento():
-    """
-    Exibe uma janela de confirmação com cinco opções: Confirmar, Recusar, Repetir linha, Pular linha e Confirmar e finalizar.
-
-    Returns:
-        str: A escolha do usuário ('confirmar', 'recusar', 'repetir_linha', 'pular_linha', 'confirmar_finalizar').
-    """
-    root = tk.Tk()
-    root.withdraw()  # Oculta a janela principal do Tkinter
-
-    # Cria uma nova janela
-    confirm_box = tk.Toplevel(root)
-    confirm_box.title("Confirmação de Lançamento")
-    confirm_box.geometry("800x200")
-
-    # Adiciona uma mensagem
-    message = tk.Label(confirm_box, text="Confirma o lançamento?", wraplength=350)
-    message.pack(pady=10)
-
-    # Adiciona detalhes
-    detail = tk.Label(confirm_box, text="Escolha uma das opções abaixo:", wraplength=350)
-    detail.pack(pady=10)
-
-    # Variável para armazenar a resposta
-    resposta = tk.StringVar()
-
-    # Funções para definir a resposta e fechar a janela
-    def set_resposta(value):
-        resposta.set(value)
-        confirm_box.destroy()
-
-    # Adiciona botões com o mesmo tamanho
-    button_width = 20
-
-    button_confirmar = tk.Button(confirm_box, text="Confirmar", width=button_width, command=lambda: set_resposta("confirmar"))
-    button_confirmar.pack(side=tk.LEFT, padx=5, pady=10)
-
-    button_recusar = tk.Button(confirm_box, text="Recusar", width=button_width, command=lambda: set_resposta("recusar"))
-    button_recusar.pack(side=tk.LEFT, padx=5, pady=10)
-
-    button_repetir_linha = tk.Button(confirm_box, text="Repetir linha", width=button_width, command=lambda: set_resposta("repetir_linha"))
-    button_repetir_linha.pack(side=tk.LEFT, padx=5, pady=10)
-
-    button_pular_linha = tk.Button(confirm_box, text="Pular linha", width=button_width, command=lambda: set_resposta("pular_linha"))
-    button_pular_linha.pack(side=tk.LEFT, padx=5, pady=10)
-
-    button_confirmar_finalizar = tk.Button(confirm_box, text="Confirmar e finalizar", width=button_width, command=lambda: set_resposta("confirmar_finalizar"))
-    button_confirmar_finalizar.pack(side=tk.LEFT, padx=5, pady=10)
-
-    # Espera pela resposta do usuário
-    confirm_box.wait_window()
-
-    return resposta.get()
