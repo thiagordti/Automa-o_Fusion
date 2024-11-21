@@ -477,7 +477,10 @@ class AutomacaoFusion:
         if resposta == "confirmar":
             # Executa as duas ações ao confirmar
             clicar_elemento(self.navegador, 'action.send', By.NAME)
-            esperar_alerta(self.navegador, nome_cob, aba_original, self.planilha, self.local_destino, 'Medição', linha)
+            if self.metodo == 'medicao_vr':
+                esperar_alerta(self.navegador, nome_cob, aba_original, self.planilha, self.local_destino, 'Medição', linha)
+            elif self.metodo == 'cob_nv':
+                esperar_alerta(self.navegador,nome_cob, aba_original,self.planilha,self.local_destino,'Novo',linha,nome_cob)
         elif resposta == "recusar":
             clicar_elemento(self.navegador, 'url.cancel', By.NAME)
             self.navegador.switch_to.window(aba_original)
@@ -491,7 +494,10 @@ class AutomacaoFusion:
         elif resposta == "confirmar_finalizar":
             # Executa as duas ações e finaliza o programa
             clicar_elemento(self.navegador, 'action.send', By.NAME)
-            esperar_alerta(self.navegador, nome_cob, aba_original, self.planilha, self.local_destino, 'Medição', linha)
+            if self.metodo == 'medicao_vr':
+                esperar_alerta(self.navegador, nome_cob, aba_original, self.planilha, self.local_destino, 'Medição', linha)
+            elif self.metodo == 'cob_nv':
+                esperar_alerta(self.navegador,nome_cob, aba_original,self.planilha,self.local_destino,'Novo',linha,nome_cob)
             time.sleep(5)
             copiar_para_planilha(self.planilha_destino,self.local_destino)
             sys.exit("Programa encerrado pelo usuário.")
