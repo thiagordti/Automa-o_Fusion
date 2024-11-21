@@ -2,7 +2,7 @@ from utils import *
 
 class AutomacaoFusion:
 
-    def __init__(self, caminho, navegador, planilha, planilha_destino, local_destino, cod_filial='01MG0014', cod_uo='10310', tempo_espera=0.5):
+    def __init__(self, caminho, navegador, planilha, planilha_destino, local_destino, metodo, cod_filial='01MG0014', cod_uo='10310', tempo_espera=0.5):
         self.caminho = caminho
         self.navegador = navegador
         self.planilha = planilha
@@ -12,6 +12,7 @@ class AutomacaoFusion:
         self.cod_uo = cod_uo
         self.tempo_espera = tempo_espera
         self.linha_atual = 0
+        self.metodo = metodo
     
     def medicao_vr(self):
         for linha in range(self.linha_atual, len(self.planilha)):
@@ -442,7 +443,11 @@ class AutomacaoFusion:
         # Atualiza a linha atual para pular para a próxima linha
         self.linha_atual += 1
         acessar_iframe(self.navegador, self.tempo_espera)
-        self.medicao_vr()  # Chama a função medicao_vr novamente
+                # Chama o método apropriado
+        if self.metodo == 'medicao_vr':
+            self.medicao_vr()
+        elif self.metodo == 'cob_nv':
+            self.cob_nv()
 
     def repetir_linha(self):
         # Verifica se há mais de uma aba aberta
@@ -456,7 +461,10 @@ class AutomacaoFusion:
 
         # Não atualiza a linha atual para repetir a execução da linha atual
         acessar_iframe(self.navegador, self.tempo_espera)
-        self.medicao_vr()  # Chama a função medicao_vr novamente
+        if self.metodo == 'medicao_vr':
+            self.medicao_vr()
+        elif self.metodo == 'cob_nv':
+            self.cob_nv()
 
     def fechar_navegador(self):
         """

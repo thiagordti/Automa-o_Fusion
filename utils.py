@@ -7,7 +7,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from openpyxl import load_workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
-from context import get_automacao_fusion_instance
+from context import Context
 import tkinter as tk
 import calendar
 import time
@@ -36,7 +36,7 @@ def acessar_iframe(nav, tempo_espera):
     Returns:
         None: A função realiza a troca de contexto para o iframe, sem retornar um valor.
     """
-    automacao_fusion_instance = get_automacao_fusion_instance()
+    automacao_fusion_instance = Context.get_automacao_fusion_instance()
 
     while True:
         try:
@@ -64,7 +64,7 @@ def acessar_iframe_default(nav, tempo_espera, timeout=10):
     Returns:
         None: A função realiza a troca de contexto para o iframe, sem retornar um valor.
     """
-    automacao_fusion_instance = get_automacao_fusion_instance()
+    automacao_fusion_instance = Context.get_automacao_fusion_instance()
     while True:
         try:
             time.sleep(tempo_espera)  # Espera antes de mudar para o conteúdo padrão
@@ -97,7 +97,7 @@ def clicar_elemento(nav, elemento, tipo):
     Raises:
         Exibe um alerta ao usuário se o elemento não for encontrado dentro do tempo de espera.
     """
-    automacao_fusion_instance = get_automacao_fusion_instance()
+    automacao_fusion_instance = Context.get_automacao_fusion_instance()
     while True:
         try:
             obj = WebDriverWait(nav, 10).until(EC.presence_of_element_located((tipo, elemento)))  # Aguarda 10 segundos até o elemento carregar
@@ -122,7 +122,7 @@ def clicar_elemento_dinamico(nav):
     Returns:
         None: A função tenta localizar e clicar no elemento, e em caso de falha, exibe uma mensagem de alerta ao usuário.
     """
-    automacao_fusion_instance = get_automacao_fusion_instance()
+    automacao_fusion_instance = Context.get_automacao_fusion_instance()
     while True:
         try:
             # XPath que localiza um elemento cujo ID começa com 'ui-id-' e que é um link (a tag)
@@ -159,7 +159,7 @@ def clicar_elemento_rustico(nav, elemento, tipo):
     Raises:
         Exibe um alerta ao usuário se o elemento não for encontrado dentro do tempo de espera.
     """
-    automacao_fusion_instance = get_automacao_fusion_instance()
+    automacao_fusion_instance = Context.get_automacao_fusion_instance()
     while True:
         try:
             WebDriverWait(nav, 15).until(EC.presence_of_element_located((tipo, elemento)))  # Aguarda 15 segundos até o elemento carregar
@@ -190,7 +190,7 @@ def enviarkey_elemento(nav, elemento, tipo, texto):
     Raises:
         Exibe um alerta ao usuário se o elemento não for encontrado dentro do tempo de espera.
     """
-    automacao_fusion_instance = get_automacao_fusion_instance()
+    automacao_fusion_instance = Context.get_automacao_fusion_instance()
     while True:
         try:
             WebDriverWait(nav, 60).until(EC.presence_of_element_located((tipo, elemento)))  # Aguarda 60 segundos até o elemento carregar
@@ -310,7 +310,7 @@ def enviarkey_java(nav, element_name, value):
     Returns:
         None: A função não retorna valores, apenas interage com o navegador.
     """
-    automacao_fusion_instance = get_automacao_fusion_instance()
+    automacao_fusion_instance = Context.get_automacao_fusion_instance()
     while True:
         try:
             WebDriverWait(nav, 60).until(EC.presence_of_element_located((By.NAME, element_name)))
