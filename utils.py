@@ -256,7 +256,7 @@ def copiar_linha_ativa(df, destino, sheet_name, linha, texto_adicional=None):
         for c_idx, value in enumerate(row, 1):
             sheet.cell(row=r_idx, column=c_idx, value=value)
     if sheet_name == 'Novo':
-        cob_column_index = 29  # Index da coluna COB, alterar manualmente caso planilha seja modificada!!
+        cob_column_index = 33  # Index da coluna COB, alterar manualmente caso planilha seja modificada!!
         sheet.cell(row=next_row, column=cob_column_index, value=texto_adicional)# Adiciona o texto na última coluna da nova linha
         hoje = datetime.today().strftime('%d/%m/%Y')# Pega a data de hoje
         sheet.cell(row=next_row, column=cob_column_index + 1, value=hoje)# Adiciona a data de hoje na coluna seguinte
@@ -430,7 +430,7 @@ def enviar_emails(nav, linha,click,campo,planilha,tempo_espera):
     """
     email = planilha.iloc[linha]['EMAILS'] # recebe e-mails da planilha (Os mesmo devem ser separados por uma '/')
     lst_email = email.split('/') # Transforma os e-mails recebidos em lista, separador '/'
-    clicar_elemento(nav,click,By.XPATH) # Itens novos e-mails
+    clicar_elemento(nav,click,By.CSS_SELECTOR) # Itens novos e-mails
     for i in range(len(lst_email)):
             acessar_iframe_default(nav,tempo_espera) # Acessa Iframe dos e-mails
             enviarkey_elemento(nav,campo,By.ID,lst_email[i]) # Envia e-mail
@@ -565,8 +565,6 @@ def clicar_porcentagem(nav,contador,linha,planilha, tempo_espera):
         acessar_iframe_default(nav, tempo_espera) # Acessa Iframe primario
         clicar_elemento(nav,'action.save',By.NAME) # Clica para salvar.
         acessar_iframe_default(nav, tempo_espera) # Acessa Iframe primario
-    enviarkey_elemento(nav,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__numeroContratoProtheus__',By.ID,str(int(planilha.iloc[linha]['NUMERO DO CONTRATO']))) # Envia o numero de contrato
-    clicar_elemento(nav,'//*[@id="ui-id-10"]/li',By.XPATH) # Clica no numero de contrato
     clicar_elemento(nav,'action.save',By.NAME) # Clica para salvar.
     nav.switch_to.default_content()#Volta para o inicio
 
@@ -634,41 +632,6 @@ def iniciar_navegador():
     navegador.get('https://fusion.fiemg.com.br/fusion/portal')
     navegador.maximize_window()# Maximiza a janela do navegador
     return navegador
-    
-def variavel_novo(nav,linha,planilha,primeiro_dia,ultimo_dia):
-    """
-    Preenche o formulário de medição variável em uma aplicação web com dados fornecidos.
-
-    Args:
-        nav (webdriver.Chrome): Instância do WebDriver para o navegador Chrome.
-        linha (int): Índice da linha na planilha contendo os dados a serem preenchidos.
-        planilha (pd.DataFrame): DataFrame contendo os dados que serão usados para preencher o formulário.
-        primeiro_dia (str): Data de início da prestação de serviços no formato 'dd/mm/aaaa'.
-        ultimo_dia (str): Data de fim da prestação de serviços no formato 'dd/mm/aaaa'.
-
-    Functionality:
-        - Preenche os campos do formulário com valores fixos e dinâmicos baseados nos parâmetros e na planilha.
-        - Define o tipo de medição como 'Variável'.
-        - Configura a periodicidade e a prestação de serviço como 'Sim'.
-        - Preenche o número do contrato com o valor da planilha e clica no número do contrato.
-        - Define se existe GAS ou OS, a parcela do contrato, e as datas de início e fim da prestação.
-        - Preenche o dia limite e define a cobrança como não relacionada com convênio.
-
-    Notes:
-        - A função pressupõe que os elementos da página já foram carregados e estão prontos para interação.
-        - O formato das datas e dos valores deve corresponder ao esperado pela aplicação web.
-    """
-    enviarkey_elemento(nav,'id_tipoDeMedicao__',By.ID,'Variavel')# Tipo de medição
-    enviarkey_elemento(nav,'var_dadosDaCobranca__APeriodicidadeDoFaturamentoEMensal__',By.ID,'Sim')# Periodicidade
-    enviarkey_elemento(nav,'var_dadosDaCobranca__dadosParaHistorico__HouvePrestacaoDeServicos__',By.ID,'Sim')# Prestação de serviço
-    enviarkey_elemento(nav,'id_txt_dadosDaCobranca__dadosParaHistorico__numeroContratoProtheus__',By.ID,str(int(planilha.iloc[linha]['NUMERO DO CONTRATO'])))# Numero do Contrato
-    clicar_elemento(nav,'//*[@id="ui-id-3"]/li',By.XPATH) # Clica no Numero do contrato
-    enviarkey_elemento(nav,'var_dadosDaCobranca__dadosParaHistorico__existeGasOuOS__',By.ID,'Não')# Existe GAS ou OS
-    enviarkey_elemento(nav,'var_dadosDaCobranca__dadosParaHistorico__parcelaContrato__',By.ID,'0')# Informa Parcela
-    enviarkey_elemento(nav,'var_dadosDaCobranca__dadosParaHistorico__inicioPrestacao__',By.ID,primeiro_dia)# Data Inicio
-    enviarkey_elemento(nav,'var_dadosDaCobranca__dadosParaHistorico__finPrestacao__',By.ID,ultimo_dia)# Data Fim
-    enviarkey_elemento(nav,'id_dadosDaCobranca__dadosParaHistorico__diaLimiteNFCliente__',By.ID,str(int(planilha.iloc[linha]['DIA LIMITE'])))# Dia Limite
-    enviarkey_elemento(nav,'var_dadosDaCobranca__cobrancaRelacionadaComConvenio__',By.ID,'Não')# Convenio
 
 def esperar_alerta(nav, cob, aba_original,planilha, local_destino,nome_guia,linha,texto_adicional=None):
     """
