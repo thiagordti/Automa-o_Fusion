@@ -179,6 +179,7 @@ class AutomacaoFusion:
 
     def cob_nv(self):
         for linha in range(self.linha_atual, len(self.planilha)):
+            self.linha_atual = linha  # Atualiza a linha atual
             aba_original = self.navegador.window_handles[0] # Identifica Aba Primaria
             clicar_elemento(self.navegador,'btnStartProcess',By.ID) # Iniciar novo processo
             clicar_elemento(self.navegador,'//*[@id="page-content-wrapper"]/div/div/div[1]/div[1]/nav/div/div/div/ul/li[3]/ul/li[5]/a/div/span[1]',By.XPATH) # Iniciar nova Cobrança
@@ -350,6 +351,9 @@ class AutomacaoFusion:
             acessar_iframe_default(self.navegador,self.tempo_espera)
 
     def pular_linha(self):
+        # Atualiza a linha atual para pular para a próxima linha
+        self.linha_atual += 1
+
         # Verifica se há mais de uma aba aberta
         if len(self.navegador.window_handles) > 1:
             self.navegador.close()  # Fecha a aba atual
@@ -359,10 +363,8 @@ class AutomacaoFusion:
             self.navegador.switch_to.window(self.navegador.window_handles[0])  # Volta para a aba original
             self.navegador.refresh()  # Atualiza a aba original (F5)
 
-        # Atualiza a linha atual para pular para a próxima linha
-        self.linha_atual += 1
         acessar_iframe(self.navegador, self.tempo_espera)
-                # Chama o método apropriado
+        # Chama o método apropriado
         if self.metodo == 'medicao_vr':
             self.medicao_vr()
         elif self.metodo == 'cob_nv':
