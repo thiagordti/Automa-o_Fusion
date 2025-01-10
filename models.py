@@ -193,6 +193,7 @@ class AutomacaoFusion:
                 enviarkey_elemento(self.navegador,'var_dadosDaCobranca__APeriodicidadeDoFaturamentoEMensal__',By.ID,'Não')# Periodicidade - Não
             else:
                 enviarkey_elemento(self.navegador,'var_dadosDaCobranca__APeriodicidadeDoFaturamentoEMensal__',By.ID,'Sim')# Periodicidade - Sim
+            enviarkey_elemento(self.navegador,"var_dadosDaCobranca__dadosParaHistorico__HouvePrestacaoDeServicos__",By.ID,"Sim")
             enviarkey_elemento(self.navegador,'id_txt_dadosDaCobranca__dadosParaHistorico__numeroContratoProtheus__',By.ID,str(int(self.planilha.iloc[linha]['NUMERO DO CONTRATO']))) # Envia Numero de Contrato
             clicar_elemento(self.navegador,'#ac_id_dadosDaCobranca__dadosParaHistorico__numeroContratoProtheus__ ul.ui-autocomplete.ui-front.ui-menu.ui-widget.ui-widget-content.ui-corner-all li.ui-menu-item a.ui-corner-all',By.CSS_SELECTOR) # Clica no numero de contrato
             enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosParaHistorico__existeGasOuOS__',By.ID,'Não') # Envia Não para Gas ou OS
@@ -343,6 +344,7 @@ class AutomacaoFusion:
             # ---------------------- Esta Parte se refere aos Anexos ------------------------
             enviar_anexo(self.navegador,linha,'//*[@id="menu_bar_genericoHistoricoAtendimento"]/li[1]','var_dadosDaCobranca__historico__anexo__','//*[@id="progress-complete-var_dadosDaCobranca__historico__anexo__"]/span','var_dadosDaCobranca__historico__registro__',self.planilha,self.caminho,self.tempo_espera) # Envia Anexos
             enviar_emails(self.navegador, linha, """li[onclick*="ellist_emailClienteFP__.addNewItem('CreateItens', true);"]""", 'var_emailClienteFP__Email__' ,self.planilha, self.tempo_espera)
+            self.navegador.switch_to.default_content()
             self.handle_confirmacao_lancamento(nome_cob, aba_original, linha)
             time.sleep(1)
             acessar_iframe_default(self.navegador,self.tempo_espera)
