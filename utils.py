@@ -630,41 +630,6 @@ def iniciar_navegador():
     navegador.maximize_window()# Maximiza a janela do navegador
     return navegador
     
-def variavel_novo(nav,linha,planilha,primeiro_dia,ultimo_dia):
-    """
-    Preenche o formulário de medição variável em uma aplicação web com dados fornecidos.
-
-    Args:
-        nav (webdriver.Chrome): Instância do WebDriver para o navegador Chrome.
-        linha (int): Índice da linha na planilha contendo os dados a serem preenchidos.
-        planilha (pd.DataFrame): DataFrame contendo os dados que serão usados para preencher o formulário.
-        primeiro_dia (str): Data de início da prestação de serviços no formato 'dd/mm/aaaa'.
-        ultimo_dia (str): Data de fim da prestação de serviços no formato 'dd/mm/aaaa'.
-
-    Functionality:
-        - Preenche os campos do formulário com valores fixos e dinâmicos baseados nos parâmetros e na planilha.
-        - Define o tipo de medição como 'Variável'.
-        - Configura a periodicidade e a prestação de serviço como 'Sim'.
-        - Preenche o número do contrato com o valor da planilha e clica no número do contrato.
-        - Define se existe GAS ou OS, a parcela do contrato, e as datas de início e fim da prestação.
-        - Preenche o dia limite e define a cobrança como não relacionada com convênio.
-
-    Notes:
-        - A função pressupõe que os elementos da página já foram carregados e estão prontos para interação.
-        - O formato das datas e dos valores deve corresponder ao esperado pela aplicação web.
-    """
-    enviarkey_elemento(nav,'id_tipoDeMedicao__',By.ID,'Variavel')# Tipo de medição
-    enviarkey_elemento(nav,'var_dadosDaCobranca__APeriodicidadeDoFaturamentoEMensal__',By.ID,'Sim')# Periodicidade
-    enviarkey_elemento(nav,'var_dadosDaCobranca__dadosParaHistorico__HouvePrestacaoDeServicos__',By.ID,'Sim')# Prestação de serviço
-    enviarkey_elemento(nav,'id_txt_dadosDaCobranca__dadosParaHistorico__numeroContratoProtheus__',By.ID,str(int(planilha.iloc[linha]['NUMERO DO CONTRATO'])))# Numero do Contrato
-    clicar_elemento(nav,'//*[@id="ui-id-3"]/li',By.XPATH) # Clica no Numero do contrato
-    enviarkey_elemento(nav,'var_dadosDaCobranca__dadosParaHistorico__existeGasOuOS__',By.ID,'Não')# Existe GAS ou OS
-    enviarkey_elemento(nav,'var_dadosDaCobranca__dadosParaHistorico__parcelaContrato__',By.ID,'0')# Informa Parcela
-    enviarkey_elemento(nav,'var_dadosDaCobranca__dadosParaHistorico__inicioPrestacao__',By.ID,primeiro_dia)# Data Inicio
-    enviarkey_elemento(nav,'var_dadosDaCobranca__dadosParaHistorico__finPrestacao__',By.ID,ultimo_dia)# Data Fim
-    enviarkey_elemento(nav,'id_dadosDaCobranca__dadosParaHistorico__diaLimiteNFCliente__',By.ID,str(int(planilha.iloc[linha]['DIA LIMITE'])))# Dia Limite
-    enviarkey_elemento(nav,'var_dadosDaCobranca__cobrancaRelacionadaComConvenio__',By.ID,'Não')# Convenio
-
 def esperar_alerta(nav, cob, aba_original,planilha, local_destino,nome_guia,linha,texto_adicional=None):
     """
     Aguarda a exibição de um alerta de sucesso ou falha em uma página web e executa ações baseadas no tipo de alerta.
