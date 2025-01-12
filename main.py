@@ -1,13 +1,6 @@
 if __name__ == "__main__":
-<<<<<<< Updated upstream
-    # O código que você deseja executar quando main.py for executado diretamente
-    from utils import copiar_para_planilha, selecionar_arquivo
-    from cob_novo import cob_nv
-    from medicao_variavel import medicao_vr
-=======
     from utils import copiar_para_planilha, selecionar_arquivo
     from models import AutomacaoFusion
->>>>>>> Stashed changes
     from getpass import getpass
     import os
 
@@ -38,12 +31,6 @@ if __name__ == "__main__":
             escolha = int(escolha)
 
             if escolha == 1:
-<<<<<<< Updated upstream
-                medicao_vr(caminho, usuario, senha, cod_filial='01MG0014', cod_uo='10310', tempo_espera=0.5)
-
-            elif escolha == 2:
-                cob_nv(caminho, usuario, senha, cod_filial='01MG0014', cod_uo='10310', tempo_espera=0.5)
-=======
                 global_instance = AutomacaoFusion(caminho, None, None, planilha_destino, local_destino, "medicao_vr", cod_filial='01MG0014', cod_uo='10310', tempo_espera=0.5)
                 navegador, planilha = global_instance.inicializacao(usuario, senha, "Medição")
                 global_instance.navegador = navegador
@@ -57,7 +44,6 @@ if __name__ == "__main__":
                 global_instance.navegador = navegador
                 global_instance.planilha = planilha
                 global_instance.cob_nv()
->>>>>>> Stashed changes
 
             elif escolha == 0:
                 print("Saindo...")

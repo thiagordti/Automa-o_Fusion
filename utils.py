@@ -7,10 +7,6 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from openpyxl import load_workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
-<<<<<<< Updated upstream
-from tkinter import messagebox
-=======
->>>>>>> Stashed changes
 import tkinter as tk
 import calendar
 import time
@@ -37,11 +33,6 @@ def acessar_iframe(nav, tempo_espera,automacao_fusion_instance):
     Returns:
         None: A função realiza a troca de contexto para o iframe, sem retornar um valor.
     """
-<<<<<<< Updated upstream
-    time.sleep(tempo_espera)  # Espera antes de mudar para o Iframe
-    iframe = WebDriverWait(nav, 180).until(EC.presence_of_element_located((By.TAG_NAME, 'iframe')))  # Espera 180 segundos até o iframe aparecer
-    nav.switch_to.frame(iframe)  # Troca para o iframe
-=======
     while True:
         try:
             time.sleep(tempo_espera)  # Espera antes de mudar para o Iframe
@@ -51,7 +42,6 @@ def acessar_iframe(nav, tempo_espera,automacao_fusion_instance):
         except Exception:
             if not automacao_fusion_instance.handle_custom_messagebox_response():
                 break
->>>>>>> Stashed changes
 
 def acessar_iframe_default(nav, tempo_espera,automacao_fusion_instance, timeout=10):
     """
@@ -71,12 +61,6 @@ def acessar_iframe_default(nav, tempo_espera,automacao_fusion_instance, timeout=
     Returns:
         None: A função realiza a troca de contexto para o iframe, sem retornar um valor.
     """
-<<<<<<< Updated upstream
-    time.sleep(tempo_espera)  # Espera antes de mudar para o conteúdo padrão
-    nav.switch_to.default_content()  # Volta ao conteúdo principal da página
-    iframe = WebDriverWait(nav, timeout).until(EC.presence_of_element_located((By.TAG_NAME, 'iframe')))  # Espera até que o iframe esteja presente
-    nav.switch_to.frame(iframe)  # Troca para o iframe 
-=======
     while True:
         try:
             time.sleep(tempo_espera)  # Espera antes de mudar para o conteúdo padrão
@@ -87,7 +71,6 @@ def acessar_iframe_default(nav, tempo_espera,automacao_fusion_instance, timeout=
         except Exception:
             if not automacao_fusion_instance.handle_custom_messagebox_response():
                 break
->>>>>>> Stashed changes
 
 def clicar_elemento(nav, elemento, tipo,automacao_fusion_instance):
     """
@@ -109,20 +92,6 @@ def clicar_elemento(nav, elemento, tipo,automacao_fusion_instance):
     Raises:
         Exibe um alerta ao usuário se o elemento não for encontrado dentro do tempo de espera.
     """
-<<<<<<< Updated upstream
-    try:
-        obj = WebDriverWait(nav, 30).until(EC.presence_of_element_located((tipo, elemento)))  # Aguarda 30 segundos até o elemento carregar
-        nav.execute_script("arguments[0].click();", obj)  # Clica no objeto utilizando JavaScript
-    except Exception:
-        root = tk.Tk()
-        root.withdraw()  # Oculta a janela principal do Tkinter
-        messagebox.showwarning(
-            "Alerta", "Botão ou campo não encontrado. Localize e preencha manualmente. O código continuará a executar ao apertar OK."
-        )
-        root.destroy()
-
-def clicar_elemento_dinamico(nav):
-=======
     while True:
         try:
             obj = WebDriverWait(nav, 10).until(EC.presence_of_element_located((tipo, elemento)))  # Aguarda 10 segundos até o elemento carregar
@@ -133,7 +102,6 @@ def clicar_elemento_dinamico(nav):
                 break
             
 def clicar_elemento_dinamico(nav,automacao_fusion_instance):
->>>>>>> Stashed changes
     """
     Localiza e clica em um elemento cujo ID é dinâmico, utilizando XPath para identificar pelo padrão do ID.
 
@@ -148,25 +116,6 @@ def clicar_elemento_dinamico(nav,automacao_fusion_instance):
     Returns:
         None: A função tenta localizar e clicar no elemento, e em caso de falha, exibe uma mensagem de alerta ao usuário.
     """
-<<<<<<< Updated upstream
-    try:
-        # XPath que localiza um elemento cujo ID começa com 'ui-id-' e que é um link (a tag)
-        xpath = "//a[starts-with(@id, 'ui-id-')]"
-        
-        # Aguarda até que o elemento esteja visível e clicável (até 30 segundos)
-        obj = WebDriverWait(nav, 30).until(EC.element_to_be_clickable((By.XPATH, xpath)))
-        
-        nav.execute_script("arguments[0].scrollIntoView(true);", obj)  # Garante que o elemento esteja visível na tela
-        nav.execute_script("arguments[0].click();", obj)  # Clica no objeto utilizando JavaScript
-
-    except Exception as e:
-        root = tk.Tk()
-        root.withdraw()  # Oculta a janela principal do Tkinter
-        messagebox.showwarning(
-            "Alerta", f"Elemento não encontrado ou não clicável. Localize e clique manualmente. O código continuará a executar ao apertar OK.\nErro: {str(e)}"
-        )
-        root.destroy()
-=======
     while True:
         try:
             # XPath que localiza um elemento cujo ID começa com 'ui-id-' e que é um link (a tag)
@@ -181,7 +130,6 @@ def clicar_elemento_dinamico(nav,automacao_fusion_instance):
         except Exception:
             if not automacao_fusion_instance.handle_custom_messagebox_response():
                 break
->>>>>>> Stashed changes
 
 def clicar_elemento_rustico(nav, elemento, tipo,automacao_fusion_instance):
     """
@@ -203,18 +151,6 @@ def clicar_elemento_rustico(nav, elemento, tipo,automacao_fusion_instance):
     Raises:
         Exibe um alerta ao usuário se o elemento não for encontrado dentro do tempo de espera.
     """
-<<<<<<< Updated upstream
-    try:
-        WebDriverWait(nav, 60).until(EC.presence_of_element_located((tipo, elemento)))  # Aguarda 60 segundos até o elemento carregar
-        nav.find_element(tipo, elemento).click()  # Clica no elemento usando o método padrão do Selenium
-    except Exception:
-        root = tk.Tk()
-        root.withdraw()  # Oculta a janela principal do Tkinter
-        messagebox.showwarning(
-            "Alerta", "Botão ou campo não encontrado. Localize e preencha manualmente. O código continuará a executar ao apertar OK."
-        )
-        root.destroy()
-=======
     while True:
         try:
             WebDriverWait(nav, 15).until(EC.presence_of_element_located((tipo, elemento)))  # Aguarda 15 segundos até o elemento carregar
@@ -223,7 +159,6 @@ def clicar_elemento_rustico(nav, elemento, tipo,automacao_fusion_instance):
         except Exception:
             if not automacao_fusion_instance.handle_custom_messagebox_response():
                 break
->>>>>>> Stashed changes
 
 def enviarkey_elemento(nav, elemento, tipo, texto,automacao_fusion_instance):
     """
@@ -246,18 +181,6 @@ def enviarkey_elemento(nav, elemento, tipo, texto,automacao_fusion_instance):
     Raises:
         Exibe um alerta ao usuário se o elemento não for encontrado dentro do tempo de espera.
     """
-<<<<<<< Updated upstream
-    try:
-        WebDriverWait(nav, 60).until(EC.presence_of_element_located((tipo, elemento)))  # Aguarda 60 segundos até o elemento carregar
-        nav.find_element(tipo, elemento).send_keys(texto)  # Envia o texto para o elemento
-    except Exception:
-        root = tk.Tk()
-        root.withdraw()  # Oculta a janela principal do Tkinter
-        messagebox.showwarning(
-            "Alerta", "Botão ou campo não encontrado. Localize e preencha manualmente. O código continuará a executar ao apertar OK."
-        )
-        root.destroy()
-=======
     while True:
         try:
             WebDriverWait(nav, 60).until(EC.presence_of_element_located((tipo, elemento)))  # Aguarda 60 segundos até o elemento carregar
@@ -266,7 +189,6 @@ def enviarkey_elemento(nav, elemento, tipo, texto,automacao_fusion_instance):
         except Exception:
             if not automacao_fusion_instance.handle_custom_messagebox_response():
                 break
->>>>>>> Stashed changes
 
 def primeiro_e_ultimo_dia_do_mes(ano, mes):
     """
@@ -378,23 +300,6 @@ def enviarkey_java(nav, element_name, value,automacao_fusion_instance):
     Returns:
         None: A função não retorna valores, apenas interage com o navegador.
     """
-<<<<<<< Updated upstream
-    try:
-        WebDriverWait(nav, 60).until(EC.presence_of_element_located((By.NAME, element_name)))
-        script = f"document.getElementsByName('{element_name}')[0].value='{value}';" # Simula a entrada de dados via JavaScript para evitar interferência da máscara de entrada
-        nav.execute_script(script)
-        script = f"""
-        var input = document.getElementsByName('{element_name}')[0];
-        var event = new Event('input', {{ bubbles: true }});
-        input.dispatchEvent(event);
-        """
-        nav.execute_script(script) # Dispara eventos para que o script de máscara possa processar o novo valor
-    except Exception:
-        root = tk.Tk()
-        root.withdraw()  # Oculta a janela principal do Tkinter
-        messagebox.showwarning("Alerta", "Botão ou campo não encontrado. Localize e preencha manualmente. O código continuará a executar ao apertar OK.")
-        root.destroy()
-=======
     while True:
         try:
             WebDriverWait(nav, 60).until(EC.presence_of_element_located((By.NAME, element_name)))
@@ -410,7 +315,6 @@ def enviarkey_java(nav, element_name, value,automacao_fusion_instance):
         except Exception:
             if not automacao_fusion_instance.handle_custom_messagebox_response():
                 break      
->>>>>>> Stashed changes
 
 def selecionar_arquivo():
     """
@@ -515,15 +419,9 @@ def enviar_emails(nav, linha, click, campo, planilha, tempo_espera, automacao_fu
         - A função utiliza as funções auxiliares `clicar_elemento`, `acessar_iframe_default`, `enviarkey_elemento` e `clicar_elemento_rustico` para interagir com a interface da web.
         - A função assume que todos os e-mails estão separados por '/' e que os elementos de interface estão corretamente identificados pelos parâmetros fornecidos.
     """
-<<<<<<< Updated upstream
-    email = planilha.iloc[linha]['EMAILS'] # recebe e-mails da planilha (Os mesmo devem ser separados por uma '/')
-    lst_email = email.split('/') # Transforma os e-mails recebidos em lista, separador '/'
-    clicar_elemento(nav,click,By.XPATH) # Itens novos e-mails
-=======
     email = planilha.iloc[linha]['EMAILS']  # recebe e-mails da planilha (Os mesmos devem ser separados por uma '/')
     lst_email = email.split('/')  # Transforma os e-mails recebidos em lista, separador '/'
     clicar_elemento(nav, click, By.CSS_SELECTOR, automacao_fusion_instance)  # Itens novos e-mails
->>>>>>> Stashed changes
     for i in range(len(lst_email)):
         acessar_iframe_default(nav, tempo_espera, automacao_fusion_instance)  # Acessa Iframe dos e-mails
         enviarkey_elemento(nav, campo, By.ID, lst_email[i], automacao_fusion_instance)  # Envia e-mail
@@ -657,17 +555,6 @@ def clicar_porcentagem(nav, contador, linha, planilha, tempo_espera, automacao_f
         - O índice `i` no XPath dos itens é baseado em um sistema que conta a partir de 0 (ou seja, o primeiro item tem índice 0).
         - A função utiliza as funções auxiliares `clicar_elemento_rustico`, `acessar_iframe_default`, e `enviarkey_elemento` para interagir com a interface da web.
     """
-<<<<<<< Updated upstream
-    for i in range(contador): # Baseado na soma do Contador clica nos itens
-        clicar_elemento_rustico(nav,f'//*[@id="{i}"]/td[2]',By.XPATH) # Clica no Item baseado nos indices (No fusion o indice 0 conta!)!!
-        acessar_iframe_default(nav, tempo_espera) # Acessa Iframe primario
-        clicar_elemento(nav,'action.save',By.NAME) # Clica para salvar.
-        acessar_iframe_default(nav, tempo_espera) # Acessa Iframe primario
-    enviarkey_elemento(nav,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__numeroContratoProtheus__',By.ID,str(int(planilha.iloc[linha]['NUMERO DO CONTRATO']))) # Envia o numero de contrato
-    clicar_elemento(nav,'//*[@id="ui-id-10"]/li',By.XPATH) # Clica no numero de contrato
-    clicar_elemento(nav,'action.save',By.NAME) # Clica para salvar.
-    nav.switch_to.default_content()#Volta para o inicio
-=======
     for i in range(contador):  # Baseado na soma do Contador clica nos itens
         clicar_elemento_rustico(nav, f'//*[@id="{i}"]/td[2]', By.XPATH, automacao_fusion_instance)  # Clica no Item baseado nos indices (No fusion o indice 0 conta!)!!
         acessar_iframe_default(nav, tempo_espera, automacao_fusion_instance)  # Acessa Iframe primario
@@ -675,7 +562,6 @@ def clicar_porcentagem(nav, contador, linha, planilha, tempo_espera, automacao_f
         acessar_iframe_default(nav, tempo_espera, automacao_fusion_instance)  # Acessa Iframe primario
     clicar_elemento(nav, 'action.save', By.NAME, automacao_fusion_instance)  # Clica para salvar.
     nav.switch_to.default_content()  # Volta para o inicio
->>>>>>> Stashed changes
 
 def dados_rateio(nav, linha, cod_filial, cod_uo, planilha, tempo_espera, automacao_fusion_instance):
     """
