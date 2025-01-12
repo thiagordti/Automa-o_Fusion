@@ -393,6 +393,14 @@ class AutomacaoFusion:
         elif self.metodo == 'cob_nv':
             self.cob_nv()
 
+    def reload_data(self):
+        metodo = 'Medição' if self.metodo == 'medicao_vr' else 'Novo'
+        """
+        Recarrega a planilha com os dados mais recentes.
+        """
+        self.planilha = pd.read_excel(self.caminho, metodo).apply(lambda col: col.map(lambda x: str(x).replace('\xa0', '') if isinstance(x, str) else x))  # Recarrega a Planilha
+        print("Planilha recarregada com dados mais recentes.")
+
     def inicializacao(self, usuario, senha,tipo):
         """
         Inicializa o processo de carregamento e manipulação de uma planilha Excel, além de realizar login em um navegador.
@@ -429,16 +437,15 @@ class AutomacaoFusion:
                 esperar_alerta(self.navegador, nome_cob, aba_original, self.planilha, self.local_destino, 'Medição', linha)
             elif self.metodo == 'cob_nv':
                 esperar_alerta(self.navegador,nome_cob, aba_original,self.planilha,self.local_destino,'Novo',linha,nome_cob)
-        elif resposta == "recusar":
-            clicar_elemento(self.navegador, 'url.cancel', By.NAME, self)
-            self.navegador.switch_to.window(aba_original)
-            print("Tarefa de recusa executada.")
         elif resposta == "repetir_linha":
             # Chama o método repetir_linha
             self.repetir_linha()
         elif resposta == "pular_linha":
             # Chama o método pular_linha
             self.pular_linha()
+        elif resposta == "reload_data":
+            self.reload_data()  # Recarregar a planilha com dados mais recentes
+            self.repetir_linha()
         elif resposta == "confirmar_finalizar":
             # Executa as duas ações e finaliza o programa
             clicar_elemento(self.navegador, 'action.send', By.NAME, self)
@@ -467,6 +474,10 @@ class AutomacaoFusion:
             return False
         elif resposta == "skip_line":
             self.pular_linha()  # Pular linha
+            return False
+        elif resposta == "reload_data":
+            self.reload_data()  # Recarregar a planilha com dados mais recentes
+            self.repetir_linha()
             return False
         elif resposta == "cancel":
             copiar_para_planilha(self.local_destino, self.planilha_destino)
@@ -509,7 +520,7 @@ class AutomacaoFusion:
         button_confirmar = tk.Button(confirm_box, text="Confirmar", width=button_width, command=lambda: set_resposta("confirmar"))
         button_confirmar.pack(side=tk.LEFT, padx=5, pady=10)
 
-        button_recusar = tk.Button(confirm_box, text="Recusar", width=button_width, command=lambda: set_resposta("recusar"))
+        button_recusar = tk.Button(confirm_box, text="Atualizar", width=button_width, command=lambda: set_resposta("reload_data"))
         button_recusar.pack(side=tk.LEFT, padx=5, pady=10)
 
         button_repetir_linha = tk.Button(confirm_box, text="Repetir linha", width=button_width, command=lambda: set_resposta("repetir_linha"))
@@ -539,14 +550,14 @@ class AutomacaoFusion:
         # Cria uma nova janela
         custom_box = tk.Toplevel(root)
         custom_box.title("Alerta")
-        custom_box.geometry("628x260")
+        custom_box.geometry("800x260")
 
         # Adiciona uma mensagem
         message = tk.Label(custom_box, text="Botão ou campo não encontrado. O que você gostaria de fazer?", wraplength=350)
         message.pack(pady=10)
 
         # Adiciona detalhes
-        detail = tk.Label(custom_box, text="Aperte 'Tentar novamente' para tentar novamente, 'Pular botão' para continuar para o próximo comando, 'Repetir linha' para repetir a linha, 'Pular linha' para pular para a próxima linha, ou 'Cancelar' para encerrar o programa.", wraplength=350)
+        detail = tk.Label(custom_box, text="Aperte 'Tentar novamente' para tentar novamente, 'Pular botão' para continuar para o próximo comando, 'Repetir linha' para repetir a linha, 'Pular linha' para pular para a próxima linha, 'Atualizar' para ler os dados novamente e repetir linha ,ou 'Cancelar' para encerrar o programa.", wraplength=350)
         detail.pack(pady=10)
 
         # Variável para armazenar a resposta
@@ -570,6 +581,9 @@ class AutomacaoFusion:
         button_repeat_line.pack(side=tk.LEFT, padx=5, pady=10)
 
         button_skip_line = tk.Button(custom_box, text="Pular linha", width=button_width, command=lambda: set_resposta("skip_line"))
+        button_skip_line.pack(side=tk.LEFT, padx=5, pady=10)
+
+        button_skip_line = tk.Button(custom_box, text="Atualizar", width=button_width, command=lambda: set_resposta("reload_data"))
         button_skip_line.pack(side=tk.LEFT, padx=5, pady=10)
 
         button_cancel = tk.Button(custom_box, text="Cancelar", width=button_width, command=lambda: set_resposta("cancel"))
