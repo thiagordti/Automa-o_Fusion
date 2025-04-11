@@ -183,7 +183,7 @@ class AutomacaoFusion:
             self.linha_atual = linha  # Atualiza a linha atual
             aba_original = self.navegador.window_handles[0] # Identifica Aba Primaria
             clicar_elemento(self.navegador,'btnStartProcess',By.ID, self) # Iniciar novo processo
-            clicar_elemento(self.navegador,'//*[@id="page-content-wrapper"]/div/div/div[1]/div[1]/nav/div/div/div/ul/li[3]/ul/li[5]/a/div/span[1]',By.XPATH, self) # Iniciar nova Cobrança
+            clicar_elemento(self.navegador, '//span[text()="Solicitar Cobrança"]', By.XPATH, self)
             WebDriverWait(self.navegador, 10).until(lambda d: len(d.window_handles) > 1)
             nova_aba = self.navegador.window_handles[1]# Identifica nova aba apos iniciar nova Cobrança
             self.navegador.switch_to.window(nova_aba) # Troca para nova Aba
