@@ -170,8 +170,11 @@ class AutomacaoFusion:
 
             # ---------------------- Esta Parte se refere aos Anexos ------------------------
             enviar_anexo(self.navegador,linha,'//*[@id="menu_bar_genericoHistoricoAtendimento"]/li[1]','var_dadosDaCobranca__historico__anexo__','//*[@id="progress-complete-var_dadosDaCobranca__historico__anexo__"]/span','var_dadosDaCobranca__historico__registro__',self.planilha,self.caminho,self.tempo_espera,self) # Envia Anexos
-            if len(self.navegador.find_elements(By.ID, 'id_dadosDaCobranca__acao__')) >= 1: # Verifica se o campo existe
-                enviarkey_elemento(self.navegador,'id_dadosDaCobranca__acao__',By.ID,'Solicitar Nova Medição', self)
+            try:
+                if len(self.navegador.find_elements(By.ID, 'id_dadosDaCobranca__acao__')) >= 1:  # Verifica se o campo existe
+                    enviarkey_elemento(self.navegador, 'id_dadosDaCobranca__acao__', By.ID, 'Solicitar Nova Medição', self)
+            except Exception as e:
+                pass
             self.handle_confirmacao_lancamento(nome_cob, aba_original, linha)
             time.sleep(1)
             acessar_iframe_default(self.navegador,self.tempo_espera, self)
