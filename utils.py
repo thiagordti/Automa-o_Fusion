@@ -7,6 +7,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from openpyxl import load_workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
+import undetected_chromedriver as uc
 import tkinter as tk
 import calendar
 import time
@@ -623,11 +624,14 @@ def iniciar_navegador():
         - A função pressupõe que o driver do Chrome (`chromedriver`) está corretamente instalado e disponível no PATH do sistema.
         - A opção `detach` permite que o navegador continue aberto após a conclusão do script, útil para depuração e verificação manual.
     """
-    options = webdriver.ChromeOptions()
-    options.add_experimental_option("detach", True)# Para o mesmo não fechar apos execução
-    navegador = webdriver.Chrome(options=options)# Executa o navegador
+    options = uc.ChromeOptions()
+    options.add_argument("--start-maximized")
+    options.add_argument("--disable-blink-features=AutomationControlled")
+    options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
+    # options.add_argument("--headless")  # Se quiser rodar sem interface gráfica
+
+    navegador = uc.Chrome(options=options, use_subprocess=True)
     navegador.get('https://fusion.fiemg.com.br/fusion/portal')
-    navegador.maximize_window()# Maximiza a janela do navegador
     return navegador
     
 def esperar_alerta(nav, cob, aba_original,planilha, local_destino,nome_guia,linha,texto_adicional=None):
