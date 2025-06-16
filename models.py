@@ -68,7 +68,7 @@ class AutomacaoFusion:
                     acessar_iframe_default(self.navegador,self.tempo_espera, self) # Acessa Iframe primario
                     clicar_elemento(self.navegador,'createitem',By.ID, self) # Clica para adicionar Valor
                     acessar_iframe_default(self.navegador,self.tempo_espera, self) # Acessa Iframe de valor
-                    opcoes_pagamento(self.navegador,'//*[@id="mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__formaDeEntradaDosRecursos_ori"]/option[1]','move_this_right_mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__formaDeEntradaDosRecursos')#Loop para selecionar as opções de pagamento
+                    opcoes_pagamento(self.navegador,'//*[@id="mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__formaDeEntradaDosRecursos_ori"]/option[1]','move_this_right_mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__formaDeEntradaDosRecursos',self)#Loop para selecionar as opções de pagamento
                     enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__data__',By.NAME,data_venc.strftime('%d/%m/%Y'), self) # Envia data da cobrança
                     enviarkey_java(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__valor__',self.planilha.iloc[linha][f'VALORSR{sem_rateio+1}'], self) # Envia Valor
                     clicar_elemento(self.navegador,'action.save',By.NAME, self) # Clica para salvar.
