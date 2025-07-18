@@ -4,7 +4,7 @@ if __name__ == "__main__":
     from getpass import getpass
     import os
 
-    print('-----------Automação COB-----------\n')
+    print('-----------Automação COB---------\n')
 
     tempo_fusion = input("O Site Fusion está mais lento que o normal?? Responda com S ou N: ")  # Validação para o código rodar sem travar devido a lentidão do site!
     if tempo_fusion.lower() == 's':

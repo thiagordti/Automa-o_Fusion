@@ -1,9 +1,13 @@
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from webdriver_manager.chrome import ChromeDriverManager
 from tkinter.filedialog import askopenfilename
 from datetime import datetime
+import subprocess
 from dateutil.relativedelta import relativedelta
 from openpyxl import load_workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
@@ -623,11 +627,26 @@ def iniciar_navegador():
         - A função pressupõe que o driver do Chrome (`chromedriver`) está corretamente instalado e disponível no PATH do sistema.
         - A opção `detach` permite que o navegador continue aberto após a conclusão do script, útil para depuração e verificação manual.
     """
-    options = webdriver.ChromeOptions()
-    options.add_experimental_option("detach", True)# Para o mesmo não fechar apos execução
-    navegador = webdriver.Chrome(options=options)# Executa o navegador
-    navegador.get('https://fusion.fiemg.com.br/fusion/portal')
-    navegador.maximize_window()# Maximiza a janela do navegador
+    # Caminho para o executável do Chrome
+    chrome_path = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
+
+    # Comando para abrir o Chrome com remote debugging e perfil customizado
+    subprocess.Popen([
+        chrome_path,
+        "--remote-debugging-port=9222",
+        r'--user-data-dir=C:\temp\chromeprofile'
+    ])
+
+    # Aguarda alguns segundos para o Chrome abrir completamente
+    time.sleep(3)
+
+    # Conecta o Selenium ao Chrome já aberto
+    options = Options()
+    options.add_experimental_option("debuggerAddress", "127.0.0.1:9222")
+
+    service = Service(ChromeDriverManager().install())
+    navegador = webdriver.Chrome(service=service, options=options)
+    navegador.get("https://fusion.fiemg.com.br/fusion/portal")
     return navegador
     
 def esperar_alerta(nav, cob, aba_original,planilha, local_destino,nome_guia,linha,texto_adicional=None):
