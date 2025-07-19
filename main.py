@@ -1,17 +1,9 @@
 if __name__ == "__main__":
     from utils import copiar_para_planilha, selecionar_arquivo
     from models import AutomacaoFusion
-    from getpass import getpass
     import os
 
     print('-----------Automação COB---------\n')
-
-    tempo_fusion = input("O Site Fusion está mais lento que o normal?? Responda com S ou N: ")  # Validação para o código rodar sem travar devido a lentidão do site!
-    if tempo_fusion.lower() == 's':
-        tempo_carregar = 1.5
-
-    usuario = input('Insira o usuario do Fusion: ')
-    senha = getpass('Insira a senha do Fusion: ')
 
     caminho = selecionar_arquivo()
 
@@ -31,17 +23,18 @@ if __name__ == "__main__":
             escolha = int(escolha)
 
             if escolha == 1:
-                global_instance = AutomacaoFusion(caminho, None, None, planilha_destino, local_destino, "medicao_vr", cod_filial='01MG0014', cod_uo='10310', tempo_espera=0.5)
-                navegador, planilha = global_instance.inicializacao(usuario, senha, "Medição")
+                global_instance = AutomacaoFusion(caminho, None, None, None,  planilha_destino, local_destino, "medicao_vr", cod_filial='01MG0014', cod_uo='10310')
+                navegador, chrome_proc, planilha = global_instance.inicializacao("Medição")
                 global_instance.navegador = navegador
+                global_instance.chrome_proc = chrome_proc
                 global_instance.planilha = planilha
                 global_instance.medicao_vr()
 
-
             elif escolha == 2:
-                global_instance = AutomacaoFusion(caminho, None, None, planilha_destino, local_destino, "cob_nv", cod_filial='01MG0014', cod_uo='10310', tempo_espera=0.5)
-                navegador, planilha = global_instance.inicializacao(usuario, senha, "Novo")
+                global_instance = AutomacaoFusion(caminho, None, None, None, planilha_destino, local_destino, "cob_nv", cod_filial='01MG0014', cod_uo='10310')
+                navegador, chrome_proc, planilha = global_instance.inicializacao("Novo")
                 global_instance.navegador = navegador
+                global_instance.chrome_proc = chrome_proc
                 global_instance.planilha = planilha
                 global_instance.cob_nv()
 
@@ -51,11 +44,11 @@ if __name__ == "__main__":
 
             else:
                 print("Escolha inválida. Tente novamente.")
-        except ValueError as e:
-            print(f"Ocorreu um erro: {e}")
-            copiar_para_planilha(planilha_destino, local_destino)
-            input('Chame a T.I')
         except Exception as e:
-            print(f"Ocorreu um erro: {e}")
-            copiar_para_planilha(planilha_destino, local_destino)
-            input('Chame a T.I')
+            if global_instance:
+                tipo = "Medição" if escolha == 1 else "Novo"
+                global_instance.tratar_erro_critico(e, tipo)
+            else:
+                print(f"Ocorreu um erro: {e}")
+                copiar_para_planilha(planilha_destino, local_destino)
+                input('Chame a T.I')

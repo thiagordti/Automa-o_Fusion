@@ -1,17 +1,20 @@
 from utils import *
 import sys
+import tkinter as tk
+from tkinter import messagebox
 
 class AutomacaoFusion:
 
-    def __init__(self, caminho, navegador, planilha, planilha_destino, local_destino, metodo, cod_filial='01MG0014', cod_uo='10310', tempo_espera=0.5):
+    def __init__(self, caminho, navegador, chrome_proc, planilha, planilha_destino, local_destino, metodo, cod_filial='01MG0014', cod_uo='10310'):
         self.caminho = caminho
         self.navegador = navegador
+        self.chrome_proc = chrome_proc
         self.planilha = planilha
         self.planilha_destino = planilha_destino
         self.local_destino = local_destino
         self.cod_filial = cod_filial
         self.cod_uo = cod_uo
-        self.tempo_espera = tempo_espera
+        self.tempo_espera = 0.5 # Tempo de espera para carregar os elementos
         self.linha_atual = 0
         self.metodo = metodo
     
@@ -55,26 +58,24 @@ class AutomacaoFusion:
                             enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA CONSULTAS E EXAMES COMPLEMENTARES. \nPERÍODO: {primeiro_dia} a {ultimo_dia}.', self) # Envia Descrição Padrão
                     enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__rateio__', By.NAME,'Não', self)# Envia não ao campo de rateio
                     clicar_elemento(self.navegador,'id_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDeCobranca__UOCRProtheus___anchor',By.ID, self)# Clica na pesquisa de produto
-                    acessar_iframe_default(self.navegador,self.tempo_espera, self) # Acessa Iframe da Pesquisa
+                    acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe da Pesquisa
                     clicar_elemento(self.navegador,'vfilter',By.ID, self) # Clica no Filtro
-                    acessar_iframe_default(self.navegador,self.tempo_espera, self) # Acessa Iframe do Filtro
+                    acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe do Filtro
                     enviarkey_elemento(self.navegador,'var_codclvlr__',By.NAME,str(int(self.planilha.iloc[linha]['CLASSE DE VALOR'])), self) # Envia Classe de valor Cliente
                     enviarkey_elemento(self.navegador,'var_codfilialprotheus__',By.NAME,self.cod_filial, self) # Envia COD FILIAL - PADRÃO
                     enviarkey_elemento(self.navegador,'var_coduo__',By.NAME,self.cod_uo, self) # Envia COD UO - PADRÃO
                     enviarkey_elemento(self.navegador,'var_codccusto__',By.NAME,str(int(self.planilha.iloc[linha][f'CR-SR{sem_rateio+1}'])), self) # Envia COD PRODUTO
                     clicar_elemento(self.navegador,'searchbutton',By.ID, self) # Clica na Pesquisa
-                    acessar_iframe_default(self.navegador,self.tempo_espera, self) # Acessa Iframe da Pesquisa
+                    acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe da Pesquisa
                     clicar_elemento(self.navegador,'tooltip0',By.ID, self)
-                    acessar_iframe_default(self.navegador,self.tempo_espera, self) # Acessa Iframe primario
+                    acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe primario
                     clicar_elemento(self.navegador,'createitem',By.ID, self) # Clica para adicionar Valor
-                    acessar_iframe_default(self.navegador,self.tempo_espera, self) # Acessa Iframe de valor
-                    opcoes_pagamento(self.navegador,'//*[@id="mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__formaDeEntradaDosRecursos_ori"]/option[1]','move_this_right_mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__formaDeEntradaDosRecursos')#Loop para selecionar as opções de pagamento
+                    acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe de valor
+                    opcoes_pagamento(self.navegador,'//*[@id="mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__formaDeEntradaDosRecursos_ori"]/option[1]','move_this_right_mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__formaDeEntradaDosRecursos',self)#Loop para selecionar as opções de pagamento
                     enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__data__',By.NAME,data_venc.strftime('%d/%m/%Y'), self) # Envia data da cobrança
                     enviarkey_java(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__valor__',self.planilha.iloc[linha][f'VALORSR{sem_rateio+1}'], self) # Envia Valor
                     clicar_elemento(self.navegador,'action.save',By.NAME, self) # Clica para salvar.
-                    acessar_iframe_default(self.navegador,self.tempo_espera, self) # Acessa Iframe primario
-                    # enviarkey_elemento(self.navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__numeroContratoProtheus__',By.ID,str(int(self.planilha.iloc[linha]['NUMERO DO CONTRATO']))) # Envia o numero de contrato
-                    # clicar_elemento(self.navegador,'//*[@id="ui-id-10"]/li',By.XPATH) # Clica no numero de contrato
+                    acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe primario
                     clicar_elemento(self.navegador,'action.save',By.NAME, self) # Clica para salvar.
                     self.navegador.switch_to.default_content()#Volta para o inicio
 
@@ -104,14 +105,14 @@ class AutomacaoFusion:
                         dados_rateio(self.navegador,linha,self.cod_filial,self.cod_uo,self.planilha, self.tempo_espera, self)
                         enviarkey_elemento(self.navegador,'var_codccusto__',By.NAME,str(int(self.planilha.iloc[linha][f'CRR{com_rateio+1}'])), self) # Envia COD PRODUTO
                         clicar_elemento(self.navegador,'searchbutton',By.ID, self) # Clica na Pesquisa
-                        acessar_iframe_default(self.navegador,self.tempo_espera, self) # Acessa Iframe da Pesquisa
+                        acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe da Pesquisa
                         clicar_elemento(self.navegador,'tooltip0',By.ID, self) # Clica no item filtrado
-                        acessar_iframe_default(self.navegador,self.tempo_espera, self) # Acessa Iframe primario3
+                        acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe primario3
                         enviarkey_java(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoRateio__valor__',self.planilha.iloc[linha][f'VALOR{com_rateio+1}'], self) # Envia Valor
                         clicar_elemento(self.navegador,'action.save',By.NAME, self) # Clica para salvar.
-                        acessar_iframe_default(self.navegador,self.tempo_espera, self) # Acessa Iframe primario
+                        acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe primario
                         contador += 1 # Soma 1 a quantidade de contador, será utiizado para clicar no loop Contador!
-                clicar_porcentagem(self.navegador,contador,linha,self.planilha, self.tempo_espera, self) # Baseado na soma do Contador clica nos itens
+                clicar_porcentagem(self.navegador,contador,self.tempo_espera, self) # Baseado na soma do Contador clica nos itens
 
             elif int(self.planilha.iloc[linha]['QTD RATEIO']) == 2: # Ira rodar o processo de sem rateio duas vezes uma para a coluna CRR1 e 2 e ou para CRR3 e 4
                 # Processo para coluna 1 e 2
@@ -132,14 +133,14 @@ class AutomacaoFusion:
                         dados_rateio(self.navegador,linha,self.cod_filial,self.cod_uo,self.planilha, self.tempo_espera, self)
                         enviarkey_elemento(self.navegador,'var_codccusto__',By.NAME,str(int(self.planilha.iloc[linha][f'CRR{com_rateio+1}'])), self) # Envia COD PRODUTO
                         clicar_elemento(self.navegador,'searchbutton',By.ID, self) # Clica na Pesquisa
-                        acessar_iframe_default(self.navegador,self.tempo_espera, self) # Acessa Iframe da Pesquisa
+                        acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe da Pesquisa
                         clicar_elemento(self.navegador,'tooltip0',By.ID, self) # Clica no item filtrado
-                        acessar_iframe_default(self.navegador,self.tempo_espera, self) # Acessa Iframe primario3
+                        acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe primario3
                         enviarkey_java(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoRateio__valor__',self.planilha.iloc[linha][f'VALOR{com_rateio+1}'], self) # Envia Valor
                         clicar_elemento(self.navegador,'action.save',By.NAME, self) # Clica para salvar.
-                        acessar_iframe_default(self.navegador,self.tempo_espera, self) # Acessa Iframe primario
+                        acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe primario
                         contador_1 += 1 # Soma 1 a quantidade de contador, será utiizado para clicar no loop Contador!
-                clicar_porcentagem(self.navegador,contador_1,linha,self.planilha, self.tempo_espera, self) # Baseado na soma do Contador clica nos itens
+                clicar_porcentagem(self.navegador,contador_1,self.tempo_espera, self) # Baseado na soma do Contador clica nos itens
 
                 # Processo para coluna 3 e 4
                 clicar_elemento(self.navegador,'createitem',By.ID, self)# Clica para criar novo Item
@@ -159,14 +160,14 @@ class AutomacaoFusion:
                         dados_rateio(self.navegador,linha,self.cod_filial,self.cod_uo,self.planilha, self.tempo_espera, self)
                         enviarkey_elemento(self.navegador,'var_codccusto__',By.NAME,str(int(self.planilha.iloc[linha][f'CRR{com_rateio+3}'])), self) # Envia COD PRODUTO
                         clicar_elemento(self.navegador,'searchbutton',By.ID, self) # Clica na Pesquisa
-                        acessar_iframe_default(self.navegador,self.tempo_espera, self) # Acessa Iframe da Pesquisa
+                        acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe da Pesquisa
                         clicar_elemento(self.navegador,'tooltip0',By.ID, self) # Clica no item filtrado
-                        acessar_iframe_default(self.navegador,self.tempo_espera, self) # Acessa Iframe primario3
+                        acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe primario3
                         enviarkey_java(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoRateio__valor__',self.planilha.iloc[linha][f'VALOR{com_rateio+3}'], self) # Envia Valor
                         clicar_elemento(self.navegador,'action.save',By.NAME, self) # Clica para salvar.
-                        acessar_iframe_default(self.navegador,self.tempo_espera, self) # Acessa Iframe primario
+                        acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe primario
                         contador_2 += 1 # Soma 1 a quantidade de contador, será utiizado para clicar no loop Contador!
-                clicar_porcentagem(self.navegador,contador_2,linha,self.planilha, self.tempo_espera, self) # Baseado na soma do Contador clica nos itens
+                clicar_porcentagem(self.navegador,contador_2,self.tempo_espera, self) # Baseado na soma do Contador clica nos itens
 
             # ---------------------- Esta Parte se refere aos Anexos ------------------------
             enviar_anexo(self.navegador,linha,'//*[@id="menu_bar_genericoHistoricoAtendimento"]/li[1]','var_dadosDaCobranca__historico__anexo__','//*[@id="progress-complete-var_dadosDaCobranca__historico__anexo__"]/span','var_dadosDaCobranca__historico__registro__',self.planilha,self.caminho,self.tempo_espera,self) # Envia Anexos
@@ -177,7 +178,7 @@ class AutomacaoFusion:
                 pass
             self.handle_confirmacao_lancamento(nome_cob, aba_original, linha)
             time.sleep(1)
-            acessar_iframe_default(self.navegador,self.tempo_espera, self)
+            acessar_iframe(self.navegador,self.tempo_espera, self)
             clicar_elemento_rustico(self.navegador,'clear-input-filter',By.CLASS_NAME, self)#Limpa o campo de Pesquisa
         copiar_para_planilha(self.planilha_destino,self.local_destino)
 
@@ -245,24 +246,24 @@ class AutomacaoFusion:
                                 enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA CONSULTAS E EXAMES COMPLEMENTARES. \nPERÍODO: {primeiro_dia} a {ultimo_dia}.', self) # Envia Descrição Padrão
                         enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__rateio__', By.NAME,'Não', self)# Envia não ao campo de rateio
                         clicar_elemento(self.navegador,'id_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDeCobranca__UOCRProtheus___anchor',By.ID, self)# Clica na pesquisa de produto
-                        acessar_iframe_default(self.navegador,self.tempo_espera, self) # Acessa Iframe da Pesquisa
+                        acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe da Pesquisa
                         clicar_elemento(self.navegador,'vfilter',By.ID, self) # Clica no Filtro
-                        acessar_iframe_default(self.navegador,self.tempo_espera, self) # Acessa Iframe do Filtro
+                        acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe do Filtro
                         enviarkey_elemento(self.navegador,'var_codclvlr__',By.NAME,str(int(self.planilha.iloc[linha]['CLASSE DE VALOR'])), self) # Envia Classe de valor Cliente
                         enviarkey_elemento(self.navegador,'var_codfilialprotheus__',By.NAME,self.cod_filial, self) # Envia COD FILIAL - PADRÃO
                         enviarkey_elemento(self.navegador,'var_coduo__',By.NAME,self.cod_uo, self) # Envia COD UO - PADRÃO
                         enviarkey_elemento(self.navegador,'var_codccusto__',By.NAME,str(int(self.planilha.iloc[linha][f'CR-SR{sem_rateio+1}'])), self) # Envia COD PRODUTO
                         clicar_elemento(self.navegador,'searchbutton',By.ID, self) # Clica na Pesquisa
-                        acessar_iframe_default(self.navegador,self.tempo_espera, self) # Acessa Iframe da Pesquisa
+                        acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe da Pesquisa
                         clicar_elemento(self.navegador,'tooltip0',By.ID, self)
-                        acessar_iframe_default(self.navegador,self.tempo_espera, self) # Acessa Iframe primario
+                        acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe primario
                         clicar_elemento(self.navegador,'createitem',By.ID, self) # Clica para adicionar Valor
-                        acessar_iframe_default(self.navegador,self.tempo_espera, self) # Acessa Iframe de valor
-                        opcoes_pagamento(self.navegador,'//*[@id="mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__formaDeEntradaDosRecursos_ori"]/option[1]','move_this_right_mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__formaDeEntradaDosRecursos')#Loop para selecionar as opções de pagamento
+                        acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe de valor
+                        opcoes_pagamento(self.navegador,'//*[@id="mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__formaDeEntradaDosRecursos_ori"]/option[1]','move_this_right_mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__formaDeEntradaDosRecursos', self) # Loop para selecionar as opções de pagamento
                         enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__data__',By.NAME,data_venc, self) # Envia data da cobrança
                         enviarkey_java(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__valor__',self.planilha.iloc[linha][f'VALORSR{sem_rateio+1}'], self) # Envia Valor
                         clicar_elemento(self.navegador,'action.save',By.NAME, self) # Clica para salvar.
-                        acessar_iframe_default(self.navegador,self.tempo_espera, self) # Acessa Iframe primario
+                        acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe primario
                         clicar_elemento(self.navegador,'action.save',By.NAME, self) # Clica para salvar.
                         self.navegador.switch_to.default_content()#Volta para o inicio
                 # ---------------------- Esta Parte se refere ao COB com Rateio ------------------------
@@ -289,14 +290,14 @@ class AutomacaoFusion:
                             dados_rateio(self.navegador,linha,self.cod_filial,self.cod_uo,self.planilha, self.tempo_espera, self)
                             enviarkey_elemento(self.navegador,'var_codccusto__',By.NAME,str(int(self.planilha.iloc[linha][f'CRR{com_rateio+1}'])), self) # Envia COD PRODUTO
                             clicar_elemento(self.navegador,'searchbutton',By.ID, self) # Clica na Pesquisa
-                            acessar_iframe_default(self.navegador,self.tempo_espera, self) # Acessa Iframe da Pesquisa
+                            acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe da Pesquisa
                             clicar_elemento(self.navegador,'tooltip0',By.ID, self) # Clica no item filtrado
-                            acessar_iframe_default(self.navegador,self.tempo_espera, self) # Acessa Iframe primario3
+                            acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe primario3
                             enviarkey_java(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoRateio__valor__',self.planilha.iloc[linha][f'VALOR{com_rateio+1}'], self) # Envia Valor
                             clicar_elemento(self.navegador,'action.save',By.NAME, self) # Clica para salvar.
-                            acessar_iframe_default(self.navegador,self.tempo_espera, self) # Acessa Iframe primario
+                            acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe primario
                             contador += 1 # Soma 1 a quantidade de contador, será utiizado para clicar no loop Contador!
-                    clicar_porcentagem(self.navegador,contador,linha,self.planilha, self.tempo_espera, self) # Baseado na soma do Contador clica nos itens
+                    clicar_porcentagem(self.navegador,contador,self.tempo_espera, self) # Baseado na soma do Contador clica nos itens
                 elif int(self.planilha.iloc[linha]['QTD RATEIO']) == 2: # Ira rodar o processo de sem rateio duas vezes uma para a coluna CRR1 e 2 e ou para CRR3 e 4
                     # Processo para coluna 1 e 2
                     clicar_elemento(self.navegador,'createitem',By.ID, self)# Clica para criar novo Item
@@ -316,14 +317,14 @@ class AutomacaoFusion:
                             dados_rateio(self.navegador,linha,self.cod_filial,self.cod_uo,self.planilha, self.tempo_espera, self)
                             enviarkey_elemento(self.navegador,'var_codccusto__',By.NAME,str(int(self.planilha.iloc[linha][f'CRR{com_rateio+1}'])), self) # Envia COD PRODUTO
                             clicar_elemento(self.navegador,'searchbutton',By.ID, self) # Clica na Pesquisa
-                            acessar_iframe_default(self.navegador,self.tempo_espera, self) # Acessa Iframe da Pesquisa
+                            acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe da Pesquisa
                             clicar_elemento(self.navegador,'tooltip0',By.ID, self) # Clica no item filtrado
-                            acessar_iframe_default(self.navegador,self.tempo_espera, self) # Acessa Iframe primario3
+                            acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe primario3
                             enviarkey_java(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoRateio__valor__',self.planilha.iloc[linha][f'VALOR{com_rateio+1}'], self) # Envia Valor
                             clicar_elemento(self.navegador,'action.save',By.NAME, self) # Clica para salvar.
-                            acessar_iframe_default(self.navegador,self.tempo_espera, self) # Acessa Iframe primario
+                            acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe primario
                             contador_1 += 1 # Soma 1 a quantidade de contador, será utiizado para clicar no loop Contador!
-                    clicar_porcentagem(self.navegador,contador_1,linha,self.planilha, self.tempo_espera, self) # Baseado na soma do Contador clica nos itens
+                    clicar_porcentagem(self.navegador,contador_1,self.tempo_espera, self) # Baseado na soma do Contador clica nos itens
 
                     # Processo para coluna 3 e 4
                     clicar_elemento(self.navegador,'createitem',By.ID, self)# Clica para criar novo Item
@@ -343,21 +344,21 @@ class AutomacaoFusion:
                             dados_rateio(self.navegador,linha,self.cod_filial,self.cod_uo,self.planilha, self.tempo_espera, self)
                             enviarkey_elemento(self.navegador,'var_codccusto__',By.NAME,str(int(self.planilha.iloc[linha][f'CRR{com_rateio+3}'])), self) # Envia COD PRODUTO
                             clicar_elemento(self.navegador,'searchbutton',By.ID, self) # Clica na Pesquisa
-                            acessar_iframe_default(self.navegador,self.tempo_espera, self) # Acessa Iframe da Pesquisa
+                            acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe da Pesquisa
                             clicar_elemento(self.navegador,'tooltip0',By.ID, self) # Clica no item filtrado
-                            acessar_iframe_default(self.navegador,self.tempo_espera, self) # Acessa Iframe primario3
+                            acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe primario3
                             enviarkey_java(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoRateio__valor__',self.planilha.iloc[linha][f'VALOR{com_rateio+3}'], self) # Envia Valor
                             clicar_elemento(self.navegador,'action.save',By.NAME, self) # Clica para salvar.
-                            acessar_iframe_default(self.navegador,self.tempo_espera, self) # Acessa Iframe primario
+                            acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe primario
                             contador_2 += 1 # Soma 1 a quantidade de contador, será utiizado para clicar no loop Contador!
-                    clicar_porcentagem(self.navegador,contador_2,linha,self.planilha, self.tempo_espera, self) # Baseado na soma do Contador clica nos itens
+                    clicar_porcentagem(self.navegador,contador_2,self.tempo_espera, self) # Baseado na soma do Contador clica nos itens
             # ---------------------- Esta Parte se refere aos Anexos ------------------------
             enviar_anexo(self.navegador,linha,'//*[@id="menu_bar_genericoHistoricoAtendimento"]/li[1]','var_dadosDaCobranca__historico__anexo__','//*[@id="progress-complete-var_dadosDaCobranca__historico__anexo__"]/span','var_dadosDaCobranca__historico__registro__',self.planilha,self.caminho,self.tempo_espera,self) # Envia Anexos
             enviar_emails(self.navegador, linha, """li[onclick*="ellist_emailClienteFP__.addNewItem('CreateItens', true);"]""", 'var_emailClienteFP__Email__' ,self.planilha, self.tempo_espera,self)
             self.navegador.switch_to.default_content()
             self.handle_confirmacao_lancamento(nome_cob, aba_original, linha)
             time.sleep(1)
-            acessar_iframe_default(self.navegador,self.tempo_espera, self)
+            acessar_iframe(self.navegador,self.tempo_espera, self)
 
     def pular_linha(self):
         # Atualiza a linha atual para pular para a próxima linha
@@ -404,33 +405,36 @@ class AutomacaoFusion:
         self.planilha = pd.read_excel(self.caminho, metodo).apply(lambda col: col.map(lambda x: str(x).replace('\xa0', '') if isinstance(x, str) else x))  # Recarrega a Planilha
         print("Planilha recarregada com dados mais recentes.")
 
-    def inicializacao(self, usuario, senha,tipo):
+    def inicializacao(self,tipo):
         """
         Inicializa o processo de carregamento e manipulação de uma planilha Excel, além de realizar login em um navegador.
-
-        Args:
-            usuario (str): O nome de usuário para login.
-            senha (str): A senha para login.
 
         Returns:
             tuple: Um tuplo contendo o navegador inicializado e a planilha carregada e manipulada.
         """
         self.planilha = pd.read_excel(self.caminho, tipo).apply(lambda col: col.map(lambda x: str(x).replace('\xa0', '') if isinstance(x, str) else x))  # Carrega a Planilha
         copiar_para_planilha(self.local_destino, self.planilha_destino)  # realiza a copia do Historico
-        self.navegador = iniciar_navegador()  # Inicia o navegador
-        enviarkey_elemento(self.navegador, 'user', By.ID, usuario, self)  # Login
-        enviarkey_elemento(self.navegador, 'pass', By.ID, senha, self)  # Senha
-        clicar_elemento(self.navegador, 'btnLogin', By.ID, self)  # Clica no botão de Login
-        acessar_iframe_default(self.navegador, self.tempo_espera, self)  # Acessa o Iframe
+        self.navegador, self.chrome_proc = iniciar_navegador()
+        root = tk.Tk()
+        root.withdraw()  # Oculta a janela principal
+        root.attributes('-topmost', True)  # Faz o alerta ficar sempre na frente
+        messagebox.showinfo("Login Necessário", "Por favor, faça login no Fusion e clique em OK para continuar.")
+        root.destroy()
+        acessar_iframe(self.navegador, self.tempo_espera, self)  # Acessa o Iframe
 
-        return self.navegador, self.planilha
+        return self.navegador, self.chrome_proc, self.planilha
 
     def fechar_navegador(self):
         """
-        Fecha todas as abas do navegador e encerra a sessão do navegador.
+        Fecha o navegador controlado pelo Selenium e encerra o processo do Chrome se estiver em modo de depuração remota.
         """
-        self.navegador.quit()  # Fecha todas as abas e encerra a sessão do navegador
-    
+        if self.navegador:
+            if hasattr(self, 'chrome_proc') and self.chrome_proc:
+                try:
+                    self.chrome_proc.terminate()
+                except Exception:
+                    pass 
+
     def handle_confirmacao_lancamento(self, nome_cob, aba_original, linha):
         resposta = self.confirmacao_lancamento()
         if resposta == "confirmar":
@@ -458,6 +462,7 @@ class AutomacaoFusion:
                 esperar_alerta(self.navegador,nome_cob, aba_original,self.planilha,self.local_destino,'Novo',linha,nome_cob)
             time.sleep(5)
             copiar_para_planilha(self.planilha_destino,self.local_destino)
+            self.fechar_navegador()  # Fecha o navegador
             sys.exit("Programa encerrado pelo usuário.")
 
     def handle_custom_messagebox_response(self):
@@ -484,8 +489,9 @@ class AutomacaoFusion:
             return False
         elif resposta == "cancel":
             copiar_para_planilha(self.local_destino, self.planilha_destino)
+            self.fechar_navegador()  # Fecha o navegador
             sys.exit("Programa encerrado pelo usuário.")  # Encerra o programa
-
+            
     def confirmacao_lancamento(self):
         """
         Exibe uma janela de confirmação com cinco opções: Confirmar, Recusar, Repetir linha, Pular linha e Confirmar e finalizar.
@@ -596,3 +602,106 @@ class AutomacaoFusion:
         custom_box.wait_window()
 
         return resposta.get()
+
+    def tratar_erro_critico(self, erro, tipo_operacao):
+        """
+        Trata erros críticos exibindo uma caixa de diálogo personalizada e executando a ação escolhida pelo usuário.
+        """
+        navegador_fechado = False
+        try:
+            # Tenta acessar uma propriedade do navegador
+            _ = self.navegador.current_url
+        except Exception:
+            navegador_fechado = True
+
+        if navegador_fechado or self.navegador is None:
+            root = tk.Tk()
+            root.withdraw()
+            root.attributes('-topmost', True)
+            tk.messagebox.showerror(
+                "Navegador Fechado",
+                "O navegador foi fechado!\nPor favor, execute o programa novamente.",
+                parent=root
+            )
+            root.destroy()
+            sys.exit("Navegador fechado pelo usuário.")
+
+        root = tk.Tk()
+        root.withdraw()
+        root.attributes('-topmost', True)
+
+        # Cria janela personalizada
+        box = tk.Toplevel(root)
+        box.title("Erro Crítico")
+        box.geometry("600x200")
+
+        msg = tk.Label(box, text=f"Ocorreu um erro:\n{erro}\n\nEscolha uma opção:", wraplength=550)
+        msg.pack(pady=15)
+
+        resposta = tk.StringVar()
+
+        def set_resposta(value):
+            resposta.set(value)
+            box.destroy()
+
+        def reload_page():
+            if self.navegador and len(self.navegador.window_handles) > 1:
+                main_handle = self.navegador.window_handles[0]
+                for handle in self.navegador.window_handles[1:]:
+                    self.navegador.switch_to.window(handle)
+                    self.navegador.close()
+                self.navegador.switch_to.window(main_handle)
+                self.navegador.refresh()
+                acessar_iframe(self.navegador, self.tempo_espera, self)
+
+        btn_width = 25
+
+        btn_tentar = tk.Button(box, text="Tentar novamente", width=btn_width, command=lambda: set_resposta("tentar"))
+        btn_tentar.pack(side=tk.LEFT, padx=10, pady=20)
+
+        btn_pular = tk.Button(box, text="Pular linha e tentar novamente", width=btn_width, command=lambda: set_resposta("pular"))
+        btn_pular.pack(side=tk.LEFT, padx=10, pady=20)
+
+        btn_cancelar = tk.Button(box, text="Cancelar", width=btn_width, command=lambda: set_resposta("cancelar"))
+        btn_cancelar.pack(side=tk.LEFT, padx=10, pady=20)
+
+        box.wait_window()
+        root.destroy()
+
+        escolha = resposta.get()
+
+        if escolha == "tentar":
+            # Fecha todas as abas exceto a principal e dá F5
+            reload_page()
+            if tipo_operacao == "Medição":
+                try:
+                    self.reload_data()
+                    self.medicao_vr()
+                except Exception as e2:
+                    self.tratar_erro_critico(e2, tipo_operacao)
+            elif tipo_operacao == "Novo":
+                try:
+                    self.reload_data()
+                    self.cob_nv()
+                except Exception as e2:
+                    self.tratar_erro_critico(e2, tipo_operacao)
+        elif escolha == "pular":
+            # Atualiza linha, fecha abas e tenta novamente
+            self.linha_atual += 1
+            reload_page()
+            if tipo_operacao == "Medição":
+                try:
+                    self.reload_data()
+                    self.medicao_vr()
+                except Exception as e2:
+                    self.tratar_erro_critico(e2, tipo_operacao)
+            elif tipo_operacao == "Novo":
+                try:
+                    self.reload_data()
+                    self.cob_nv()
+                except Exception as e2:
+                    self.tratar_erro_critico(e2, tipo_operacao)
+        else:
+            copiar_para_planilha(self.local_destino, self.planilha_destino)
+            self.fechar_navegador()  # Fecha o navegador
+            sys.exit("Programa encerrado pelo usuário.")
