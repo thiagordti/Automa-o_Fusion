@@ -643,14 +643,9 @@ def esperar_alerta(nav, cob, aba_original,planilha, local_destino,nome_guia,linh
         elif nome_guia == 'Novo':
             copiar_linha_ativa(planilha, local_destino, 'Novo', linha,texto_adicional)
         print('Cob executado com sucesso!!')
-        current_handle = nav.current_window_handle  # Pega o identificador da aba atual
-        if current_handle in nav.window_handles:
-            nav.close()  # Fecha a aba após o alerta carregar
-        else:
-            nav.switch_to.window(aba_original)  # Volta para a aba original
+        nav.close()  # Fecha a aba após o alerta carregar
+        nav.switch_to.window(aba_original)  # Volta para a aba original
     else:
         print(f"O {cob} apresentou falha ao enviar, não foi incluído na planilha Histórico!!")
-        if current_handle in nav.window_handles:
-            nav.close()  # Fecha a aba após o alerta carregar
-        else:
-            nav.switch_to.window(aba_original)  # Volta para a aba original
+        nav.close()  # Fecha a aba após o alerta carregar
+        nav.switch_to.window(aba_original)  # Volta para a aba original
