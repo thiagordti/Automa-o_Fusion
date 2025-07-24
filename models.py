@@ -2,6 +2,8 @@ from utils import *
 import sys
 import tkinter as tk
 from tkinter import messagebox
+from selenium.common.exceptions import TimeoutException
+
 
 class AutomacaoFusion:
 
@@ -47,8 +49,15 @@ class AutomacaoFusion:
                     acessar_iframe(self.navegador,self.tempo_espera, self)# Acessa o Iframe
                     enviarkey_elemento(self.navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoCliente__',By.ID,tratar_cnpj(self.planilha.iloc[linha]['CNPJ']), self) # Envia CNPJ
                     clicar_elemento_dinamico(self.navegador, self) # Clica no CNPJ informado
-                    enviarkey_elemento(self.navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__numeroContratoProtheus__',By.ID,str(int(self.planilha.iloc[linha]['NUMERO DO CONTRATO'])), self) # Envia Numero de Contrato
-                    clicar_elemento(self.navegador,'//*[@id="ui-id-10"]/li',By.XPATH,self) # Clica no numero de contrato
+                    try: # Tenta enviar o numero do contrato, caso não exista, pula para o próximo
+                        elemento = WebDriverWait(self.navegador, 10).until(EC.presence_of_element_located((By.ID, 'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__numeroContratoProtheus__')))
+                        # Só executa se estiver visível e habilitado
+                        if elemento.is_displayed() and elemento.is_enabled():
+                            enviarkey_elemento(self.navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__numeroContratoProtheus__',By.ID,str(int(self.planilha.iloc[linha]['NUMERO DO CONTRATO'])), self)
+                            clicar_elemento(self.navegador,'//*[@id="ui-id-10"]/li',By.XPATH,self)
+                        # Se não estiver visível ou habilitado, apenas pula
+                    except TimeoutException:
+                        pass
                     if sem_rateio == 0: # Difere o primeiro produto do segundo
                         if not pd.isna(self.planilha.iloc[linha]['TEXTO1']): # Verifica se o campo TEXTO1 é maior que 3, se sim Envia o TEXTO1
                             enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,self.planilha.iloc[linha]['TEXTO1'], self) # Envia Descrição da coluna TEXTO1
@@ -95,8 +104,15 @@ class AutomacaoFusion:
                 acessar_iframe(self.navegador,self.tempo_espera, self)# Acessa o Iframe
                 enviarkey_elemento(self.navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoCliente__',By.ID,tratar_cnpj(self.planilha.iloc[linha]['CNPJ']), self) # Envia CNPJ
                 clicar_elemento_dinamico(self.navegador, self) # Clica no CNPJ informado
-                enviarkey_elemento(self.navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__numeroContratoProtheus__',By.ID,str(int(self.planilha.iloc[linha]['NUMERO DO CONTRATO'])), self) # Envia Numero de Contrato
-                clicar_elemento(self.navegador,'//*[@id="ui-id-10"]/li',By.XPATH,self) # Clica no numero de contrato
+                try: # Tenta enviar o numero do contrato, caso não exista, pula para o próximo
+                        elemento = WebDriverWait(self.navegador, 10).until(EC.presence_of_element_located((By.ID, 'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__numeroContratoProtheus__')))
+                        # Só executa se estiver visível e habilitado
+                        if elemento.is_displayed() and elemento.is_enabled():
+                            enviarkey_elemento(self.navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__numeroContratoProtheus__',By.ID,str(int(self.planilha.iloc[linha]['NUMERO DO CONTRATO'])), self)
+                            clicar_elemento(self.navegador,'//*[@id="ui-id-10"]/li',By.XPATH,self)
+                        # Se não estiver visível ou habilitado, apenas pula
+                except TimeoutException:
+                        pass
                 if not pd.isna(self.planilha.iloc[linha]['TEXTO3']): # Verifica se o campo TEXTO3 é maior que 3, se sim Envia o TEXTO3
                             enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,self.planilha.iloc[linha]['TEXTO3'], self) # Envia Descrição da coluna TEXTO3
                 else:#Se não envia a descrição padrão
