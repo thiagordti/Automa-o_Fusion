@@ -17,7 +17,7 @@ class AutomacaoFusion:
         self.tempo_espera = 0.5 # Tempo de espera para carregar os elementos
         self.linha_atual = 0
         self.metodo = metodo
-    
+
     def medicao_vr(self):
         for linha in range(self.linha_atual, len(self.planilha)):
             self.linha_atual = linha  # Atualiza a linha atual
@@ -74,7 +74,7 @@ class AutomacaoFusion:
                     acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe primario
                     clicar_elemento(self.navegador,'createitem',By.ID, self) # Clica para adicionar Valor
                     acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe de valor
-                    opcoes_pagamento(self.navegador,'//*[@id="mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__formaDeEntradaDosRecursos_ori"]/option[1]','move_this_right_mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__formaDeEntradaDosRecursos',self)#Loop para selecionar as opções de pagamento
+                    #opcoes_pagamento(self.navegador,'//*[@id="mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__formaDeEntradaDosRecursos_ori"]/option[1]','move_this_right_mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__formaDeEntradaDosRecursos',self)#Loop para selecionar as opções de pagamento
                     enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__data__',By.NAME,data_venc.strftime('%d/%m/%Y'), self) # Envia data da cobrança
                     enviarkey_java(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__valor__',self.planilha.iloc[linha][f'VALORSR{sem_rateio+1}'], self) # Envia Valor
                     clicar_elemento(self.navegador,'action.save',By.NAME, self) # Clica para salvar.
@@ -190,8 +190,8 @@ class AutomacaoFusion:
     def cob_nv(self):
         for linha in range(self.linha_atual, len(self.planilha)):
             self.linha_atual = linha  # Atualiza a linha atual
-            acessar_iframe(self.navegador,self.tempo_espera, self)# Acessa o Iframe
             aba_original = self.navegador.window_handles[0] # Identifica Aba Primaria
+            acessar_iframe(self.navegador,self.tempo_espera, self)# Acessa o Iframe
             clicar_elemento(self.navegador,'btnStartProcess',By.ID, self) # Iniciar novo processo
             clicar_elemento(self.navegador, '//span[text()="Solicitar Cobrança"]', By.XPATH, self)
             WebDriverWait(self.navegador, 10).until(lambda d: len(d.window_handles) > 1)
@@ -205,13 +205,10 @@ class AutomacaoFusion:
                 enviarkey_elemento(self.navegador,'var_dadosDaCobranca__APeriodicidadeDoFaturamentoEMensal__',By.ID,'Não', self)# Periodicidade - Não
             else:
                 enviarkey_elemento(self.navegador,'var_dadosDaCobranca__APeriodicidadeDoFaturamentoEMensal__',By.ID,'Sim', self)# Periodicidade - Sim
-            enviarkey_elemento(self.navegador,"var_dadosDaCobranca__dadosParaHistorico__HouvePrestacaoDeServicos__",By.ID,"Sim", self)
             enviarkey_elemento(self.navegador,'id_txt_dadosDaCobranca__dadosParaHistorico__numeroContratoProtheus__',By.ID,str(int(self.planilha.iloc[linha]['NUMERO DO CONTRATO'])), self) # Envia Numero de Contrato
             clicar_elemento(self.navegador,'#ac_id_dadosDaCobranca__dadosParaHistorico__numeroContratoProtheus__ ul.ui-autocomplete.ui-front.ui-menu.ui-widget.ui-widget-content.ui-corner-all li.ui-menu-item a.ui-corner-all',By.CSS_SELECTOR, self) # Clica no numero de contrato
-            enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosParaHistorico__existeGasOuOS__',By.ID,'Não', self) # Envia Não para Gas ou OS
-            enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosParaHistorico__parcelaContrato__',By.ID,'0', self) # Envia 0 para Parcela de Contrato
-            enviarkey_elemento(self.navegador, 'var_dadosDaCobranca__dadosParaHistorico__inicioPrestacao__', By.NAME, pd.to_datetime(self.planilha.iloc[linha]['DATA_INICIO']).strftime('%d/%m/%Y'), self) # Envia Data Inicio            
-            enviarkey_elemento(self.navegador, 'var_dadosDaCobranca__dadosParaHistorico__finPrestacao__', By.NAME, pd.to_datetime(self.planilha.iloc[linha]['DATA_FIM']).strftime('%d/%m/%Y'), self) # Envia Data Fim
+            # enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosParaHistorico__existeGasOuOS__',By.ID,'Não', self) # Envia Não para Gas ou OS
+            #enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosParaHistorico__parcelaContrato__',By.ID,'0', self) # Envia 0 para Parcela de Contrato
             enviarkey_elemento(self.navegador,'id_dadosDaCobranca__dadosParaHistorico__diaLimiteNFCliente__',By.NAME , int(self.planilha.iloc[linha]['DIA LIMITE']), self) # Envia Dia Limite NF Cliente
             enviarkey_elemento(self.navegador,'var_dadosDaCobranca__cobrancaRelacionadaComConvenio__',By.ID,'Não', self) # Envia Não para Cobrança Relacionada com Convênio
             nome_cob = texto_elemento(self.navegador,'headerTitle',By.ID) # Pega o nome da Cobrança
@@ -240,6 +237,9 @@ class AutomacaoFusion:
                         acessar_iframe(self.navegador,self.tempo_espera, self)# Acessa o Iframe
                         enviarkey_elemento(self.navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoCliente__',By.ID,tratar_cnpj(self.planilha.iloc[linha]['CNPJ']), self) # Envia CNPJ
                         clicar_elemento_dinamico(self.navegador, self) # Clica no CNPJ informado
+                        enviarkey_elemento(self.navegador,"var_dadosDaCobranca__dadosDoFaturamentoVariavel__HouvePrestacaoDeServicos__",By.ID,"Sim", self) # Envia Sim para Houve Prestação de Serviços
+                        enviarkey_elemento(self.navegador, 'var_dadosDaCobranca__dadosDoFaturamentoVariavel__inicioPrestacao__', By.NAME, pd.to_datetime(self.planilha.iloc[linha]['DATA_INICIO']).strftime('%d/%m/%Y'), self) # Envia Data Inicio
+                        enviarkey_elemento(self.navegador, 'var_dadosDaCobranca__dadosDoFaturamentoVariavel__finPrestacao__', By.NAME, pd.to_datetime(self.planilha.iloc[linha]['DATA_FIM']).strftime('%d/%m/%Y'), self) # Envia Data Fim
                         if sem_rateio == 0: # Difere o primeiro produto do segundo
                             if not pd.isna(self.planilha.iloc[linha]['TEXTO1']): # Verifica se o campo TEXTO1 é maior que 3, se sim Envia o TEXTO1
                                 enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,self.planilha.iloc[linha]['TEXTO1'], self) # Envia Descrição da coluna TEXTO1
@@ -265,7 +265,7 @@ class AutomacaoFusion:
                         acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe primario
                         clicar_elemento(self.navegador,'createitem',By.ID, self) # Clica para adicionar Valor
                         acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe de valor
-                        opcoes_pagamento(self.navegador,'//*[@id="mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__formaDeEntradaDosRecursos_ori"]/option[1]','move_this_right_mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__formaDeEntradaDosRecursos', self) # Loop para selecionar as opções de pagamento
+                        #opcoes_pagamento(self.navegador,'//*[@id="mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__formaDeEntradaDosRecursos_ori"]/option[1]','move_this_right_mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__formaDeEntradaDosRecursos', self) # Loop para selecionar as opções de pagamento
                         enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__data__',By.NAME,data_venc, self) # Envia data da cobrança
                         enviarkey_java(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__valor__',self.planilha.iloc[linha][f'VALORSR{sem_rateio+1}'], self) # Envia Valor
                         clicar_elemento(self.navegador,'action.save',By.NAME, self) # Clica para salvar.
@@ -283,6 +283,9 @@ class AutomacaoFusion:
                     acessar_iframe(self.navegador,self.tempo_espera, self)# Acessa o Iframe
                     enviarkey_elemento(self.navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoCliente__',By.ID,tratar_cnpj(self.planilha.iloc[linha]['CNPJ']), self) # Envia CNPJ
                     clicar_elemento_dinamico(self.navegador, self) # Clica no CNPJ informado
+                    enviarkey_elemento(self.navegador,"var_dadosDaCobranca__dadosDoFaturamentoVariavel__HouvePrestacaoDeServicos__",By.ID,"Sim", self) # Envia Sim para Houve Prestação de Serviços
+                    enviarkey_elemento(self.navegador, 'var_dadosDaCobranca__dadosDoFaturamentoVariavel__inicioPrestacao__', By.NAME, pd.to_datetime(self.planilha.iloc[linha]['DATA_INICIO']).strftime('%d/%m/%Y'), self) # Envia Data Inicio
+                    enviarkey_elemento(self.navegador, 'var_dadosDaCobranca__dadosDoFaturamentoVariavel__finPrestacao__', By.NAME, pd.to_datetime(self.planilha.iloc[linha]['DATA_FIM']).strftime('%d/%m/%Y'), self) # Envia Data Fim
                     if not pd.isna(self.planilha.iloc[linha]['TEXTO3']): # Verifica se o campo TEXTO3 é maior que 3, se sim Envia o TEXTO3
                                 enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,self.planilha.iloc[linha]['TEXTO3'], self) # Envia Descrição da coluna TEXTO3
                     else:#Se não envia a descrição padrão
@@ -310,6 +313,9 @@ class AutomacaoFusion:
                     acessar_iframe(self.navegador,self.tempo_espera, self)# Acessa o Iframe
                     enviarkey_elemento(self.navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoCliente__',By.ID,tratar_cnpj(self.planilha.iloc[linha]['CNPJ']), self) # Envia CNPJ
                     clicar_elemento_dinamico(self.navegador, self) # Clica no CNPJ informado
+                    enviarkey_elemento(self.navegador,"var_dadosDaCobranca__dadosDoFaturamentoVariavel__HouvePrestacaoDeServicos__",By.ID,"Sim", self) # Envia Sim para Houve Prestação de Serviços
+                    enviarkey_elemento(self.navegador, 'var_dadosDaCobranca__dadosDoFaturamentoVariavel__inicioPrestacao__', By.NAME, pd.to_datetime(self.planilha.iloc[linha]['DATA_INICIO']).strftime('%d/%m/%Y'), self) # Envia Data Inicio
+                    enviarkey_elemento(self.navegador, 'var_dadosDaCobranca__dadosDoFaturamentoVariavel__finPrestacao__', By.NAME, pd.to_datetime(self.planilha.iloc[linha]['DATA_FIM']).strftime('%d/%m/%Y'), self) # Envia Data Fim
                     if not pd.isna(self.planilha.iloc[linha]['TEXTO3']): # Verifica se o campo TEXTO3 é maior que 3, se sim Envia o TEXTO3
                                 enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,self.planilha.iloc[linha]['TEXTO3'], self) # Envia Descrição da coluna TEXTO3
                     else:#Se não envia a descrição padrão
@@ -337,6 +343,9 @@ class AutomacaoFusion:
                     acessar_iframe(self.navegador,self.tempo_espera, self)# Acessa o Iframe
                     enviarkey_elemento(self.navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoCliente__',By.ID,tratar_cnpj(self.planilha.iloc[linha]['CNPJ']), self) # Envia CNPJ
                     clicar_elemento_dinamico(self.navegador, self) # Clica no CNPJ informado
+                    enviarkey_elemento(self.navegador,"var_dadosDaCobranca__dadosDoFaturamentoVariavel__HouvePrestacaoDeServicos__",By.ID,"Sim", self) # Envia Sim para Houve Prestação de Serviços
+                    enviarkey_elemento(self.navegador, 'var_dadosDaCobranca__dadosDoFaturamentoVariavel__inicioPrestacao__', By.NAME, pd.to_datetime(self.planilha.iloc[linha]['DATA_INICIO']).strftime('%d/%m/%Y'), self) # Envia Data Inicio
+                    enviarkey_elemento(self.navegador, 'var_dadosDaCobranca__dadosDoFaturamentoVariavel__finPrestacao__', By.NAME, pd.to_datetime(self.planilha.iloc[linha]['DATA_FIM']).strftime('%d/%m/%Y'), self) # Envia Data Fim
                     if not pd.isna(self.planilha.iloc[linha]['TEXTO4']): # Verifica se o campo TEXTO4 é maior que 4, se sim Envia o TEXTO4
                         enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,self.planilha.iloc[linha]['TEXTO4'], self) # Envia Descrição da coluna TEXTO4
                     else:#Se não envia a descrição padrão
@@ -438,7 +447,7 @@ class AutomacaoFusion:
                 try:
                     self.chrome_proc.terminate()
                 except Exception:
-                    pass 
+                    pass
 
     def handle_confirmacao_lancamento(self, nome_cob, aba_original, linha):
         resposta = self.confirmacao_lancamento()
@@ -496,7 +505,7 @@ class AutomacaoFusion:
             copiar_para_planilha(self.local_destino, self.planilha_destino)
             self.fechar_navegador()  # Fecha o navegador
             sys.exit("Programa encerrado pelo usuário.")  # Encerra o programa
-            
+
     def confirmacao_lancamento(self):
         """
         Exibe uma janela de confirmação com cinco opções: Confirmar, Recusar, Repetir linha, Pular linha e Confirmar e finalizar.
@@ -550,7 +559,7 @@ class AutomacaoFusion:
         confirm_box.wait_window()
 
         return resposta.get()
-    
+
     def custom_messagebox(self):
         """
         Exibe uma janela personalizada com cinco botões: Tentar novamente, Pular botão, Repetir linha, Pular linha e Cancelar.
@@ -629,7 +638,7 @@ class AutomacaoFusion:
                 parent=root
             )
             root.destroy()
-            sys.exit("Navegador fechado pelo usuário.")
+            sys.exit("Navegador fechado pelo usuário Ou a Planilha está aberta.")
 
         root = tk.Tk()
         root.withdraw()
