@@ -2,6 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
 from tkinter.filedialog import askopenfilename
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
@@ -643,7 +644,11 @@ def dados_rateio(nav, linha, cod_filial, cod_uo, planilha, tempo_espera, automac
     """
     clicar_elemento(nav, '//*[@id="menu_bar_FINFFCobFaturamentoVariavelCentroDeResultadosXFilialXValor"]/li[1]', By.XPATH, automacao_fusion_instance)  # Clica para abrir campo de produtos
     acessar_iframe_default(nav, tempo_espera, automacao_fusion_instance)  # Acessa Iframe da Pesquisa de produtos
-    opcoes_pagamento(nav, '//*[@id="mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoRateio__formaDeEntradaDosRecursos_ori"]/option[1]', 'move_this_right_mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoRateio__formaDeEntradaDosRecursos',automacao_fusion_instance)  # Loop para selecionar as opções de pagamento
+    try:
+        WebDriverWait(nav, 5).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoRateio__formaDeEntradaDosRecursos_ori"]/option[1]')))  # Aguarda o campo de pesquisa de produtos estar presente
+        opcoes_pagamento(nav, '//*[@id="mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoRateio__formaDeEntradaDosRecursos_ori"]/option[1]', 'move_this_right_mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoRateio__formaDeEntradaDosRecursos', automacao_fusion_instance)  # Loop para selecionar as opções de pagamento
+    except TimeoutException as e:
+        pass
     clicar_elemento(nav, 'id_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoRateio__UOCRProtheus___anchor', By.ID, automacao_fusion_instance)  # Clica para abrir campo de pesquisa
     acessar_iframe_default(nav, tempo_espera, automacao_fusion_instance)  # Acessa Iframe da Pesquisa
     clicar_elemento(nav, '//*[@id="menu_bar_EXTERNOProtheusAmarracaoContabil"]/li', By.XPATH, automacao_fusion_instance)  # Clica para abrir filtro
@@ -716,4 +721,5 @@ def esperar_alerta(nav, cob, aba_original,planilha, local_destino,nome_guia,linh
         print(f"O {cob} apresentou falha ao enviar, não foi incluído na planilha Histórico!!")
         nav.close()  # Fecha a aba após o alerta carregar
         nav.switch_to.window(aba_original)  # Volta para a aba original
+
 
