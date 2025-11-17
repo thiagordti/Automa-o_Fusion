@@ -130,7 +130,7 @@ class AutomacaoFusion:
                         clicar_elemento(self.navegador,'tooltip0',By.ID, self) # Clica no item filtrado
                         acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe primario3
                         enviarkey_java(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoRateio__valor__',self.planilha.iloc[linha][f'VALOR{com_rateio+1}'], self) # Envia Valor
-                        clicar_elemento(self.navegador,'action.save',By.NAME, self) # Clica para salvar.
+                        clicar_elemento(self.navegador,'#dibButtons > input:nth-child(1)',By.CSS_SELECTOR, self) # Clica para salvar.
                         acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe primario
                         contador += 1 # Soma 1 a quantidade de contador, será utiizado para clicar no loop Contador!
                 clicar_porcentagem(self.navegador,contador,self.tempo_espera, self) # Baseado na soma do Contador clica nos itens
@@ -158,7 +158,7 @@ class AutomacaoFusion:
                         clicar_elemento(self.navegador,'tooltip0',By.ID, self) # Clica no item filtrado
                         acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe primario3
                         enviarkey_java(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoRateio__valor__',self.planilha.iloc[linha][f'VALOR{com_rateio+1}'], self) # Envia Valor
-                        clicar_elemento(self.navegador,'action.save',By.NAME, self) # Clica para salvar.
+                        clicar_elemento(self.navegador,'#dibButtons > input:nth-child(1)',By.CSS_SELECTOR, self) # Clica para salvar.
                         acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe primario
                         contador_1 += 1 # Soma 1 a quantidade de contador, será utiizado para clicar no loop Contador!
                 clicar_porcentagem(self.navegador,contador_1,self.tempo_espera, self) # Baseado na soma do Contador clica nos itens
@@ -185,7 +185,7 @@ class AutomacaoFusion:
                         clicar_elemento(self.navegador,'tooltip0',By.ID, self) # Clica no item filtrado
                         acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe primario3
                         enviarkey_java(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoRateio__valor__',self.planilha.iloc[linha][f'VALOR{com_rateio+3}'], self) # Envia Valor
-                        clicar_elemento(self.navegador,'action.save',By.NAME, self) # Clica para salvar.
+                        clicar_elemento(self.navegador,'#dibButtons > input:nth-child(1)',By.CSS_SELECTOR, self) # Clica para salvar.
                         acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe primario
                         contador_2 += 1 # Soma 1 a quantidade de contador, será utiizado para clicar no loop Contador!
                 clicar_porcentagem(self.navegador,contador_2,self.tempo_espera, self) # Baseado na soma do Contador clica nos itens
@@ -319,7 +319,7 @@ class AutomacaoFusion:
                             clicar_elemento(self.navegador,'tooltip0',By.ID, self) # Clica no item filtrado
                             acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe primario3
                             enviarkey_java(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoRateio__valor__',self.planilha.iloc[linha][f'VALOR{com_rateio+1}'], self) # Envia Valor
-                            clicar_elemento(self.navegador,'action.save',By.NAME, self) # Clica para salvar.
+                            clicar_elemento(self.navegador,'#dibButtons > input:nth-child(1)',By.CSS_SELECTOR, self) # Clica para salvar.
                             acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe primario
                             contador += 1 # Soma 1 a quantidade de contador, será utiizado para clicar no loop Contador!
                     clicar_porcentagem(self.navegador,contador,self.tempo_espera, self) # Baseado na soma do Contador clica nos itens
@@ -349,7 +349,7 @@ class AutomacaoFusion:
                             clicar_elemento(self.navegador,'tooltip0',By.ID, self) # Clica no item filtrado
                             acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe primario3
                             enviarkey_java(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoRateio__valor__',self.planilha.iloc[linha][f'VALOR{com_rateio+1}'], self) # Envia Valor
-                            clicar_elemento(self.navegador,'action.save',By.NAME, self) # Clica para salvar.
+                            clicar_elemento(self.navegador,'#dibButtons > input:nth-child(1)',By.CSS_SELECTOR, self) # Clica para salvar.
                             acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe primario
                             contador_1 += 1 # Soma 1 a quantidade de contador, será utiizado para clicar no loop Contador!
                     clicar_porcentagem(self.navegador,contador_1,self.tempo_espera, self) # Baseado na soma do Contador clica nos itens
@@ -379,7 +379,7 @@ class AutomacaoFusion:
                             clicar_elemento(self.navegador,'tooltip0',By.ID, self) # Clica no item filtrado
                             acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe primario3
                             enviarkey_java(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoRateio__valor__',self.planilha.iloc[linha][f'VALOR{com_rateio+3}'], self) # Envia Valor
-                            clicar_elemento(self.navegador,'action.save',By.NAME, self) # Clica para salvar.
+                            clicar_elemento(self.navegador,'#dibButtons > input:nth-child(1)',By.CSS_SELECTOR, self) # Clica para salvar.
                             acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe primario
                             contador_2 += 1 # Soma 1 a quantidade de contador, será utiizado para clicar no loop Contador!
                     clicar_porcentagem(self.navegador,contador_2,self.tempo_espera, self) # Baseado na soma do Contador clica nos itens

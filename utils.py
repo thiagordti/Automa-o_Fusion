@@ -504,14 +504,13 @@ def opcoes_pagamento(nav,selec,seta,automacao_fusion_instance):
     for i in range(2):  # Loop para selecionar as opções de pagamento
         try:
             # Espera o elemento de seleção ficar clicável e clica
-            WebDriverWait(nav, 15).until(EC.element_to_be_clickable((By.XPATH, selec)))
+            WebDriverWait(nav, 5).until(EC.element_to_be_clickable((By.XPATH, selec)))
             nav.find_element(By.XPATH, selec).click()
             # Espera o elemento da seta ficar clicável e clica
-            elem_seta = WebDriverWait(nav, 15).until(EC.element_to_be_clickable((By.ID, seta)))
+            elem_seta = WebDriverWait(nav, 5).until(EC.element_to_be_clickable((By.ID, seta)))
             nav.find_element(By.ID, seta).click()
         except Exception:
-            if not automacao_fusion_instance.handle_custom_messagebox_response():
-                break  
+            pass  # Se não encontrar o elemento, apenas continua
 
 def clicar_porcentagem(nav, contador, tempo_espera, automacao_fusion_instance):
     """
