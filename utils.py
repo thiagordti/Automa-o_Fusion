@@ -1,16 +1,17 @@
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
+from webdriver_manager.chrome import ChromeDriverManager
 from tkinter.filedialog import askopenfilename
 from datetime import datetime
+import subprocess
 from dateutil.relativedelta import relativedelta
 from openpyxl import load_workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
-import undetected_chromedriver as uc
 import tkinter as tk
-import traceback
 import calendar
 import time
 import locale
@@ -20,60 +21,7 @@ import os
 
 locale.setlocale(locale.LC_TIME, 'pt_BR.UTF-8')
 
-def enviar_anexo_elemento(nav, elemento, tipo, caminho_arquivo, automacao_fusion_instance):
-    """
-    Localiza um input file na página web e envia um arquivo para ele.
-
-    Args:
-        nav (WebDriver): O navegador usado para interagir com a página.
-        elemento (str): O seletor do elemento input file.
-        tipo (By): O tipo de seletor (ex: By.ID, By.NAME).
-        caminho_arquivo (str): Caminho completo do arquivo a ser enviado.
-        automacao_fusion_instance: Instância para tratamento de exceções.
-
-    Returns:
-        None
-    """
-    while True:
-        try:
-            WebDriverWait(nav, 60).until(EC.presence_of_element_located((tipo, elemento)))
-            nav.find_element(tipo, elemento).send_keys(caminho_arquivo)
-            break
-        except Exception:
-            if not automacao_fusion_instance.handle_custom_messagebox_response():
-                break
-
-def acessar_iframe(nav, tempo_espera,automacao_fusion_instance):
-    """
-    Acessa e muda o contexto para um iframe em uma página da web.
-
-    Args:
-        nav (WebDriver): O navegador (WebDriver) usado para interagir com a página.
-        tempo_espera (int, float): Tempo, em segundos, para aguardar antes de procurar pelo iframe.
-
-    Functionality:
-        - Aguarda o tempo especificado (tempo_espera) antes de tentar acessar o iframe.
-        - Espera até 180 segundos para que o iframe esteja presente no DOM da página.
-        - Muda o contexto do WebDriver para o iframe localizado.
-
-    Returns:
-        None: A função realiza a troca de contexto para o iframe, sem retornar um valor.
-    """
-    while True:
-        try:
-            time.sleep(tempo_espera)  # Espera antes de procurar o iframe
-            # Aguarda o iframe aparecer no DOM
-            iframe = WebDriverWait(nav, 30).until(
-                lambda d: d.find_elements(By.TAG_NAME, 'iframe') and d.find_element(By.TAG_NAME, 'iframe')
-            )
-            time.sleep(1)
-            nav.switch_to.frame(iframe)
-            break
-        except Exception:
-            if not automacao_fusion_instance.handle_custom_messagebox_response():
-                break
-
-def acessar_iframe_default(nav, tempo_espera,automacao_fusion_instance, timeout=10):
+def acessar_iframe(nav, tempo_espera,automacao_fusion_instance, timeout=10):
     """
     Retorna ao conteúdo principal da página (fora de qualquer iframe) e acessa novamente um iframe.
 
@@ -93,13 +41,11 @@ def acessar_iframe_default(nav, tempo_espera,automacao_fusion_instance, timeout=
     """
     while True:
         try:
-            time.sleep(tempo_espera)
-            nav.switch_to.default_content()
-            iframe = WebDriverWait(nav, timeout).until(
-                lambda d: d.find_elements(By.TAG_NAME, 'iframe') and d.find_element(By.TAG_NAME, 'iframe')
-            )
-            nav.switch_to.frame(iframe)
-            break
+            time.sleep(tempo_espera)  # Espera antes de mudar para o conteúdo padrão
+            nav.switch_to.default_content()  # Volta ao conteúdo principal da página
+            iframe = WebDriverWait(nav, timeout).until(EC.presence_of_element_located((By.TAG_NAME, 'iframe')))  # Espera até que o iframe esteja presente
+            nav.switch_to.frame(iframe)  # Troca para o iframe
+            break  # Sai do loop se o comando for bem-sucedido
         except Exception:
             if not automacao_fusion_instance.handle_custom_messagebox_response():
                 break
@@ -126,7 +72,7 @@ def clicar_elemento(nav, elemento, tipo,automacao_fusion_instance):
     """
     while True:
         try:
-            obj = WebDriverWait(nav, 10).until(EC.element_to_be_clickable((tipo, elemento)))  # Aguarda 10 segundos até o elemento carregar
+            obj = WebDriverWait(nav, 10).until(EC.presence_of_element_located((tipo, elemento)))  # Aguarda 10 segundos até o elemento carregar
             nav.execute_script("arguments[0].click();", obj)  # Clica no objeto utilizando JavaScript
             break  # Sai do loop se o comando for bem-sucedido
         except Exception:
@@ -185,7 +131,7 @@ def clicar_elemento_rustico(nav, elemento, tipo,automacao_fusion_instance):
     """
     while True:
         try:
-            WebDriverWait(nav, 15).until(EC.element_to_be_clickable((tipo, elemento)))  # Aguarda 15 segundos até o elemento carregar
+            WebDriverWait(nav, 15).until(EC.presence_of_element_located((tipo, elemento)))  # Aguarda 15 segundos até o elemento carregar
             nav.find_element(tipo, elemento).click()  # Clica no elemento usando o método padrão do Selenium
             break  # Sai do loop se o comando for bem-sucedido
         except Exception:
@@ -215,7 +161,7 @@ def enviarkey_elemento(nav, elemento, tipo, texto,automacao_fusion_instance):
     """
     while True:
         try:
-            WebDriverWait(nav, 60).until(EC.element_to_be_clickable((tipo, elemento)))  # Aguarda 60 segundos até o elemento carregar
+            WebDriverWait(nav, 60).until(EC.presence_of_element_located((tipo, elemento)))  # Aguarda 60 segundos até o elemento carregar
             nav.find_element(tipo, elemento).send_keys(texto)  # Envia o texto para o elemento
             break  # Sai do loop se o comando for bem-sucedido
         except Exception:
@@ -240,8 +186,7 @@ def primeiro_e_ultimo_dia_do_mes(ano, mes):
     """
     primeiro_dia = datetime(ano, mes, 1)  # Primeiro dia do mês
     ultimo_dia = datetime(ano, mes, calendar.monthrange(ano, mes)[1])  # Último dia do mês
-    # Formatar as datas no formato dd/mm/aaaa
-    primeiro_dia_formatado = primeiro_dia.strftime('%d/%m/%Y')
+    primeiro_dia_formatado = primeiro_dia.strftime('%d/%m/%Y') # Formatar as datas no formato dd/mm/aaaa
     ultimo_dia_formatado = ultimo_dia.strftime('%d/%m/%Y')
     return primeiro_dia_formatado, ultimo_dia_formatado
 
@@ -334,7 +279,7 @@ def enviarkey_java(nav, element_name, value,automacao_fusion_instance):
     """
     while True:
         try:
-            WebDriverWait(nav, 60).until(EC.element_to_be_clickable((By.NAME, element_name)))
+            WebDriverWait(nav, 60).until(EC.presence_of_element_located((By.NAME, element_name)))
             script = f"document.getElementsByName('{element_name}')[0].value='{value}';" # Simula a entrada de dados via JavaScript para evitar interferência da máscara de entrada
             nav.execute_script(script)
             script = f"""
@@ -391,7 +336,7 @@ def texto_elemento(nav,elemento,tipo):
     Notes:
         - Se o texto do elemento não contiver um hífen, a função retornará o texto completo.
     """
-    obj = WebDriverWait(nav, 60).until(EC.element_to_be_clickable((tipo, elemento))) # Aguarda 60 segundos até o elemento carregar
+    obj = WebDriverWait(nav, 60).until(EC.presence_of_element_located((tipo, elemento))) # Aguarda 60 segundos até o elemento carregar
     texto = obj.text
     return texto.split('-')[0]
 
@@ -448,18 +393,18 @@ def enviar_emails(nav, linha, click, campo, planilha, tempo_espera, automacao_fu
         Exception: Se ocorrer um erro ao clicar em elementos ou enviar dados, a função pode interromper a execução e exibir um alerta.
 
     Notes:
-        - A função utiliza as funções auxiliares `clicar_elemento`, `acessar_iframe_default`, `enviarkey_elemento` e `clicar_elemento_rustico` para interagir com a interface da web.
+        - A função utiliza as funções auxiliares `clicar_elemento`, `acessar_iframe`, `enviarkey_elemento` e `clicar_elemento_rustico` para interagir com a interface da web.
         - A função assume que todos os e-mails estão separados por '/' e que os elementos de interface estão corretamente identificados pelos parâmetros fornecidos.
     """
     email = planilha.iloc[linha]['EMAILS']  # recebe e-mails da planilha (Os mesmos devem ser separados por uma '/')
     lst_email = email.split('/')  # Transforma os e-mails recebidos em lista, separador '/'
     clicar_elemento(nav, click, By.CSS_SELECTOR, automacao_fusion_instance)  # Itens novos e-mails
     for i in range(len(lst_email)):
-        acessar_iframe_default(nav, tempo_espera, automacao_fusion_instance)  # Acessa Iframe dos e-mails
+        acessar_iframe(nav, tempo_espera, automacao_fusion_instance)  # Acessa Iframe dos e-mails
         enviarkey_elemento(nav, campo, By.ID, lst_email[i], automacao_fusion_instance)  # Envia e-mail
         clicar_elemento_rustico(nav, 'form_container', By.ID, automacao_fusion_instance)  # Clica no container para o e-mail carregar
-        clicar_elemento(nav, '//*[@id="dibButtons"]/input[1]', By.XPATH, automacao_fusion_instance)  # Botão Ok
-    acessar_iframe_default(nav, tempo_espera, automacao_fusion_instance)  # Acessa Iframe dos e-mails
+        clicar_elemento_rustico(nav, '//*[@id="dibButtons"]/input[1]', By.XPATH, automacao_fusion_instance)  # Botão Ok
+    acessar_iframe(nav, tempo_espera, automacao_fusion_instance)  # Acessa Iframe dos e-mails
     clicar_elemento(nav, 'cancelButtonModal', By.ID, automacao_fusion_instance)  # Botão Cancelar, para fechar janelas!
 
 def tratar_cnpj(cnpj):
@@ -525,23 +470,15 @@ def enviar_anexo(nav, linha, click, element, status, descr, planilha, caminho, t
         if pd.isna(planilha.iloc[linha][f'ARQUIVO{anexo+1}']):
             pass
         else:
-            try:
-                clicar_elemento(nav, click, By.XPATH, automacao_fusion_instance)
-                acessar_iframe(nav, tempo_espera, automacao_fusion_instance)
-                caminho_arquivo = fr"{caminho[:-16]}Arquivos\{planilha.iloc[linha][f'ARQUIVO{anexo+1}']}"
-                enviar_anexo_elemento(nav, element, By.ID, caminho_arquivo, automacao_fusion_instance)
-                try:
-                    WebDriverWait(nav, 30).until(lambda d: len(d.find_elements(By.XPATH, status)) > 0)
-                except Exception as e:
-                    if not automacao_fusion_instance.handle_custom_messagebox_response():
-                        return
-                enviarkey_elemento(nav, descr, By.ID, planilha.iloc[linha][f'DESCRICAO{anexo+1}'], automacao_fusion_instance)
-                clicar_elemento(nav, '//*[@id="dibButtons"]/input[1]', By.XPATH, automacao_fusion_instance)
-                nav.switch_to.default_content()
-            except Exception as e:
-                traceback.print_exc()
-                if not automacao_fusion_instance.handle_custom_messagebox_response():
-                    break
+            clicar_elemento(nav, click, By.XPATH, automacao_fusion_instance)  # Clica no anexo para enviar arquivo
+            acessar_iframe(nav, tempo_espera, automacao_fusion_instance)  # Acesso Iframe
+            enviarkey_elemento(nav, element, By.ID, fr"{caminho[:-16]}Arquivos\{planilha.iloc[linha][f'ARQUIVO{anexo+1}']}", automacao_fusion_instance)  # Envia o anexo
+            while len(nav.find_elements(By.XPATH, status)) == 0:  # Loop para aguardar a lista de itens carregar, se a lista não carregar a pesquisa não funciona!
+                time.sleep(1)
+            time.sleep(1)
+            enviarkey_elemento(nav, descr, By.ID, planilha.iloc[linha][f'DESCRICAO{anexo+1}'], automacao_fusion_instance)  # Envia a descrição
+            clicar_elemento(nav, '//*[@id="dibButtons"]/input[1]', By.XPATH, automacao_fusion_instance) 
+            nav.switch_to.default_content()  # Volta para o inicio
 
 def opcoes_pagamento(nav,selec,seta,automacao_fusion_instance):
     """
@@ -567,24 +504,21 @@ def opcoes_pagamento(nav,selec,seta,automacao_fusion_instance):
     for i in range(2):  # Loop para selecionar as opções de pagamento
         try:
             # Espera o elemento de seleção ficar clicável e clica
-            WebDriverWait(nav, 15).until(EC.element_to_be_clickable((By.XPATH, selec)))
+            WebDriverWait(nav, 5).until(EC.element_to_be_clickable((By.XPATH, selec)))
             nav.find_element(By.XPATH, selec).click()
             # Espera o elemento da seta ficar clicável e clica
-            elem_seta = WebDriverWait(nav, 15).until(EC.element_to_be_clickable((By.ID, seta)))
+            elem_seta = WebDriverWait(nav, 5).until(EC.element_to_be_clickable((By.ID, seta)))
             nav.find_element(By.ID, seta).click()
         except Exception:
-            if not automacao_fusion_instance.handle_custom_messagebox_response():
-                break  
+            pass  # Se não encontrar o elemento, apenas continua
 
-def clicar_porcentagem(nav, contador, linha, planilha, tempo_espera, automacao_fusion_instance):
+def clicar_porcentagem(nav, contador, tempo_espera, automacao_fusion_instance):
     """
     Clica em itens com base em um contador e envia um número de contrato para uma interface web, salvando as alterações.
 
     Args:
         nav (webdriver): O objeto WebDriver utilizado para interagir com o navegador.
         contador (int): O número de itens a serem clicados, determinado pela soma do contador.
-        linha (int): O índice da linha na planilha que contém o número do contrato.
-        planilha (pandas.DataFrame): O DataFrame que contém os dados dos contratos.
         tempo_espera (float): O tempo de espera para carregar os elementos.
         automacao_fusion_instance (AutomacaoFusion): A instância da classe AutomacaoFusion.
 
@@ -601,14 +535,14 @@ def clicar_porcentagem(nav, contador, linha, planilha, tempo_espera, automacao_f
     Notes:
         - A função assume que os elementos identificados pelos seletores XPath e ID estão presentes e funcionais na interface da web.
         - O índice `i` no XPath dos itens é baseado em um sistema que conta a partir de 0 (ou seja, o primeiro item tem índice 0).
-        - A função utiliza as funções auxiliares `clicar_elemento_rustico`, `acessar_iframe_default`, e `enviarkey_elemento` para interagir com a interface da web.
+        - A função utiliza as funções auxiliares `clicar_elemento_rustico`, `acessar_iframe`, e `enviarkey_elemento` para interagir com a interface da web.
     """
     for i in range(contador):  # Baseado na soma do Contador clica nos itens
         clicar_elemento_rustico(nav, f'//*[@id="{i}"]/td[2]', By.XPATH, automacao_fusion_instance)  # Clica no Item baseado nos indices (No fusion o indice 0 conta!)!!
-        acessar_iframe_default(nav, tempo_espera, automacao_fusion_instance)  # Acessa Iframe primario
-        clicar_elemento(nav, 'action.save', By.NAME, automacao_fusion_instance)  # Clica para salvar.
-        acessar_iframe_default(nav, tempo_espera, automacao_fusion_instance)  # Acessa Iframe primario
-    clicar_elemento(nav, 'action.save', By.NAME, automacao_fusion_instance)  # Clica para salvar.
+        acessar_iframe(nav, tempo_espera, automacao_fusion_instance)  # Acessa Iframe primario
+        clicar_elemento_rustico(nav, 'action.save', By.NAME, automacao_fusion_instance)  # Clica para salvar.
+        acessar_iframe(nav, tempo_espera, automacao_fusion_instance)  # Acessa Iframe primario
+    clicar_elemento_rustico(nav, 'action.save', By.NAME, automacao_fusion_instance)  # Clica para salvar.
     nav.switch_to.default_content()  # Volta para o inicio
 
 def dados_rateio(nav, linha, cod_filial, cod_uo, planilha, tempo_espera, automacao_fusion_instance):
@@ -640,47 +574,40 @@ def dados_rateio(nav, linha, cod_filial, cod_uo, planilha, tempo_espera, automac
     Notes:
         - A função assume que os elementos identificados pelos seletores XPath e ID estão presentes e funcionais na interface da web.
         - O `planilha` deve conter uma coluna chamada 'CLASSE DE VALOR' com valores numéricos.
-        - A função utiliza as funções auxiliares `clicar_elemento`, `acessar_iframe_default`, `opcoes_pagamento`, e `enviarkey_elemento` para interagir com a interface da web.
+        - A função utiliza as funções auxiliares `clicar_elemento`, `acessar_iframe`, `opcoes_pagamento`, e `enviarkey_elemento` para interagir com a interface da web.
     """
     clicar_elemento(nav, '//*[@id="menu_bar_FINFFCobFaturamentoVariavelCentroDeResultadosXFilialXValor"]/li[1]', By.XPATH, automacao_fusion_instance)  # Clica para abrir campo de produtos
-    acessar_iframe_default(nav, tempo_espera, automacao_fusion_instance)  # Acessa Iframe da Pesquisa de produtos
-    try:
-        WebDriverWait(nav, 5).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoRateio__formaDeEntradaDosRecursos_ori"]/option[1]')))  # Aguarda o campo de pesquisa de produtos estar presente
-        opcoes_pagamento(nav, '//*[@id="mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoRateio__formaDeEntradaDosRecursos_ori"]/option[1]', 'move_this_right_mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoRateio__formaDeEntradaDosRecursos', automacao_fusion_instance)  # Loop para selecionar as opções de pagamento
-    except TimeoutException as e:
-        pass
+    acessar_iframe(nav, tempo_espera, automacao_fusion_instance)  # Acessa Iframe da Pesquisa de produtos
+    opcoes_pagamento(nav, '//*[@id="mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoRateio__formaDeEntradaDosRecursos_ori"]/option[1]', 'move_this_right_mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoRateio__formaDeEntradaDosRecursos', automacao_fusion_instance)  # Loop para selecionar as opções de pagamento
     clicar_elemento(nav, 'id_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoRateio__UOCRProtheus___anchor', By.ID, automacao_fusion_instance)  # Clica para abrir campo de pesquisa
-    acessar_iframe_default(nav, tempo_espera, automacao_fusion_instance)  # Acessa Iframe da Pesquisa
+    acessar_iframe(nav, tempo_espera, automacao_fusion_instance)  # Acessa Iframe da Pesquisa
     clicar_elemento(nav, '//*[@id="menu_bar_EXTERNOProtheusAmarracaoContabil"]/li', By.XPATH, automacao_fusion_instance)  # Clica para abrir filtro
-    acessar_iframe_default(nav, tempo_espera, automacao_fusion_instance)  # Acessa Iframe do Filtro
+    acessar_iframe(nav, tempo_espera, automacao_fusion_instance)  # Acessa Iframe do Filtro
     enviarkey_elemento(nav, 'var_codclvlr__', By.NAME, str(int(planilha.iloc[linha]['CLASSE DE VALOR'])), automacao_fusion_instance)  # Envia Classe de valor Cliente
     enviarkey_elemento(nav, 'var_codfilialprotheus__', By.NAME, cod_filial, automacao_fusion_instance)  # Envia COD FILIAL - PADRÃO
     enviarkey_elemento(nav, 'var_coduo__', By.NAME, cod_uo, automacao_fusion_instance)  # Envia COD UO - PADRÃO
 
 def iniciar_navegador():
     """
-    Inicializa e configura uma instância do navegador Chrome para automação.
+    Inicializa e conecta o Selenium a uma instância do navegador Chrome já aberta em modo de depuração remota.
 
     Returns:
-        webdriver.Chrome: O objeto WebDriver para o navegador Chrome, configurado e pronto para uso.
-
-    Functionality:
-        - Configura o ChromeOptions para o navegador Chrome.
-        - Adiciona uma opção experimental para manter o navegador aberto após a execução do script.
-        - Inicializa uma nova instância do navegador Chrome com as opções configuradas.
-        - Navega para a URL especificada 'https://fusion.fiemg.com.br/fusion/portal'.
-        - Maximiza a janela do navegador para garantir que a interface esteja completamente visível.
-
-    Notes:
-        - A função pressupõe que o driver do Chrome (`chromedriver`) está corretamente instalado e disponível no PATH do sistema.
-        - A opção `detach` permite que o navegador continue aberto após a conclusão do script, útil para depuração e verificação manual.
+        tuple: (webdriver.Chrome, subprocess.Popen) - O WebDriver e o processo do Chrome.
     """
-    options = uc.ChromeOptions()
-    options.add_argument("--start-maximized")
-    navegador = uc.Chrome(options=options)
-    navegador.get('https://fusion.fiemg.com.br/fusion/portal')
+    chrome_path = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
+    chrome_proc = subprocess.Popen([
+        chrome_path,
+        "--remote-debugging-port=9222",
+        r'--user-data-dir=C:\temp\chromeprofile'
+    ])
+    time.sleep(3)
+    options = Options()
+    options.add_experimental_option("debuggerAddress", "127.0.0.1:9222")
+    service = Service(ChromeDriverManager().install())
+    navegador = webdriver.Chrome(service=service, options=options)
     navegador.maximize_window()
-    return navegador
+    navegador.get("https://fusion.fiemg.com.br/fusion/portal")
+    return navegador, chrome_proc
     
 def esperar_alerta(nav, cob, aba_original,planilha, local_destino,nome_guia,linha,texto_adicional=None):
     """
@@ -721,5 +648,3 @@ def esperar_alerta(nav, cob, aba_original,planilha, local_destino,nome_guia,linh
         print(f"O {cob} apresentou falha ao enviar, não foi incluído na planilha Histórico!!")
         nav.close()  # Fecha a aba após o alerta carregar
         nav.switch_to.window(aba_original)  # Volta para a aba original
-
-
