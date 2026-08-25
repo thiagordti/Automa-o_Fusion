@@ -33,13 +33,8 @@ class AutomacaoFusion:
             nova_aba = self.navegador.window_handles[1]# Identifica nova aba apos iniciar Cobrança
             self.navegador.switch_to.window(nova_aba) # Troca para nova Aba
             nome_cob = texto_elemento(self.navegador,'headerTitle',By.ID)
-            data = self.planilha.iloc[linha]['DATA_DESCRIÇÃO'] # Pega data de Descrição
-            date = datetime.strptime(data.strftime('%d/%m/%Y'), '%d/%m/%Y') # Transforma data em string
-            primeiro_dia, ultimo_dia = primeiro_e_ultimo_dia_do_mes(date.year, date.month) # Pega o mês e dia
-            if pd.isna(self.planilha.iloc[linha]['DATA_DE_VENCIMENTO']):
-                data_venc = date
-            else:
-                data_venc = self.planilha.iloc[linha]['DATA_DE_VENCIMENTO'] # Pega data de Vencimento
+            data_venc = self.planilha.iloc[linha]['DATA_DE_VENCIMENTO'] # Pega data de Vencimento
+            data_venc = data_venc.strftime('%d/%m/%Y')# Considera o dado
             # ---------------------- Esta Parte se refere ao COB sem Rateio ------------------------
             for sem_rateio in range(2):
                 if pd.isna(self.planilha.iloc[linha][f'CR-SR{sem_rateio+1}']): # Verifica se o campo está vazio
@@ -49,6 +44,9 @@ class AutomacaoFusion:
                     acessar_iframe(self.navegador,self.tempo_espera, self)# Acessa o Iframe
                     enviarkey_elemento(self.navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoCliente__',By.ID,tratar_cnpj(self.planilha.iloc[linha]['CNPJ']), self) # Envia CNPJ
                     clicar_elemento_dinamico(self.navegador, self) # Clica no CNPJ informado
+                    enviarkey_elemento(self.navegador,"var_dadosDaCobranca__dadosDoFaturamentoVariavel__HouvePrestacaoDeServicos__",By.ID,"Sim", self) # Envia Sim para Houve Prestação de Serviços
+                    enviarkey_elemento(self.navegador, 'var_dadosDaCobranca__dadosDoFaturamentoVariavel__inicioPrestacao__', By.NAME, pd.to_datetime(self.planilha.iloc[linha]['DATA_INICIO']).strftime('%d/%m/%Y'), self) # Envia Data Inicio
+                    enviarkey_elemento(self.navegador, 'var_dadosDaCobranca__dadosDoFaturamentoVariavel__finPrestacao__', By.NAME, pd.to_datetime(self.planilha.iloc[linha]['DATA_FIM']).strftime('%d/%m/%Y'), self) # Envia Data Fim
                     try: # Tenta enviar o numero do contrato, caso não exista, pula para o próximo
                         elemento = WebDriverWait(self.navegador, 10).until(EC.presence_of_element_located((By.ID, 'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__numeroContratoProtheus__')))
                         # Só executa se estiver visível e habilitado
@@ -62,12 +60,12 @@ class AutomacaoFusion:
                         if not pd.isna(self.planilha.iloc[linha]['TEXTO1']): # Verifica se o campo TEXTO1 é maior que 3, se sim Envia o TEXTO1
                             enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,self.planilha.iloc[linha]['TEXTO1'], self) # Envia Descrição da coluna TEXTO1
                         else: #Se não envia a descrição padrão
-                            enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA SESI VIVA+: AEP,PGR,PCMSO,LTCAT \nPERÍODO: {primeiro_dia} a {ultimo_dia}.', self) # Envia Descrição Padrão
+                            enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA SESI VIVA+: AEP,PGR,PCMSO,LTCAT.', self) # Envia Descrição Padrão
                     else:
                         if not pd.isna(self.planilha.iloc[linha]['TEXTO2']): # Verifica se o campo TEXTO2 é maior que 3, se sim Envia o TEXTO2
                             enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,self.planilha.iloc[linha]['TEXTO2'], self) # Envia Descrição da coluna TEXTO2
                         else:#Se não envia a descrição padrão
-                            enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA CONSULTAS E EXAMES COMPLEMENTARES. \nPERÍODO: {primeiro_dia} a {ultimo_dia}.', self) # Envia Descrição Padrão
+                            enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA CONSULTAS E EXAMES COMPLEMENTARES.', self) # Envia Descrição Padrão
                     enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__rateio__', By.NAME,'Não', self)# Envia não ao campo de rateio
                     clicar_elemento(self.navegador,'id_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDeCobranca__UOCRProtheus___anchor',By.ID, self)# Clica na pesquisa de produto
                     acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe da Pesquisa
@@ -84,7 +82,7 @@ class AutomacaoFusion:
                     clicar_elemento(self.navegador,'createitem',By.ID, self) # Clica para adicionar Valor
                     acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe de valor
                     #opcoes_pagamento(self.navegador,'//*[@id="mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__formaDeEntradaDosRecursos_ori"]/option[1]','move_this_right_mul_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__formaDeEntradaDosRecursos',self)#Loop para selecionar as opções de pagamento
-                    enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__data__',By.NAME,data_venc.strftime('%d/%m/%Y'), self) # Envia data da cobrança
+                    enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__data__',By.NAME,data_venc, self) # Envia data da cobrança
                     enviarkey_java(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__dataVencimentoValorCobranca__valor__',self.planilha.iloc[linha][f'VALORSR{sem_rateio+1}'], self) # Envia Valor
                     clicar_elemento_rustico(self.navegador,'#dibButtons > input:nth-child(1)',By.CSS_SELECTOR, self) # Clica para salvar.
                     acessar_iframe(self.navegador,self.tempo_espera, self) # Acessa Iframe primario
@@ -104,6 +102,9 @@ class AutomacaoFusion:
                 acessar_iframe(self.navegador,self.tempo_espera, self)# Acessa o Iframe
                 enviarkey_elemento(self.navegador,'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__dadosDoCliente__',By.ID,tratar_cnpj(self.planilha.iloc[linha]['CNPJ']), self) # Envia CNPJ
                 clicar_elemento_dinamico(self.navegador, self) # Clica no CNPJ informado
+                enviarkey_elemento(self.navegador,"var_dadosDaCobranca__dadosDoFaturamentoVariavel__HouvePrestacaoDeServicos__",By.ID,"Sim", self) # Envia Sim para Houve Prestação de Serviços
+                enviarkey_elemento(self.navegador, 'var_dadosDaCobranca__dadosDoFaturamentoVariavel__inicioPrestacao__', By.NAME, pd.to_datetime(self.planilha.iloc[linha]['DATA_INICIO']).strftime('%d/%m/%Y'), self) # Envia Data Inicio
+                enviarkey_elemento(self.navegador, 'var_dadosDaCobranca__dadosDoFaturamentoVariavel__finPrestacao__', By.NAME, pd.to_datetime(self.planilha.iloc[linha]['DATA_FIM']).strftime('%d/%m/%Y'), self) # Envia Data Fim
                 try: # Tenta enviar o numero do contrato, caso não exista, pula para o próximo
                         elemento = WebDriverWait(self.navegador, 10).until(EC.presence_of_element_located((By.ID, 'id_txt_dadosDaCobranca__dadosDoFaturamentoVariavel__numeroContratoProtheus__')))
                         # Só executa se estiver visível e habilitado
@@ -116,7 +117,7 @@ class AutomacaoFusion:
                 if not pd.isna(self.planilha.iloc[linha]['TEXTO3']): # Verifica se o campo TEXTO3 é maior que 3, se sim Envia o TEXTO3
                             enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,self.planilha.iloc[linha]['TEXTO3'], self) # Envia Descrição da coluna TEXTO3
                 else:#Se não envia a descrição padrão
-                    enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA CONSULTAS E EXAMES COMPLEMENTARES. \nPERÍODO: {primeiro_dia} a {ultimo_dia}.', self) # Envia Descrição
+                    enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA CONSULTAS E EXAMES COMPLEMENTARES.', self) # Envia Descrição
                 enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__rateio__', By.NAME,'Sim', self)# Envia sim ao campo de rateio
                 #Loop para a quantidade de Itens
                 for com_rateio in range(4): # Loop para verificar todos os itens (Total 4) com rateio na self.planilha!!
@@ -144,7 +145,7 @@ class AutomacaoFusion:
                 if not pd.isna(self.planilha.iloc[linha]['TEXTO3']): # Verifica se o campo TEXTO3 é maior que 3, se sim Envia o TEXTO3
                             enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,self.planilha.iloc[linha]['TEXTO3'], self) # Envia Descrição da coluna TEXTO3
                 else:#Se não envia a descrição padrão
-                    enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA CONSULTAS E EXAMES COMPLEMENTARES. \nPERÍODO: {primeiro_dia} a {ultimo_dia}.', self) # Envia Descrição
+                    enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA CONSULTAS E EXAMES COMPLEMENTARES.', self) # Envia Descrição
                 enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__rateio__', By.NAME,'Sim', self)# Envia sim ao campo de rateio
                 #Loop para a quantidade de Itens
                 for com_rateio in range(2): # Loop para verificar todos os itens (Total 4) com rateio na self.planilha!!
@@ -171,7 +172,7 @@ class AutomacaoFusion:
                 if not pd.isna(self.planilha.iloc[linha]['TEXTO4']): # Verifica se o campo TEXTO4 é maior que 4, se sim Envia o TEXTO4
                     enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,self.planilha.iloc[linha]['TEXTO4'], self) # Envia Descrição da coluna TEXTO4
                 else:#Se não envia a descrição padrão
-                    enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'IN LOCO COBRANÇA CONSULTAS E EXAMES COMPLEMENTARES. \nPERÍODO: {primeiro_dia} a {ultimo_dia}.', self) # Envia Descrição
+                    enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'IN LOCO COBRANÇA CONSULTAS E EXAMES COMPLEMENTARES.', self) # Envia Descrição
                 enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__rateio__', By.NAME,'Sim', self)# Envia sim ao campo de rateio
                 #Loop para a quantidade de Itens
                 for com_rateio in range(2): # Loop para verificar todos os itens (Total 4) com rateio na self.planilha!!
@@ -228,17 +229,8 @@ class AutomacaoFusion:
             enviarkey_elemento(self.navegador,'id_dadosDaCobranca__dadosParaHistorico__diaLimiteNFCliente__',By.NAME , int(self.planilha.iloc[linha]['DIA LIMITE']), self) # Envia Dia Limite NF Cliente
             enviarkey_elemento(self.navegador,'var_dadosDaCobranca__cobrancaRelacionadaComConvenio__',By.ID,'Não', self) # Envia Não para Cobrança Relacionada com Convênio
             nome_cob = texto_elemento(self.navegador,'headerTitle',By.ID) # Pega o nome da Cobrança
-            data = self.planilha.iloc[linha]['DATA_DESCRIÇÃO'] # Pega data de Descrição
-            date = datetime.strptime(data.strftime('%d/%m/%Y'), '%d/%m/%Y') # Transforma data em string
-            primeiro_dia, ultimo_dia = primeiro_e_ultimo_dia_do_mes(date.year, date.month) # Pega o mês e dia
-            if pd.isna(self.planilha.iloc[linha]['DATA_DE_VENCIMENTO']):
-                data_venc = date
-            else:
-                data_venc = self.planilha.iloc[linha]['DATA_DE_VENCIMENTO'] # Pega data de Vencimento
-                if isinstance(data_venc, datetime):# Verifica se a data é um datetime
-                    data_venc = data_venc.strftime('%d/%m/%Y')# Considera o dado
-                else:
-                    pass
+            data_venc = self.planilha.iloc[linha]['DATA_DE_VENCIMENTO'] # Pega data de Vencimento
+            data_venc = data_venc.strftime('%d/%m/%Y')# Considera o dado
             # ---------------------- Esta Parte se refere ao COB sem Rateio ------------------------
             if pd.isna(self.planilha.iloc[linha]['QTD_PARCELA']):
                 qtd_repeticao = 1
@@ -305,7 +297,7 @@ class AutomacaoFusion:
                     if not pd.isna(self.planilha.iloc[linha]['TEXTO3']): # Verifica se o campo TEXTO3 é maior que 3, se sim Envia o TEXTO3
                                 enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,self.planilha.iloc[linha]['TEXTO3'], self) # Envia Descrição da coluna TEXTO3
                     else:#Se não envia a descrição padrão
-                        enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA CONSULTAS E EXAMES COMPLEMENTARES. \nPERÍODO: {primeiro_dia} a {ultimo_dia}.', self) # Envia Descrição
+                        enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA CONSULTAS E EXAMES COMPLEMENTARES.', self) # Envia Descrição
                     enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__rateio__', By.NAME,'Sim', self)# Envia sim ao campo de rateio
                     #Loop para a quantidade de Itens
                     for com_rateio in range(4): # Loop para verificar todos os itens (Total 4) com rateio na self.planilha!!
@@ -335,7 +327,7 @@ class AutomacaoFusion:
                     if not pd.isna(self.planilha.iloc[linha]['TEXTO3']): # Verifica se o campo TEXTO3 é maior que 3, se sim Envia o TEXTO3
                                 enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,self.planilha.iloc[linha]['TEXTO3'], self) # Envia Descrição da coluna TEXTO3
                     else:#Se não envia a descrição padrão
-                        enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA CONSULTAS E EXAMES COMPLEMENTARES. \nPERÍODO: {primeiro_dia} a {ultimo_dia}.', self) # Envia Descrição
+                        enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'COBRANÇA CONSULTAS E EXAMES COMPLEMENTARES.', self) # Envia Descrição
                     enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__rateio__', By.NAME,'Sim', self)# Envia sim ao campo de rateio
                     #Loop para a quantidade de Itens
                     for com_rateio in range(2): # Loop para verificar todos os itens (Total 4) com rateio na self.planilha!!
@@ -365,7 +357,7 @@ class AutomacaoFusion:
                     if not pd.isna(self.planilha.iloc[linha]['TEXTO4']): # Verifica se o campo TEXTO4 é maior que 4, se sim Envia o TEXTO4
                         enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,self.planilha.iloc[linha]['TEXTO4'], self) # Envia Descrição da coluna TEXTO4
                     else:#Se não envia a descrição padrão
-                        enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'IN LOCO COBRANÇA CONSULTAS E EXAMES COMPLEMENTARES. \nPERÍODO: {primeiro_dia} a {ultimo_dia}.', self) # Envia Descrição
+                        enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__descricaoServico__',By.NAME,f'IN LOCO COBRANÇA CONSULTAS E EXAMES COMPLEMENTARES.', self) # Envia Descrição
                     enviarkey_elemento(self.navegador,'var_dadosDaCobranca__dadosDoFaturamentoVariavel__rateio__', By.NAME,'Sim', self)# Envia sim ao campo de rateio
                     #Loop para a quantidade de Itens
                     for com_rateio in range(2): # Loop para verificar todos os itens (Total 4) com rateio na self.planilha!!

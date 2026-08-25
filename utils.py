@@ -477,7 +477,7 @@ def enviar_anexo(nav, linha, click, element, status, descr, planilha, caminho, t
                 time.sleep(1)
             time.sleep(1)
             enviarkey_elemento(nav, descr, By.ID, planilha.iloc[linha][f'DESCRICAO{anexo+1}'], automacao_fusion_instance)  # Envia a descrição
-            clicar_elemento(nav, '//*[@id="dibButtons"]/input[1]', By.XPATH, automacao_fusion_instance) 
+            clicar_elemento_rustico(nav, '#footer_container input[name="action.save"]', By.CSS_SELECTOR, automacao_fusion_instance) 
             nav.switch_to.default_content()  # Volta para o inicio
 
 def opcoes_pagamento(nav,selec,seta,automacao_fusion_instance):
